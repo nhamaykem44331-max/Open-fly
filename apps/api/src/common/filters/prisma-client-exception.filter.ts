@@ -1,15 +1,14 @@
 // Port from apg-manager/apps/api/src/common/filters/prisma-client-exception.filter.ts
-import { ArgumentsHost, Catch, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, Catch, HttpStatus, Logger } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
+import { Prisma } from '@prisma/client';
 import { Response } from 'express';
 
-type PrismaKnownRequestError = Error & {
-  code?: string;
-};
-
-@Catch()
+@Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaClientExceptionFilter extends BaseExceptionFilter {
-  catch(exception: PrismaKnownRequestError, host: ArgumentsHost) {
+  private readonly logger = new Logger(PrismaClientExceptionFilter.name);
+
+  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
@@ -42,9 +41,19 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         });
         break;
       }
-      default:
-        super.catch(exception, host);
+      default: {
+        const status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.logger.error(
+          `Unhandled Prisma error ${exception.code}: ${exception.message}`,
+          exception.stack,
+        );
+        response.status(status).json({
+          statusCode: status,
+          message: 'Lỗi cơ sở dữ liệu.',
+          error: 'Internal Server Error',
+        });
         break;
+      }
     }
   }
 }

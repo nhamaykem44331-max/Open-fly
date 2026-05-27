@@ -1,0 +1,23 @@
+# Port from apg-manager/docker-compose.yml
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: openfly_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openfly
+      POSTGRES_PASSWORD: openfly_dev_password
+      POSTGRES_DB: openfly_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openfly -d openfly_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: openfly_postgres_data

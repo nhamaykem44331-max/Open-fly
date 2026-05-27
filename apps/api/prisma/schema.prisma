@@ -1,0 +1,696 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth & Profile ────────────────────────────────────────────────────
+
+enum UserRole {
+  CUSTOMER
+  AGENT
+  ADMIN
+}
+
+enum MembershipTier {
+  STANDARD
+  PREMIUM
+  AGENT
+}
+
+model User {
+  id           String         @id @default(uuid())
+  phone        String?        @unique // "+84938121234" — nullable vì Google login có thể không có phone
+  email        String?        @unique
+  googleId     String?        @unique // OAuth Google sub
+  googleEmail  String? // email từ Google profile
+  fullName     String?
+  role         UserRole       @default(CUSTOMER)
+  tier         MembershipTier @default(STANDARD)
+  milesBalance Int            @default(0) // dặm tích lũy
+  avatarUrl    String?
+  language     String         @default("vi")
+  active       Boolean        @default(true)
+  blocked      Boolean        @default(false)
+  blockReason  String?
+  lastLoginAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  passengers        SavedPassenger[]
+  bookings          Booking[]
+  hunts             Hunt[]
+  conversations     Conversation[]
+  pushSubs          PushSubscription[]
+  notificationPrefs NotificationPreference?
+  notifications     Notification[]
+  vouchersOwned     UserVoucher[]
+  refreshTokens     RefreshToken[]
+  searchHistories   SearchHistory[]
+
+  @@index([tier])
+  @@index([role])
+}
+
+model RefreshToken {
+  id          String    @id @default(uuid())
+  userId      String
+  tokenHash   String    @unique // store hashed token, not raw
+  deviceLabel String? // "iPhone 14 Pro"
+  ip          String?
+  userAgent   String?
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model OtpChallenge {
+  id         String    @id @default(uuid())
+  phone      String
+  codeHash   String // bcrypt(otp)
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  ip         String?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone, createdAt])
+  @@index([expiresAt])
+}
+
+model SavedPassenger {
+  id          String    @id @default(uuid())
+  userId      String
+  fullName    String
+  gender      String? // "Nam" | "Nữ"
+  dob         DateTime? // ngày sinh
+  isChild     Boolean   @default(false)
+  cccd        String? // CCCD đã mask
+  passport    String?
+  nationality String?   @default("VN")
+  passportExp DateTime?
+  isPrimary   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─── Search ───────────────────────────────────────────────────────────
+
+model SearchHistory {
+  id         String    @id @default(uuid())
+  userId     String?
+  from       String
+  to         String
+  date       DateTime
+  returnDate DateTime?
+  adt        Int       @default(1)
+  chd        Int       @default(0)
+  inf        Int       @default(0)
+  cabin      String    @default("economy")
+  createdAt  DateTime  @default(now())
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
+
+// ─── Booking ──────────────────────────────────────────────────────────
+
+enum BookingStatus {
+  DRAFT
+  HELD
+  PRICING_PENDING
+  TICKETED
+  EXPIRED
+  CANCELLED
+  REFUNDED
+  FAILED
+}
+
+model Booking {
+  id           String        @id @default(uuid())
+  orderCode    String        @unique // "OFY8K2"
+  userId       String
+  status       BookingStatus @default(DRAFT)
+  pnr          String?
+  sessionId    String? // Muadi session
+  airline      String? // "VJ"
+  flightNumber String?
+  aircraft     String?
+  fromCode     String
+  toCode       String
+  departTime   DateTime
+  arriveTime   DateTime?
+  duration     String?
+  cabin        String        @default("economy")
+
+  totalNetPrice             Int // giá nhập từ Muadi (VND)
+  totalSellPrice            Int // giá bán cho user (sau markup nếu có)
+  totalMarkup               Int     @default(0) // = totalSellPrice - totalNetPrice (cho audit)
+  appliedMarkupRuleId       String? // FK → MarkupRule
+  appliedMarkupRuleSnapshot Json? // snapshot rule tại thời điểm hold
+  tax                       Int     @default(0)
+  fee                       Int     @default(0)
+  addons                    Int     @default(0)
+  voucherDiscount           Int     @default(0)
+  appliedVoucherCode        String?
+
+  // ─── VAT (BẮT BUỘC mọi booking — quyết định 23) ───
+  vatCompanyName   String // "Công ty TNHH ABC"
+  vatTaxId         String // MST: "0102030405"
+  vatAddress       String // địa chỉ xuất hóa đơn
+  vatEmail         String? // email nhận hóa đơn (nullable, default = contactEmail)
+  vatStatus        String    @default("PENDING") // PENDING | ISSUED | FAILED
+  vatInvoiceNumber String? // số hóa đơn sau khi xuất
+  vatIssuedAt      DateTime?
+  vatProviderRef   String? // ref từ MISA/Viettel SInvoice
+
+  priceLockedAt DateTime?
+  ttlExpiresAt  DateTime? // hết hạn giữ chỗ
+  rawMuadiJson  Json? // toàn bộ payload từ Muadi
+
+  contactEmail String
+  contactPhone String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user              User                   @relation(fields: [userId], references: [id])
+  appliedMarkupRule MarkupRule?            @relation(fields: [appliedMarkupRuleId], references: [id])
+  passengers        BookingPassenger[]
+  payments          Payment[]
+  paymentIntents    PaymentIntent[]
+  timeline          BookingTimelineEvent[]
+  pnrs              BookingPnr[]
+  refundRequests    RefundRequest[]
+
+  @@index([userId, status])
+  @@index([status, ttlExpiresAt])
+  @@index([departTime])
+  @@index([vatStatus, vatIssuedAt])
+}
+
+// ─── Markup rule (port từ booktanphuapg) ──────────────────────────────
+
+enum MarkupType {
+  PERCENT // markup theo %
+  FIXED // markup cố định VND
+}
+
+model MarkupRule {
+  id           String           @id @default(uuid())
+  name         String
+  active       Boolean          @default(true)
+  priority     Int              @default(0) // cao hơn = match trước
+  // Scope: nullable nghĩa là "match tất cả"
+  channelScope String? // "B2C" | "B2B" | null
+  airlineCode  String? // "VJ" | null
+  routeFrom    String? // "HAN" | null
+  routeTo      String? // "DAD" | null
+  cabin        String? // "economy" | null
+  paxType      String? // "ADT" | "CHD" | "INF" | null
+  domestic     Boolean? // true | false | null
+  tierScope    MembershipTier[] // [] = all tiers
+  // Markup
+  type         MarkupType
+  value        Int // % (×100 = 350 = 3.5%) hoặc VND
+  maxAmount    Int? // cap cho PERCENT
+  minAmount    Int? // floor cho PERCENT
+  // Validity
+  validFrom    DateTime?
+  validUntil   DateTime?
+  // Metadata
+  createdById  String?
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  bookings Booking[]
+
+  @@index([active, priority])
+  @@index([airlineCode, routeFrom, routeTo])
+}
+
+// ─── Refund / Exchange request (quyết định 24) ────────────────────────
+
+enum RefundStatus {
+  REQUESTED // user vừa submit
+  REVIEWING // CSKH đang xem
+  CONTACTED_AIRLINE // đã liên hệ Muadi/hãng
+  APPROVED // hãng đồng ý hoàn
+  REJECTED // hãng từ chối
+  COMPLETED // tiền đã hoàn về user
+}
+
+enum RefundKind {
+  REFUND // hoàn vé
+  EXCHANGE // đổi ngày/giờ
+  PASSENGER_CHANGE // sửa thông tin hành khách
+}
+
+model RefundRequest {
+  id                String       @id @default(uuid())
+  bookingId         String
+  userId            String
+  kind              RefundKind
+  status            RefundStatus @default(REQUESTED)
+  userReason        String // user nhập lý do
+  requestedAt       DateTime     @default(now())
+  cskhAssignedTo    String? // userId của nhân viên CSKH
+  cskhNote          String?
+  airlineResponse   String?
+  refundAmount      Int? // VND
+  refundProcessedAt DateTime?
+  rejectionReason   String?
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@index([status, requestedAt])
+}
+
+model BookingPassenger {
+  id        String    @id @default(uuid())
+  bookingId String
+  fullName  String
+  gender    String?
+  dob       DateTime?
+  isChild   Boolean   @default(false)
+  cccd      String?
+  passport  String?
+  seatCode  String? // "12A"
+  baggage   String? // "20kg"
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+model BookingPnr {
+  id        String    @id @default(uuid())
+  bookingId String
+  airline   String
+  pnr       String
+  timelimit DateTime?
+  rawJson   Json?
+  createdAt DateTime  @default(now())
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@unique([airline, pnr])
+  @@index([bookingId])
+}
+
+model BookingTimelineEvent {
+  id         String   @id @default(uuid())
+  bookingId  String
+  eventType  String // "HELD", "TICKETED", "PAID", "CANCELLED"
+  title      String // "Đã giữ chỗ thành công"
+  payload    Json?
+  occurredAt DateTime
+  fetchedAt  DateTime @default(now())
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId, occurredAt])
+}
+
+// ─── Payment ───────────────────────────────────────────────────────────
+
+enum PaymentProvider {
+  SEPAY // Phase 1 — provider duy nhất đang hoạt động
+  PAYOS // Phase 2 — adapter stub sẵn sàng
+  VNPAY // Phase 2
+  MOMO // Phase 2
+  ZALOPAY // Phase 2
+  CARD // Phase 2 — thẻ Visa/Master qua PayOS
+  BANK_TRANSFER // Manual record cho trường hợp đặc biệt
+}
+
+enum PaymentIntentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  PARTIAL
+  EXPIRED
+  CANCELLED
+  FAILED
+  MANUAL_REVIEW
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REJECTED
+  REFUNDED
+}
+
+model PaymentIntent {
+  id                String              @id @default(uuid())
+  bookingId         String
+  provider          PaymentProvider
+  providerOrderCode String              @unique
+  amount            Int
+  currency          String              @default("VND")
+  status            PaymentIntentStatus @default(PENDING)
+  checkoutUrl       String?
+  qrCodeData        String? // base64 hoặc URL
+  accountNumber     String?
+  bin               String?
+  expiresAt         DateTime?
+  rawCreatePayload  Json?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  booking          Booking           @relation(fields: [bookingId], references: [id])
+  payments         Payment[]
+  bankTransactions BankTransaction[]
+
+  @@index([bookingId])
+  @@index([status])
+}
+
+model Payment {
+  id              String          @id @default(uuid())
+  bookingId       String
+  paymentIntentId String?
+  provider        PaymentProvider
+  amount          Int
+  status          PaymentStatus   @default(PENDING)
+  paidAt          DateTime?
+  transactionRef  String?
+  proofUrl        String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  booking       Booking        @relation(fields: [bookingId], references: [id])
+  paymentIntent PaymentIntent? @relation(fields: [paymentIntentId], references: [id])
+
+  @@index([bookingId])
+  @@index([paymentIntentId])
+}
+
+model BankTransaction {
+  id              String          @id @default(uuid())
+  provider        PaymentProvider
+  dedupeKey       String          @unique // "PAYOS#REF123#1090#2026-06-12T09:42Z"
+  amount          Int
+  reference       String? // PNR hoặc orderCode mà bank thấy
+  rawPayload      Json
+  matchedIntentId String?
+  status          String // RECEIVED | MATCHED | DUPLICATE | MANUAL_REVIEW | IGNORED
+  receivedAt      DateTime        @default(now())
+
+  matchedIntent PaymentIntent? @relation(fields: [matchedIntentId], references: [id])
+
+  @@index([provider, receivedAt])
+  @@index([status])
+}
+
+// ─── Fare Hunter ───────────────────────────────────────────────────────
+
+enum HuntStatus {
+  HUNTING
+  FOUND
+  PAUSED
+  EXPIRED
+  CANCELLED
+}
+
+enum HuntFlexibility {
+  EXACT_DATE // chính xác 1 ngày
+  DATE_RANGE // khoảng ngày
+  WEEK_OF_MONTH // tuần 2/3 tháng X
+  WHOLE_MONTH // cả tháng
+  ANY_DAY // bất kỳ ngày nào
+}
+
+model Hunt {
+  id                 String          @id @default(uuid())
+  userId             String
+  status             HuntStatus      @default(HUNTING)
+  fromCode           String
+  toCode             String
+  flexibility        HuntFlexibility
+  windowStart        DateTime
+  windowEnd          DateTime
+  targetPrice        Int // VND nghìn (1000 = 1k)
+  bestPriceFound     Int?
+  bestPriceDate      DateTime?
+  pax                Int             @default(1)
+  cabin              String          @default("economy")
+  airlines           String[] // ["VN","VJ","QH"] hoặc [] = all
+  channels           String[] // ["telegram","email","push","zalo"]
+  intervalMinutes    Int             @default(120)
+  nextRunAt          DateTime?
+  lastRunAt          DateTime?
+  failureStreak      Int             @default(0)
+  emptyStreak        Int             @default(0)
+  scansCount         Int             @default(0)
+  notifsSentCount    Int             @default(0)
+  autoDisabledAt     DateTime?
+  autoDisabledReason String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  runs          HuntRun[]
+  notifications Notification[]
+
+  @@index([userId, status])
+  @@index([nextRunAt, status])
+}
+
+model HuntRun {
+  id             String    @id @default(uuid())
+  huntId         String
+  startedAt      DateTime  @default(now())
+  finishedAt     DateTime?
+  durationMs     Int?
+  resultCount    Int       @default(0)
+  cheapestPrice  Int?
+  cheapestDate   DateTime?
+  rawResults     Json? // mảng flights tìm thấy
+  diffSummary    Json? // {priceDown: 3, priceUp: 1, newFlights: 2, soldOut: 1}
+  triggeredNotif Boolean   @default(false)
+  error          String?
+
+  hunt Hunt @relation(fields: [huntId], references: [id], onDelete: Cascade)
+
+  @@index([huntId, startedAt])
+}
+
+// ─── Notification ──────────────────────────────────────────────────────
+
+enum NotificationKind {
+  HUNT_FOUND
+  HUNT_PROGRESS
+  BOOKING_CONFIRMED
+  BOOKING_TICKETED
+  BOOKING_REMINDER
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  CHECKIN_OPEN
+  PRICE_DROP
+  SOL_MESSAGE
+  VOUCHER_NEW
+  SYSTEM
+}
+
+enum NotificationChannel {
+  PUSH
+  TELEGRAM
+  EMAIL
+  ZALO
+  IN_APP
+}
+
+model NotificationPreference {
+  userId          String  @id
+  pushEnabled     Boolean @default(true)
+  telegramEnabled Boolean @default(false)
+  emailEnabled    Boolean @default(true)
+  zaloEnabled     Boolean @default(false)
+  telegramChatId  String?
+  zaloUserId      String?
+  quietHoursStart String? // "22:00"
+  quietHoursEnd   String? // "07:00"
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Notification {
+  id                String                @id @default(uuid())
+  userId            String
+  kind              NotificationKind
+  title             String
+  body              String
+  ctaUrl            String?
+  ctaLabel          String?
+  payload           Json?
+  readAt            DateTime?
+  huntId            String? // nullable, link to hunt
+  bookingId         String? // nullable, link to booking
+  channelsAttempted NotificationChannel[] // tracking đã gửi qua kênh nào
+  channelsSucceeded NotificationChannel[]
+  createdAt         DateTime              @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hunt Hunt? @relation(fields: [huntId], references: [id])
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
+// ─── Sol AI ────────────────────────────────────────────────────────────
+
+model Conversation {
+  id         String    @id @default(uuid())
+  userId     String
+  title      String? // "Tuần sau bay HAN-DAD..."
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  archivedAt DateTime?
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@index([userId, updatedAt])
+}
+
+model ChatMessage {
+  id               String       @id @default(uuid())
+  conversationId   String
+  role             String // "user" | "assistant" | "tool"
+  contentJson      Json // mảng content blocks (text, tool_use, tool_result, flight_card...)
+  toolCallsJson    Json?
+  promptTokens     Int?
+  completionTokens Int?
+  modelVersion     String?
+  createdAt        DateTime     @default(now())
+  conversation     Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+// ─── Voucher ───────────────────────────────────────────────────────────
+
+enum VoucherType {
+  AMOUNT // giảm số tiền cụ thể (VND)
+  PERCENT // giảm theo %
+}
+
+model VoucherTemplate {
+  id            String           @id @default(uuid())
+  code          String           @unique // "OPENFLY150"
+  title         String
+  description   String?
+  type          VoucherType
+  value         Int // 150 (k VND) hoặc 20 (%)
+  maxDiscount   Int? // cap cho PERCENT
+  minOrder      Int?
+  validFrom     DateTime
+  validUntil    DateTime
+  totalQuantity Int? // null = không giới hạn
+  perUserLimit  Int              @default(1)
+  airlineFilter String[] // [] = all
+  tierFilter    MembershipTier[]
+  active        Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+
+  userVouchers UserVoucher[]
+}
+
+model UserVoucher {
+  id            String    @id @default(uuid())
+  userId        String
+  templateId    String
+  status        String    @default("ACTIVE") // ACTIVE | USED | EXPIRED
+  usedBookingId String?
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template VoucherTemplate @relation(fields: [templateId], references: [id])
+
+  @@unique([userId, templateId]) // 1 user chỉ nhận 1 lần
+  @@index([userId, status])
+}
+
+// ─── Audit ─────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  actorType  String // "user" | "system" | "webhook"
+  entity     String // "Booking", "Payment", "Hunt"
+  entityId   String
+  action     String // "create" | "update" | "cancel"
+  beforeJson Json?
+  afterJson  Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorId, createdAt])
+}
+
+// ─── System ────────────────────────────────────────────────────────────
+
+model MuadiSession {
+  id              String    @id @default(uuid())
+  label           String    @unique // "session-pool-01"
+  agentCode       String // tài khoản đại lý
+  username        String
+  passwordEnc     String // mã hóa với app secret
+  accessToken     String?
+  refreshToken    String?
+  serverDiff      Int       @default(0) // tsp clock skew từ Muadi
+  expiresAt       DateTime?
+  busy            Boolean   @default(false) // session đang được dùng cho request nào đó
+  lastUsedAt      DateTime?
+  lastRefreshedAt DateTime?
+  failureCount    Int       @default(0)
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([active, busy])
+}
+
+model Airport {
+  code    String  @id // "HAN"
+  city    String // "Hà Nội"
+  name    String // "Sân bay Nội Bài"
+  country String  @default("VN")
+  popular Boolean @default(false)
+  active  Boolean @default(true)
+}
+
+model Airline {
+  code      String  @id // "VN"
+  name      String // "Vietnam Airlines"
+  shortName String?
+  color     String? // "#003B71"
+  logoUrl   String?
+  active    Boolean @default(true)
+}
