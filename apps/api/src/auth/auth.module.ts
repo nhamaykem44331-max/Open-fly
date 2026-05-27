@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { GoogleAuthModule } from '../integrations/google/google-auth.module';
 import { SmsModule } from '../integrations/sms/sms.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -12,6 +13,7 @@ import { RefreshTokenService } from './refresh-token.service';
 @Module({
   imports: [
     PassportModule,
+    GoogleAuthModule,
     SmsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -9,10 +9,23 @@ import { HealthModule } from './health/health.module';
 import { MeModule } from './me/me.module';
 import { PrismaModule } from './prisma/prisma.module';
 
+function validateEnv(config: Record<string, unknown>) {
+  const requiredKeys = ['GOOGLE_CLIENT_ID'];
+  for (const key of requiredKeys) {
+    const value = config[key];
+    if (typeof value !== 'string' || value.trim() === '') {
+      throw new Error(`${key} is required`);
+    }
+  }
+
+  return config;
+}
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate: validateEnv,
     }),
     ThrottlerModule.forRoot([
       {

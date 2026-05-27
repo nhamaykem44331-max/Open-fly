@@ -2,8 +2,13 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MembershipTier, User, UserRole } from '@prisma/client';
 import { UserPublicDto } from '../common/dto/user-public.dto';
+import {
+  GOOGLE_AUTH_PROVIDER,
+  IGoogleAuthService,
+} from '../integrations/google/google-auth-provider.interface';
 import { ISmsProvider, SMS_PROVIDER } from '../integrations/sms/sms-provider.interface';
 import { PrismaService } from '../prisma/prisma.service';
+import { GoogleSignInDto } from './dto/google-signin.dto';
 import { OtpVerifyDto } from './dto/otp-verify.dto';
 import { PhoneRequestDto } from './dto/phone-request.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -21,6 +26,8 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     @Inject(SMS_PROVIDER) private readonly smsProvider: ISmsProvider,
+    @Inject(GOOGLE_AUTH_PROVIDER)
+    private readonly googleAuthService: IGoogleAuthService,
   ) {}
 
   async requestOtp(dto: PhoneRequestDto, ip?: string) {
@@ -87,6 +94,43 @@ export class AuthService {
     return {
       accessToken: this.signAccessToken(user),
       refreshToken,
+    };
+  }
+
+  async googleSignIn(dto: GoogleSignInDto, ip?: string, userAgent?: string) {
+    const payload = await this.googleAuthService.verifyIdToken(dto.idToken);
+    const now = new Date();
+    const user = await this.prisma.user.upsert({
+      where: {
+        googleId: payload.sub,
+      },
+      create: {
+        googleId: payload.sub,
+        email: payload.email,
+        googleEmail: payload.email,
+        fullName: payload.name,
+        avatarUrl: payload.picture,
+        role: UserRole.CUSTOMER,
+        tier: MembershipTier.STANDARD,
+        lastLoginAt: now,
+      },
+      update: {
+        lastLoginAt: now,
+        avatarUrl: payload.picture,
+        fullName: payload.name,
+      },
+    });
+
+    if (!user.active || user.blocked) {
+      throw new UnauthorizedException('Tài khoản không tồn tại hoặc đã bị khóa');
+    }
+
+    const refreshToken = await this.refreshTokenService.generate(user.id, ip, userAgent);
+
+    return {
+      accessToken: this.signAccessToken(user),
+      refreshToken,
+      user: UserPublicDto.fromPrisma(user),
     };
   }
 
