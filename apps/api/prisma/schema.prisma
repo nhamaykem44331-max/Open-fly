@@ -79,6 +79,7 @@ model OtpChallenge {
   attempts   Int       @default(0)
   expiresAt  DateTime
   consumedAt DateTime?
+  revokedAt  DateTime?
   ip         String?
   createdAt  DateTime  @default(now())
 

@@ -35,8 +35,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       where: { id: payload.sub },
     });
 
-    if (!user || !user.active || user.blocked) {
-      throw new UnauthorizedException('Tài khoản không tồn tại hoặc đã bị khóa');
+    if (!user) {
+      throw new UnauthorizedException('Tài khoản không tồn tại');
     }
 
     return user;

@@ -1,4 +1,12 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { randomInt } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -6,6 +14,7 @@ import { PrismaService } from '../prisma/prisma.service';
 const OTP_TTL_MS = 5 * 60 * 1000;
 const OTP_HASH_ROUNDS = 12;
 const MAX_OTP_ATTEMPTS = 5;
+const VOICE_RETRY_WAIT_MS = 60 * 1000;
 
 @Injectable()
 export class OtpService {
@@ -50,6 +59,10 @@ export class OtpService {
       throw new UnauthorizedException('Mã OTP không đúng');
     }
 
+    if (challenge.revokedAt) {
+      throw new UnauthorizedException('Mã OTP không đúng');
+    }
+
     if (challenge.expiresAt <= new Date()) {
       throw new UnauthorizedException('Mã OTP đã hết hạn');
     }
@@ -82,6 +95,67 @@ export class OtpService {
 
     return {
       phone: challenge.phone,
+    };
+  }
+
+  async revokeChallenge(challengeId: string) {
+    return this.prisma.otpChallenge.update({
+      where: { id: challengeId },
+      data: { revokedAt: new Date() },
+    });
+  }
+
+  async createVoiceChallenge(challengeId: string, ip?: string) {
+    const challenge = await this.prisma.otpChallenge.findUnique({
+      where: { id: challengeId },
+    });
+
+    if (!challenge) {
+      throw new NotFoundException('OTP không tồn tại');
+    }
+
+    if (challenge.consumedAt) {
+      throw new BadRequestException('OTP đã được dùng');
+    }
+
+    if (challenge.revokedAt) {
+      throw new BadRequestException('OTP đã bị thu hồi');
+    }
+
+    if (challenge.expiresAt <= new Date()) {
+      throw new BadRequestException('OTP đã hết hạn');
+    }
+
+    if (challenge.createdAt > new Date(Date.now() - VOICE_RETRY_WAIT_MS)) {
+      throw new HttpException(
+        'Vui lòng đợi 60 giây trước khi yêu cầu gọi',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const otp = this.generate();
+    const codeHash = await bcrypt.hash(otp, OTP_HASH_ROUNDS);
+    const expiresAt = new Date(Date.now() + OTP_TTL_MS);
+
+    const [, newChallenge] = await this.prisma.$transaction([
+      this.prisma.otpChallenge.update({
+        where: { id: challenge.id },
+        data: { revokedAt: new Date() },
+      }),
+      this.prisma.otpChallenge.create({
+        data: {
+          phone: challenge.phone,
+          codeHash,
+          expiresAt,
+          ip,
+        },
+      }),
+    ]);
+
+    return {
+      challengeId: newChallenge.id,
+      phone: newChallenge.phone,
+      otp,
     };
   }
 }
