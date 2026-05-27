@@ -1,8 +1,13 @@
 // Port from apg-manager/apps/api/src/auth/strategies/jwt.strategy.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UserPublicDto } from '../common/dto/user-public.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 interface JwtPayload {
@@ -39,6 +44,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Tài khoản không tồn tại');
     }
 
-    return user;
+    if (!user.active) {
+      throw new ForbiddenException('Tài khoản đã bị vô hiệu hóa');
+    }
+
+    if (user.blocked) {
+      throw new ForbiddenException(
+        `Tài khoản đã bị khóa: ${user.blockReason ?? 'vi phạm điều khoản'}`,
+      );
+    }
+
+    return UserPublicDto.fromPrisma(user);
   }
 }
