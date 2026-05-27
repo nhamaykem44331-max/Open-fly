@@ -1,7 +1,9 @@
 // Port from apg-manager/apps/api/src/app.module.ts
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -17,7 +19,14 @@ import { PrismaModule } from './prisma/prisma.module';
       },
     ]),
     PrismaModule,
+    AuthModule,
     HealthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}
