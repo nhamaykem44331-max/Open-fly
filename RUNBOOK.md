@@ -6,7 +6,8 @@ Runbook này mô tả cách setup, chạy dev local và smoke test Sprint 0 củ
 
 - Node.js 20.x LTS
 - npm 10.x
-- Docker Desktop 4.x+ cho PostgreSQL local
+- Docker Desktop 4.x+ cho PostgreSQL local và Redis
+- Redis 7+ nếu chạy ngoài Docker
 - Git
 
 ## 2. Setup lần đầu
@@ -34,10 +35,10 @@ JWT_SECRET="<generate bằng openssl rand -hex 32>"
 GOOGLE_CLIENT_ID="<lấy từ Google Cloud Console, xem section 5>"
 ```
 
-Khởi động PostgreSQL local và apply migration:
+Khởi động PostgreSQL + Redis local và apply migration:
 
 ```bash
-docker compose up -d postgres
+docker compose up -d postgres redis
 cd apps/api
 npx prisma migrate deploy
 npx prisma generate
@@ -84,9 +85,9 @@ Chạy:
 bash scripts/smoke-test.sh
 ```
 
-Script verify health, Google auth mock, `/me`, refresh token rotation, invalid Google token và phone OTP đã bị disable.
+Script verify health, Google auth mock, `/me`, refresh token rotation, invalid Google token, phone OTP đã bị disable và cache `/flights/search`.
 
-Lưu ý: script dùng `mock-valid-token`, nên API phải chạy với `MockGoogleAuthService` active, ví dụ `NODE_ENV=test`, hoặc DI swap tương đương.
+Lưu ý: script dùng `mock-valid-token` và mock Muadi, nên API phải chạy với mock providers active, ví dụ `NODE_ENV=test` và `MUADI_USE_MOCK=true`, hoặc DI/env swap tương đương.
 
 ## 5. Google Cloud Console setup
 
@@ -116,6 +117,15 @@ Postgres connect refused:
 docker ps
 docker compose logs postgres
 ```
+
+Redis connect refused:
+
+```bash
+docker ps
+docker compose logs redis
+```
+
+Đảm bảo `REDIS_URL` trong `apps/api/.env` trỏ tới `redis://localhost:6379`.
 
 Migration lỗi trong local dev:
 

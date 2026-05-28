@@ -7,6 +7,10 @@ set -euo pipefail
 
 API="${API:-http://127.0.0.1:3001/api/v1}"
 
+future_date() {
+  node -e 'const d = new Date(); d.setUTCDate(d.getUTCDate() + Number(process.argv[1])); console.log(d.toISOString().slice(0, 10));' "$1"
+}
+
 echo "=== OpenFly smoke test ==="
 
 if curl -s "$API/health" | grep -q '"status":"ok"'; then
@@ -69,12 +73,38 @@ else
   exit 1
 fi
 
-SEARCH_RES=$(curl -s -X POST "$API/flights/search" -H "Content-Type: application/json" -d '{"origin":"SGN","destination":"HAN","date":"2026-06-15","paxAdt":1,"paxChd":0,"paxInf":0}')
-if printf '%s' "$SEARCH_RES" | grep -q '"offers":' && printf '%s' "$SEARCH_RES" | grep -q '"cheapestPriceVnd":'; then
-  echo "✓ flights search"
+SEARCH_OFFSET=$((30 + RANDOM % 250))
+SEARCH_DATE=$(future_date "$SEARCH_OFFSET")
+SEARCH_DATE_OTHER=$(future_date "$((SEARCH_OFFSET + 1))")
+SEARCH_BODY="{\"origin\":\"SGN\",\"destination\":\"HAN\",\"date\":\"$SEARCH_DATE\",\"paxAdt\":1,\"paxChd\":0,\"paxInf\":0}"
+SEARCH_RES=$(curl -s -X POST "$API/flights/search" -H "Content-Type: application/json" -d "$SEARCH_BODY")
+SEARCH_CACHED=$(printf '%s' "$SEARCH_RES" | sed -n 's/.*"cached":\([^,}]*\).*/\1/p')
+if printf '%s' "$SEARCH_RES" | grep -q '"offers":' && [ "$SEARCH_CACHED" = "false" ]; then
+  echo "✓ flights search cache miss"
 else
-  echo "✗ flights search"
+  echo "✗ flights search cache miss"
   echo "$SEARCH_RES"
+  exit 1
+fi
+
+SEARCH_RES_2=$(curl -s -X POST "$API/flights/search" -H "Content-Type: application/json" -d "$SEARCH_BODY")
+SEARCH_CACHED_2=$(printf '%s' "$SEARCH_RES_2" | sed -n 's/.*"cached":\([^,}]*\).*/\1/p')
+if [ "$SEARCH_CACHED_2" = "true" ]; then
+  echo "✓ flights search cache hit"
+else
+  echo "✗ flights search cache hit"
+  echo "$SEARCH_RES_2"
+  exit 1
+fi
+
+SEARCH_BODY_OTHER="{\"origin\":\"SGN\",\"destination\":\"HAN\",\"date\":\"$SEARCH_DATE_OTHER\",\"paxAdt\":1,\"paxChd\":0,\"paxInf\":0}"
+SEARCH_RES_3=$(curl -s -X POST "$API/flights/search" -H "Content-Type: application/json" -d "$SEARCH_BODY_OTHER")
+SEARCH_CACHED_3=$(printf '%s' "$SEARCH_RES_3" | sed -n 's/.*"cached":\([^,}]*\).*/\1/p')
+if [ "$SEARCH_CACHED_3" = "false" ]; then
+  echo "✓ flights search separate key"
+else
+  echo "✗ flights search separate key"
+  echo "$SEARCH_RES_3"
   exit 1
 fi
 

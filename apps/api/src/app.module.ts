@@ -8,6 +8,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { FlightsModule } from './flights/flights.module';
 import { HealthModule } from './health/health.module';
 import { MuadiModule } from './integrations/muadi/muadi.module';
+import { RedisModule } from './integrations/redis/redis.module';
 import { MeModule } from './me/me.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -53,6 +54,7 @@ function validateEnv(config: Record<string, unknown>) {
     PrismaModule,
     AuthModule,
     MuadiModule,
+    RedisModule,
     FlightsModule,
     MeModule,
     HealthModule,
