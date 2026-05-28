@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Yêu cầu API chạy ở http://127.0.0.1:3001.
-# Script này dùng mock-valid-token, chỉ work khi MockGoogleAuthService active
-# (NODE_ENV=test hoặc explicit DI swap).
+# Script này dùng mock-valid-token và mock Muadi, chỉ work khi mock providers active
+# (NODE_ENV=test hoặc GOOGLE/MUADI explicit DI/env swap).
 
 API="${API:-http://127.0.0.1:3001/api/v1}"
 
@@ -66,6 +66,15 @@ if [ "$STATUS" = "404" ]; then
   echo "✓ phone OTP disabled"
 else
   echo "✗ phone OTP disabled (got $STATUS)"
+  exit 1
+fi
+
+SEARCH_RES=$(curl -s -X POST "$API/flights/search" -H "Content-Type: application/json" -d '{"origin":"SGN","destination":"HAN","date":"2026-06-15","paxAdt":1,"paxChd":0,"paxInf":0}')
+if printf '%s' "$SEARCH_RES" | grep -q '"offers":' && printf '%s' "$SEARCH_RES" | grep -q '"cheapestPriceVnd":'; then
+  echo "✓ flights search"
+else
+  echo "✗ flights search"
+  echo "$SEARCH_RES"
   exit 1
 fi
 

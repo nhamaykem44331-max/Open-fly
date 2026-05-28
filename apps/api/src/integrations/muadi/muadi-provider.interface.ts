@@ -9,29 +9,53 @@ export interface SearchParams {
   paxInf: number;
 }
 
-export interface FlightOffer {
-  offerId: string;
+export interface MuadiRawSegment {
+  carrierCode?: string;
+  flightNumber?: string;
+  from?: string;
+  to?: string;
+  departDate?: string;
+  arrivalDate?: string;
+  aircraft?: string;
+  duration?: string | number;
+}
+
+export interface MuadiRawFare {
+  total?: number;
+  soldOut?: boolean;
+  fareClass?: string;
+  fareBasis?: string;
+  baggage?: string | number;
+  refundable?: boolean;
+}
+
+export interface MuadiRawFlight {
+  airline?: string;
+  carrierCode?: string;
+  flightNumber?: string;
+  routeInfo?: MuadiRawSegment[];
+  priceInfo?: MuadiRawFare[];
+  from?: string;
+  to?: string;
+  departDateTime?: string;
+  arrivalDateTime?: string;
+  departDate?: string;
+  arrivalDate?: string;
+  aircraft?: string;
+}
+
+export interface MuadiAirlineFailure {
   airline: string;
-  flightNumber: string;
-  origin: string;
-  destination: string;
-  departureAt: string;
-  arrivalAt: string;
-  durationMinutes: number;
-  price: {
-    amount: number;
-    currency: 'VND';
-    unit: 'thousand';
-  };
-  seatsAvailable: number;
-  refundable: boolean;
-  baggageKg: number;
+  reason: string;
 }
 
 export interface SearchResult {
   provider: 'mock' | 'muadi';
   searchedAt: string;
-  offers: FlightOffer[];
+  rawFlights: MuadiRawFlight[];
+  returnRawFlights?: MuadiRawFlight[];
+  airlinesQueried: string[];
+  airlinesFailed: MuadiAirlineFailure[];
 }
 
 export interface IMuadiProvider {

@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { FlightsModule } from './flights/flights.module';
 import { HealthModule } from './health/health.module';
 import { MuadiModule } from './integrations/muadi/muadi.module';
 import { MeModule } from './me/me.module';
@@ -52,6 +53,7 @@ function validateEnv(config: Record<string, unknown>) {
     PrismaModule,
     AuthModule,
     MuadiModule,
+    FlightsModule,
     MeModule,
     HealthModule,
   ],

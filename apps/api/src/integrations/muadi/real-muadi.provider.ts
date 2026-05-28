@@ -3,11 +3,29 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { MuadiClientService } from './muadi-client.service';
 import {
   IMuadiProvider,
+  MuadiAirlineFailure,
+  MuadiRawFlight,
   SearchParams,
   SearchResult,
 } from './muadi-provider.interface';
 
-const SEARCH_AIRLINES = ['VN', 'VJ', 'QH', 'BL', 'VU'];
+interface MuadiCreateSessionResponse {
+  data?: {
+    sessionID?: number;
+    listSignIn?: string[];
+  };
+}
+
+interface MuadiSearchFlightResponse {
+  data?: {
+    departureFlight?: MuadiRawFlight[];
+    returnFlight?: MuadiRawFlight[];
+    gdsFlight?: {
+      departureFlight?: MuadiRawFlight[];
+      returnFlight?: MuadiRawFlight[];
+    };
+  };
+}
 
 @Injectable()
 export class RealMuadiProvider implements IMuadiProvider {
@@ -20,33 +38,150 @@ export class RealMuadiProvider implements IMuadiProvider {
     const session = await this.prisma.muadiSession.findFirst({
       where: {
         active: true,
+        busy: false,
       },
       orderBy: {
-        lastUsedAt: 'desc',
+        lastUsedAt: 'asc',
       },
     });
     if (!session) {
-      throw new Error('Muadi session chưa được cấu hình');
+      throw new Error('Muadi session chưa được cấu hình hoặc đang bận');
     }
 
-    await this.muadiClient.ensureValidSession(session.id);
-    await Promise.all(
-      SEARCH_AIRLINES.map((airline) =>
-        this.muadiClient.searchFlightByAirline(session.id, airline, {
-          origin: params.origin,
-          destination: params.destination,
-          date: params.date,
-          paxAdt: params.paxAdt,
-          paxChd: params.paxChd,
-          paxInf: params.paxInf,
-        }),
-      ),
-    );
+    const lock = await this.prisma.muadiSession.updateMany({
+      where: {
+        id: session.id,
+        active: true,
+        busy: false,
+      },
+      data: {
+        busy: true,
+        lastUsedAt: new Date(),
+      },
+    });
+    if (lock.count !== 1) {
+      throw new Error('Muadi session vừa được dùng bởi request khác');
+    }
 
+    try {
+      await this.muadiClient.ensureValidSession(session.id);
+      const baseBody = this.buildSearchBody(params);
+      const createSession =
+        await this.muadiClient.request<MuadiCreateSessionResponse>(
+          '/booking/create-session',
+          baseBody,
+          {
+            sessionId: session.id,
+            authenticated: true,
+            apiVersion: '2',
+          },
+        );
+      const sessionID = createSession.data?.sessionID;
+      const airlines = createSession.data?.listSignIn ?? [];
+      if (!sessionID || airlines.length === 0) {
+        throw new Error('Muadi không trả sessionID hoặc danh sách hãng bay');
+      }
+
+      const results = await Promise.allSettled(
+        airlines.map(async (airline) => {
+          const response =
+            await this.muadiClient.searchFlightByAirline<MuadiSearchFlightResponse>(
+              session.id,
+              airline,
+              {
+                ...baseBody,
+                sessionID,
+              },
+            );
+
+          return {
+            airline,
+            departureFlight: [
+              ...(response.data?.departureFlight ?? []),
+              ...(response.data?.gdsFlight?.departureFlight ?? []),
+            ].map((flight) => this.withAirline(flight, airline)),
+            returnFlight: [
+              ...(response.data?.returnFlight ?? []),
+              ...(response.data?.gdsFlight?.returnFlight ?? []),
+            ].map((flight) => this.withAirline(flight, airline)),
+          };
+        }),
+      );
+
+      const rawFlights: MuadiRawFlight[] = [];
+      const returnRawFlights: MuadiRawFlight[] = [];
+      const airlinesFailed: MuadiAirlineFailure[] = [];
+      let successCount = 0;
+
+      results.forEach((result, index) => {
+        const airline = airlines[index];
+        if (result.status === 'fulfilled') {
+          successCount += 1;
+          rawFlights.push(...result.value.departureFlight);
+          returnRawFlights.push(...result.value.returnFlight);
+          return;
+        }
+
+        airlinesFailed.push({
+          airline,
+          reason: this.safeReason(result.reason),
+        });
+      });
+
+      if (successCount === 0) {
+        throw new Error('Tất cả hãng bay Muadi search đều thất bại');
+      }
+
+      return {
+        provider: 'muadi',
+        searchedAt: new Date().toISOString(),
+        rawFlights,
+        returnRawFlights:
+          returnRawFlights.length > 0 ? returnRawFlights : undefined,
+        airlinesQueried: airlines,
+        airlinesFailed,
+      };
+    } finally {
+      await this.prisma.muadiSession.update({
+        where: {
+          id: session.id,
+        },
+        data: {
+          busy: false,
+        },
+      });
+    }
+  }
+
+  private buildSearchBody(params: SearchParams) {
     return {
-      provider: 'muadi',
-      searchedAt: new Date().toISOString(),
-      offers: [],
+      originCode: params.origin,
+      destinationCode: params.destination,
+      departureDateTime: params.date,
+      journeyType: 'OW',
+      numberOfAdult: params.paxAdt,
+      numberOfChildren: params.paxChd,
+      numberOfInfant: params.paxInf,
+      currencyCode: 'VND',
+      searchType: 'BP',
+      promotionCodes: [],
+      airlines: [],
+      systems: [],
+    };
+  }
+
+  private safeReason(reason: unknown): string {
+    if (reason instanceof Error) {
+      return reason.message;
+    }
+
+    return String(reason);
+  }
+
+  private withAirline(flight: MuadiRawFlight, airline: string): MuadiRawFlight {
+    return {
+      ...flight,
+      airline: flight.airline ?? airline,
     };
   }
 }
