@@ -151,14 +151,14 @@ export class MuadiClientService {
           {
             sessionId,
             authenticated: true,
-            apiVersion: '2',
+            apiVersion: null,
           },
         );
-        if (response.data.accessToken && response.data.refreshToken) {
+        if (response.data.accessToken) {
           await this.updateStoredTokens(
             sessionId,
             response.data.accessToken,
-            response.data.refreshToken,
+            response.data.refreshToken ?? session.refreshToken,
             this.readServerDiff(response.headers),
           );
           this.logger.log(
@@ -190,7 +190,7 @@ export class MuadiClientService {
     });
     const state = await this.loadSessionState(sessionId, record);
 
-    if (state.accessToken && this.isAccessTokenFresh(state.accessToken)) {
+    if (this.isSessionFresh(state, record)) {
       return record;
     }
 
@@ -446,9 +446,24 @@ export class MuadiClientService {
     return exp > 0 ? new Date(exp * 1000) : null;
   }
 
-  private isAccessTokenFresh(token: string): boolean {
-    const exp = decodeJwtExpiry(token);
-    return exp > Math.floor(Date.now() / 1000) + 60;
+  private isSessionFresh(state: CachedSession, record: MuadiSession): boolean {
+    if (!state.accessToken) {
+      return false;
+    }
+
+    const exp = decodeJwtExpiry(state.accessToken);
+    if (exp > 0) {
+      return exp > Math.floor(Date.now() / 1000) + 60;
+    }
+
+    const lastAt =
+      record.lastRefreshedAt ?? record.lastUsedAt ?? record.updatedAt;
+    if (!lastAt) {
+      return false;
+    }
+
+    const ageMinutes = (Date.now() - new Date(lastAt).getTime()) / 60000;
+    return ageMinutes < this.getAssumedTtlMinutes();
   }
 
   private buildUrl(path: string): string {
@@ -552,6 +567,13 @@ export class MuadiClientService {
   private getNumberConfig(key: string, fallback: number): number {
     const value = Number(this.config.get<string>(key));
     return Number.isFinite(value) && value > 0 ? value : fallback;
+  }
+
+  private getAssumedTtlMinutes(): number {
+    const value = Number(
+      this.config.get<string>('MUADI_SESSION_ASSUMED_TTL_MINUTES'),
+    );
+    return Number.isFinite(value) && value > 0 ? value : 25;
   }
 
   private maskSecret(value: string): string {

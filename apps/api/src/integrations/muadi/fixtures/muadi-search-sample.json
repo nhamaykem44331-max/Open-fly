@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-05-28T05:25:15.663Z",
+  "capturedAt": "2026-05-28T05:39:51.182Z",
   "environment": "production",
   "query": {
     "origin": "SGN",
@@ -16,20 +16,15 @@
     "VN",
     "VU"
   ],
-  "airlinesFailed": [
-    {
-      "airline": "9G",
-      "reason": "Muadi HTTP 401"
-    }
-  ],
-  "offersLength": 60,
+  "airlinesFailed": [],
+  "offersLength": 80,
   "firstOffer": {
-    "id": "839bbcd5b823a186faa0",
+    "id": "7ac283ed3b4ca6535db3",
     "airline": {
-      "code": "QH",
-      "name": "Bamboo Airways"
+      "code": "9G",
+      "name": "Sun PhuQuoc Airways"
     },
-    "flightNumber": "QH286",
+    "flightNumber": "9G802",
     "segments": [
       {
         "from": {
@@ -40,59 +35,71 @@
           "code": "HAN",
           "city": "Hà Nội"
         },
-        "departTime": "2026-06-11T20:50:00+07:00",
-        "arriveTime": "2026-06-11T23:00:00+07:00",
+        "departTime": "2026-06-11T05:15:00+07:00",
+        "arriveTime": "2026-06-11T07:25:00+07:00",
         "durationMinutes": 130,
-        "flightNumber": "QH286",
-        "aircraft": "321"
+        "flightNumber": "9G802",
+        "aircraft": "32Q"
       }
     ],
     "fareClasses": [
       {
-        "code": "ECONOMYSMART",
-        "name": "ECONOMY",
-        "baseFareVnd": 1839000,
-        "taxesFeesVnd": 753000,
-        "priceVnd": 2592000,
-        "seatAvailable": 7,
-        "soldOut": false,
-        "refundable": true
-      },
-      {
-        "code": "ECONOMYFLEX",
-        "name": "ECONOMY",
-        "baseFareVnd": 2289000,
-        "taxesFeesVnd": 789000,
-        "priceVnd": 3078000,
+        "code": "Q",
+        "name": "Economy",
+        "baseFareVnd": 1499000,
+        "taxesFeesVnd": 715000,
+        "priceVnd": 2214000,
         "seatAvailable": 9,
         "soldOut": false,
         "refundable": true,
-        "baggage": "20Kg"
+        "baggage": "23 Kg"
       },
       {
-        "code": "BUSINESSSMART",
-        "name": "BUSINESS",
-        "baseFareVnd": 3299000,
-        "taxesFeesVnd": 869000,
-        "priceVnd": 4168000,
+        "code": "M",
+        "name": "Economy",
+        "baseFareVnd": 1959000,
+        "taxesFeesVnd": 752000,
+        "priceVnd": 2711000,
+        "seatAvailable": 9,
+        "soldOut": false,
+        "refundable": true,
+        "baggage": "23 Kg"
+      },
+      {
+        "code": "B",
+        "name": "Economy",
+        "baseFareVnd": 2619000,
+        "taxesFeesVnd": 805000,
+        "priceVnd": 3424000,
+        "seatAvailable": 9,
+        "soldOut": false,
+        "refundable": true,
+        "baggage": "23 Kg"
+      },
+      {
+        "code": "I",
+        "name": "Business",
+        "baseFareVnd": 2939000,
+        "taxesFeesVnd": 831000,
+        "priceVnd": 3770000,
         "seatAvailable": 4,
         "soldOut": false,
         "refundable": true,
-        "baggage": "40Kg"
+        "baggage": "23 Kg"
       },
       {
-        "code": "BUSINESSFLEX",
-        "name": "BUSINESS",
+        "code": "J",
+        "name": "Business",
         "baseFareVnd": 5999000,
-        "taxesFeesVnd": 1085000,
-        "priceVnd": 7084000,
-        "seatAvailable": 6,
+        "taxesFeesVnd": 1075000,
+        "priceVnd": 7074000,
+        "seatAvailable": 8,
         "soldOut": false,
         "refundable": true,
-        "baggage": "40Kg"
+        "baggage": "23 Kg"
       }
     ],
-    "cheapestPriceVnd": 2592000,
+    "cheapestPriceVnd": 2214000,
     "durationMinutes": 130,
     "isDirect": true
   },

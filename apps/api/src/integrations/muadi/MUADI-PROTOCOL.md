@@ -44,7 +44,7 @@ authorization: <raw Muadi access token>
 X-Api-Version: 2
 ```
 
-Login intentionally omits `authorization` and `X-Api-Version`.
+Login omits `authorization` and `X-Api-Version`. Refresh keeps `authorization` but also omits `X-Api-Version`.
 
 ## Login
 
@@ -78,14 +78,29 @@ Endpoint:
 POST /auth/refresh-token
 ```
 
-The client currently tries the four variants inherited from the Nam Thanh reference:
+The client tries the four variants inherited from the Nam Thanh reference:
 
 1. `{ accessToken, refreshToken, channel: "Web" }`
 2. `{ refreshToken }`
 3. `{ token: refreshToken }`
 4. `{ refresh_token: refreshToken }`
 
-Production smoke search showed these variants can return HTTP 400 for the current token shape, then login fallback succeeds. The Muadi access token also appears opaque or not JWT-decodable in this environment, so expiry detection by JWT `exp` is not reliable yet. This is a known follow-up candidate; search itself is verified.
+Verified quirk:
+
+- `/auth/refresh-token` returns HTTP 400 when `X-Api-Version` is sent.
+- Refresh must be authenticated and must still include `authorization` + `tsp`, but it must omit `X-Api-Version`, same as login.
+- Production refresh can return a new `accessToken` without a new `refreshToken`; OpenFly treats that as success and keeps the existing refresh token.
+
+## Token freshness
+
+Production access tokens are opaque in the verified environment, not reliably JWT-decodable. `decodeJwtExpiry()` can return `0`, so OpenFly cannot rely only on JWT `exp`.
+
+Freshness rule:
+
+- JWT-shaped token with valid `exp`: use `exp > now + 60s`.
+- Opaque token: treat as fresh within `MUADI_SESSION_ASSUMED_TTL_MINUTES` from `lastRefreshedAt`, falling back to `lastUsedAt` or `updatedAt`.
+- Default assumed TTL: `25` minutes.
+- After the TTL window, try refresh first; only re-login if refresh fails.
 
 ## Search flow
 
@@ -140,7 +155,7 @@ Payload is the create-session payload plus:
 }
 ```
 
-Search calls are run in parallel per airline from `listSignIn`. Partial airline failures are preserved in `airlinesFailed`. In the verified SGN-HAN run, `9G` appeared in `listSignIn` but the provider search reported HTTP 401 for that airline during the parallel batch; other airlines still returned offers. A direct sample call for `9G` later returned a valid raw response, so treat this as a Muadi/provider transient or session timing quirk.
+Search calls are run in parallel per airline from `listSignIn`. Partial airline failures are preserved in `airlinesFailed`. After the opaque-token TTL fix, the verified SGN-HAN production smoke returned all listed airlines without re-login.
 
 ## Production response shape
 
@@ -290,11 +305,11 @@ SGN -> HAN, 2026-06-11, ADT=1, CHD=0, INF=0
 
 Result:
 
-- `offers.length = 60`
+- `offers.length = 80`
 - `airlinesQueried = ["9G","QH","VJ","VN","VU"]`
-- `airlinesFailed = [{"airline":"9G","reason":"Muadi HTTP 401"}]`
-- First normalized offer: `QH286`, `Tp. Hồ Chí Minh -> Hà Nội`, `2026-06-11T20:50:00+07:00`
-- First offer cheapest fare: `1,839,000 + 753,000 = 2,592,000 VND`
+- `airlinesFailed = []`
+- First normalized offer: `9G802`, `Tp. Hồ Chí Minh -> Hà Nội`, `2026-06-11T05:15:00+07:00`
+- First offer cheapest fare: `1,499,000 + 715,000 = 2,214,000 VND`
 
 Sanitized fixture:
 
