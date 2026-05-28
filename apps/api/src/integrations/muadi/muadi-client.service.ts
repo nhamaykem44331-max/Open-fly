@@ -53,16 +53,26 @@ export class MuadiClientService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async login(agentCode: string, username: string, password: string): Promise<MuadiSession> {
-    const response = await this.sendEncryptedRequest<MuadiResponseEnvelope>('/auth/login', {
-      UserName: username,
-      Password: password,
-      AgentCode: agentCode,
-      Otp: randomBytes(8).toString('hex'),
-    }, {
-      authenticated: false,
-      apiVersion: null,
-    });
+  async login(
+    agentCode: string,
+    username: string,
+    password: string,
+  ): Promise<MuadiSession> {
+    const response = await this.sendEncryptedRequest<MuadiResponseEnvelope>(
+      '/auth/login',
+      {
+        UserName: username,
+        Password: password,
+        AgentCode: agentCode,
+        // Otp = captcha client-side; Muadi chỉ cần non-empty và NGẮN (~3-4 ký tự).
+        // Chuỗi dài (vd 16 hex) khiến server trả 500 code=99. Khớp format namthanh.
+        Otp: randomBytes(3).toString('hex').slice(0, 4).toUpperCase(),
+      },
+      {
+        authenticated: false,
+        apiVersion: null,
+      },
+    );
 
     const accessToken = response.data.accessToken;
     const refreshToken = response.data.refreshToken;
@@ -109,7 +119,9 @@ export class MuadiClientService {
       serverDiff,
       expiresAt: session.expiresAt,
     });
-    this.logger.log(`Muadi login ok for ${agentCode}/${username}, token ${this.maskSecret(accessToken)}`);
+    this.logger.log(
+      `Muadi login ok for configured session, token ${this.maskSecret(accessToken)}`,
+    );
 
     return session;
   }
@@ -155,7 +167,9 @@ export class MuadiClientService {
           return true;
         }
       } catch (error) {
-        this.logger.warn(`Muadi refresh variant failed for session ${sessionId}: ${this.safeError(error)}`);
+        this.logger.warn(
+          `Muadi refresh variant failed for session ${sessionId}: ${this.safeError(error)}`,
+        );
       }
     }
 
@@ -181,21 +195,37 @@ export class MuadiClientService {
     }
 
     if (state.refreshToken && (await this.refreshTokens(sessionId))) {
-      return this.prisma.muadiSession.findUniqueOrThrow({ where: { id: sessionId } });
+      return this.prisma.muadiSession.findUniqueOrThrow({
+        where: { id: sessionId },
+      });
     }
 
-    return this.login(record.agentCode, record.username, decryptApp(record.passwordEnc));
+    return this.login(
+      record.agentCode,
+      record.username,
+      decryptApp(record.passwordEnc),
+    );
   }
 
-  async request<T>(path: string, body: unknown, options: MuadiRequestOptions = {}): Promise<T> {
+  async request<T>(
+    path: string,
+    body: unknown,
+    options: MuadiRequestOptions = {},
+  ): Promise<T> {
     const maxAttempts = this.getNumberConfig('MUADI_RETRY_MAX_ATTEMPTS', 3);
     let attempt = 0;
 
     while (true) {
       attempt += 1;
       try {
-        const response = await this.sendEncryptedRequest<T & MuadiResponseEnvelope>(path, body, options);
-        if (this.isTokenResponse(response.data) && options.sessionId && !options.retried) {
+        const response = await this.sendEncryptedRequest<
+          T & MuadiResponseEnvelope
+        >(path, body, options);
+        if (
+          this.isTokenResponse(response.data) &&
+          options.sessionId &&
+          !options.retried
+        ) {
           const refreshed = await this.refreshTokens(options.sessionId);
           if (refreshed) {
             return this.request<T>(path, body, { ...options, retried: true });
@@ -258,7 +288,8 @@ export class MuadiClientService {
     const controller = new AbortController();
     const timeout = setTimeout(
       () => controller.abort(),
-      options.timeoutMs ?? this.getNumberConfig('MUADI_SEARCH_TIMEOUT_MS', 120000),
+      options.timeoutMs ??
+        this.getNumberConfig('MUADI_SEARCH_TIMEOUT_MS', 120000),
     );
 
     try {
@@ -276,7 +307,12 @@ export class MuadiClientService {
 
       const data = await this.parseJson<T>(response);
       if (!response.ok) {
-        throw new MuadiHttpError(`Muadi HTTP ${response.status}`, response.status, data, response.headers);
+        throw new MuadiHttpError(
+          `Muadi HTTP ${response.status}`,
+          response.status,
+          data,
+          response.headers,
+        );
       }
 
       return { data, headers: response.headers };
@@ -285,7 +321,9 @@ export class MuadiClientService {
     }
   }
 
-  private async buildHeaders(options: MuadiRequestOptions): Promise<Record<string, string>> {
+  private async buildHeaders(
+    options: MuadiRequestOptions,
+  ): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Client-Type': 'Web',
       'X-Language': 'vi',
@@ -312,7 +350,9 @@ export class MuadiClientService {
     }
 
     // tsp is required by Muadi gateway for every request, including login.
-    headers.tsp = encryptMuadi(String(Math.floor(Date.now() / 1000) + serverDiff));
+    headers.tsp = encryptMuadi(
+      String(Math.floor(Date.now() / 1000) + serverDiff),
+    );
 
     return headers;
   }
@@ -333,7 +373,9 @@ export class MuadiClientService {
       }));
     const state = {
       accessToken: session.accessToken ? decryptApp(session.accessToken) : null,
-      refreshToken: session.refreshToken ? decryptApp(session.refreshToken) : null,
+      refreshToken: session.refreshToken
+        ? decryptApp(session.refreshToken)
+        : null,
       serverDiff: session.serverDiff,
       expiresAt: session.expiresAt,
     };
@@ -368,7 +410,10 @@ export class MuadiClientService {
     });
   }
 
-  private async syncServerDiff(sessionId: string, headers: Headers): Promise<void> {
+  private async syncServerDiff(
+    sessionId: string,
+    headers: Headers,
+  ): Promise<void> {
     const serverDiff = this.readServerDiff(headers);
     if (serverDiff === null) {
       return;
@@ -407,7 +452,9 @@ export class MuadiClientService {
   }
 
   private buildUrl(path: string): string {
-    const baseUrl = this.config.get<string>('MUADI_BASE_URL') ?? 'https://api-gateway.muadi.com.vn/api';
+    const baseUrl =
+      this.config.get<string>('MUADI_BASE_URL') ??
+      'https://api-gateway.muadi.com.vn/api';
     return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
   }
 
@@ -438,7 +485,11 @@ export class MuadiClientService {
     );
   }
 
-  private isRetryable(error: unknown, options: MuadiRequestOptions, path: string): boolean {
+  private isRetryable(
+    error: unknown,
+    options: MuadiRequestOptions,
+    path: string,
+  ): boolean {
     if (error instanceof MuadiHttpError) {
       if (options.retryOnHttpError === false) {
         return false;
@@ -448,7 +499,9 @@ export class MuadiClientService {
         return false;
       }
 
-      return error.status === 429 || error.status === 503 || error.status >= 500;
+      return (
+        error.status === 429 || error.status === 503 || error.status >= 500
+      );
     }
 
     return true;
