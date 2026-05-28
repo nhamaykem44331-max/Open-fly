@@ -1,0 +1,4747 @@
+{
+  "capturedAt": "2026-05-28T05:25:15.663Z",
+  "environment": "production",
+  "query": {
+    "origin": "SGN",
+    "destination": "HAN",
+    "date": "2026-06-11",
+    "paxAdt": 1,
+    "paxChd": 0,
+    "paxInf": 0
+  },
+  "airlinesQueried": [
+    "9G",
+    "QH",
+    "VJ",
+    "VN",
+    "VU"
+  ],
+  "airlinesFailed": [
+    {
+      "airline": "9G",
+      "reason": "Muadi HTTP 401"
+    }
+  ],
+  "offersLength": 60,
+  "firstOffer": {
+    "id": "839bbcd5b823a186faa0",
+    "airline": {
+      "code": "QH",
+      "name": "Bamboo Airways"
+    },
+    "flightNumber": "QH286",
+    "segments": [
+      {
+        "from": {
+          "code": "SGN",
+          "city": "Tp. Hồ Chí Minh"
+        },
+        "to": {
+          "code": "HAN",
+          "city": "Hà Nội"
+        },
+        "departTime": "2026-06-11T20:50:00+07:00",
+        "arriveTime": "2026-06-11T23:00:00+07:00",
+        "durationMinutes": 130,
+        "flightNumber": "QH286",
+        "aircraft": "321"
+      }
+    ],
+    "fareClasses": [
+      {
+        "code": "ECONOMYSMART",
+        "name": "ECONOMY",
+        "baseFareVnd": 1839000,
+        "taxesFeesVnd": 753000,
+        "priceVnd": 2592000,
+        "seatAvailable": 7,
+        "soldOut": false,
+        "refundable": true
+      },
+      {
+        "code": "ECONOMYFLEX",
+        "name": "ECONOMY",
+        "baseFareVnd": 2289000,
+        "taxesFeesVnd": 789000,
+        "priceVnd": 3078000,
+        "seatAvailable": 9,
+        "soldOut": false,
+        "refundable": true,
+        "baggage": "20Kg"
+      },
+      {
+        "code": "BUSINESSSMART",
+        "name": "BUSINESS",
+        "baseFareVnd": 3299000,
+        "taxesFeesVnd": 869000,
+        "priceVnd": 4168000,
+        "seatAvailable": 4,
+        "soldOut": false,
+        "refundable": true,
+        "baggage": "40Kg"
+      },
+      {
+        "code": "BUSINESSFLEX",
+        "name": "BUSINESS",
+        "baseFareVnd": 5999000,
+        "taxesFeesVnd": 1085000,
+        "priceVnd": 7084000,
+        "seatAvailable": 6,
+        "soldOut": false,
+        "refundable": true,
+        "baggage": "40Kg"
+      }
+    ],
+    "cheapestPriceVnd": 2592000,
+    "durationMinutes": 130,
+    "isDirect": true
+  },
+  "sampleAirline": "9G",
+  "shape": {
+    "routeInfoMatches": true,
+    "priceInfoMatches": true,
+    "departDateFormat": "DD-MM-YYYY HH:mm",
+    "gdsFlightPresent": false,
+    "extraRouteInfoFields": [
+      "airCraft",
+      "departureCity",
+      "arrivalCity",
+      "startTerminal",
+      "endTerminal",
+      "marketingCarrier",
+      "operatingCarrier",
+      "operatingCarrierName",
+      "source"
+    ],
+    "extraPriceInfoFields": [
+      "id",
+      "fareCHD",
+      "taxCHD",
+      "vatCHD",
+      "fareINF",
+      "taxINF",
+      "vatINF",
+      "refundable",
+      "changeable",
+      "source",
+      "isFareDiscountApplied",
+      "isPrivateFare",
+      "isFareCheckApplied",
+      "currencyCode"
+    ],
+    "missingRouteInfoFields": [],
+    "missingPriceInfoFields": []
+  },
+  "sampleResponse": {
+    "success": true,
+    "data": {
+      "departureFlight": [
+        {
+          "id": "SGNHAN-1",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1499000,
+          "departDateTime": "11-06-2026 05:15",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-1|Y",
+              "fareADT": 1499000,
+              "taxADT": 595000,
+              "vatADT": 120000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-1|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-1|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I",
+              "seatAvailable": 4,
+              "id": "SGNHAN-1|Y",
+              "fareADT": 2939000,
+              "taxADT": 595000,
+              "vatADT": 236000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 4,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J",
+              "seatAvailable": 8,
+              "id": "SGNHAN-1|Y",
+              "fareADT": 5999000,
+              "taxADT": 595000,
+              "vatADT": 480000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 05:15",
+              "arrivalDate": "11-06-2026 07:25",
+              "airCraft": "32Q",
+              "flightNumber": "802",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-2",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1499000,
+          "departDateTime": "11-06-2026 06:30",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-2|Y",
+              "fareADT": 1499000,
+              "taxADT": 595000,
+              "vatADT": 120000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-2|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-2|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I",
+              "seatAvailable": 4,
+              "id": "SGNHAN-2|Y",
+              "fareADT": 2939000,
+              "taxADT": 595000,
+              "vatADT": 236000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 4,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J",
+              "seatAvailable": 8,
+              "id": "SGNHAN-2|Y",
+              "fareADT": 5999000,
+              "taxADT": 595000,
+              "vatADT": 480000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 06:30",
+              "arrivalDate": "11-06-2026 08:40",
+              "airCraft": "321",
+              "flightNumber": "808",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-3",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1499000,
+          "departDateTime": "11-06-2026 18:30",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-3|Y",
+              "fareADT": 1499000,
+              "taxADT": 595000,
+              "vatADT": 120000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-3|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-3|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I",
+              "seatAvailable": 4,
+              "id": "SGNHAN-3|Y",
+              "fareADT": 2939000,
+              "taxADT": 595000,
+              "vatADT": 236000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 4,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J",
+              "seatAvailable": 8,
+              "id": "SGNHAN-3|Y",
+              "fareADT": 5999000,
+              "taxADT": 595000,
+              "vatADT": 480000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 18:30",
+              "arrivalDate": "11-06-2026 20:40",
+              "airCraft": "321",
+              "flightNumber": "868",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-4",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1499000,
+          "departDateTime": "11-06-2026 20:10",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-4|Y",
+              "fareADT": 1499000,
+              "taxADT": 595000,
+              "vatADT": 120000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-4|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-4|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 20:10",
+              "arrivalDate": "11-06-2026 22:20",
+              "airCraft": "32N",
+              "flightNumber": "876",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-5",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1499000,
+          "departDateTime": "11-06-2026 21:25",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-5|Y",
+              "fareADT": 1499000,
+              "taxADT": 595000,
+              "vatADT": 120000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-5|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-5|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I",
+              "seatAvailable": 4,
+              "id": "SGNHAN-5|Y",
+              "fareADT": 2939000,
+              "taxADT": 595000,
+              "vatADT": 236000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 4,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J",
+              "seatAvailable": 8,
+              "id": "SGNHAN-5|Y",
+              "fareADT": 5999000,
+              "taxADT": 595000,
+              "vatADT": 480000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 21:25",
+              "arrivalDate": "11-06-2026 23:35",
+              "airCraft": "321",
+              "flightNumber": "882",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-6",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1719000,
+          "departDateTime": "11-06-2026 09:25",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "N",
+              "seatAvailable": 9,
+              "id": "SGNHAN-6|Y",
+              "fareADT": 1719000,
+              "taxADT": 595000,
+              "vatADT": 138000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "N",
+                  "cabinClass": "Economy",
+                  "fareBasis": "NMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-6|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-6|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I",
+              "seatAvailable": 3,
+              "id": "SGNHAN-6|Y",
+              "fareADT": 2939000,
+              "taxADT": 595000,
+              "vatADT": 236000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 3,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J",
+              "seatAvailable": 8,
+              "id": "SGNHAN-6|Y",
+              "fareADT": 5999000,
+              "taxADT": 595000,
+              "vatADT": 480000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 09:25",
+              "arrivalDate": "11-06-2026 11:35",
+              "airCraft": "321",
+              "flightNumber": "824",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-7",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1719000,
+          "departDateTime": "11-06-2026 12:25",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "N",
+              "seatAvailable": 9,
+              "id": "SGNHAN-7|Y",
+              "fareADT": 1719000,
+              "taxADT": 595000,
+              "vatADT": 138000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "N",
+                  "cabinClass": "Economy",
+                  "fareBasis": "NMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-7|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-7|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I",
+              "seatAvailable": 1,
+              "id": "SGNHAN-7|Y",
+              "fareADT": 2939000,
+              "taxADT": 595000,
+              "vatADT": 236000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 1,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J",
+              "seatAvailable": 6,
+              "id": "SGNHAN-7|Y",
+              "fareADT": 5999000,
+              "taxADT": 595000,
+              "vatADT": 480000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 6,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 12:25",
+              "arrivalDate": "11-06-2026 14:35",
+              "airCraft": "321",
+              "flightNumber": "840",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-8",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1719000,
+          "departDateTime": "11-06-2026 15:30",
+          "totalTimeDuring": 130,
+          "isNDC": false,
+          "numberOfStop": 0,
+          "priceInfo": [
+            {
+              "class": "N",
+              "seatAvailable": 9,
+              "id": "SGNHAN-8|Y",
+              "fareADT": 1719000,
+              "taxADT": 595000,
+              "vatADT": 138000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "N",
+                  "cabinClass": "Economy",
+                  "fareBasis": "NMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-8|Y",
+              "fareADT": 1959000,
+              "taxADT": 595000,
+              "vatADT": 157000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-8|Y",
+              "fareADT": 2619000,
+              "taxADT": 595000,
+              "vatADT": 210000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I",
+              "seatAvailable": 3,
+              "id": "SGNHAN-8|Y",
+              "fareADT": 2939000,
+              "taxADT": 595000,
+              "vatADT": 236000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 3,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J",
+              "seatAvailable": 8,
+              "id": "SGNHAN-8|Y",
+              "fareADT": 5999000,
+              "taxADT": 595000,
+              "vatADT": 480000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 10,
+              "departDate": "11-06-2026 15:30",
+              "arrivalDate": "11-06-2026 17:40",
+              "airCraft": "321",
+              "flightNumber": "854",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T3",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-9",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1598000,
+          "departDateTime": "11-06-2026 18:20",
+          "totalTimeDuring": 320,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "R-O",
+              "seatAvailable": 9,
+              "id": "SGNHAN-9|Y|Y",
+              "fareADT": 1598000,
+              "taxADT": 1070000,
+              "vatADT": 128000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "R",
+                  "cabinClass": "Economy",
+                  "fareBasis": "RMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "O",
+                  "cabinClass": "Economy",
+                  "fareBasis": "OMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-9|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-9|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 18:20",
+              "arrivalDate": "11-06-2026 19:20",
+              "airCraft": "32N",
+              "flightNumber": "1985",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 21:35",
+              "arrivalDate": "11-06-2026 23:40",
+              "airCraft": "32Q",
+              "flightNumber": "1244",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-10",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1598000,
+          "departDateTime": "11-06-2026 16:25",
+          "totalTimeDuring": 435,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "R-O",
+              "seatAvailable": 9,
+              "id": "SGNHAN-10|Y|Y",
+              "fareADT": 1598000,
+              "taxADT": 1070000,
+              "vatADT": 128000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "R",
+                  "cabinClass": "Economy",
+                  "fareBasis": "RMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "O",
+                  "cabinClass": "Economy",
+                  "fareBasis": "OMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-10|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-10|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 16:25",
+              "arrivalDate": "11-06-2026 17:25",
+              "airCraft": "32Q",
+              "flightNumber": "1981",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 21:35",
+              "arrivalDate": "11-06-2026 23:40",
+              "airCraft": "32Q",
+              "flightNumber": "1244",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-11",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 1978000,
+          "departDateTime": "11-06-2026 07:05",
+          "totalTimeDuring": 300,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "N-O",
+              "seatAvailable": 3,
+              "id": "SGNHAN-11|Y|Y",
+              "fareADT": 1978000,
+              "taxADT": 1070000,
+              "vatADT": 159000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "N",
+                  "cabinClass": "Economy",
+                  "fareBasis": "NMESD0VF",
+                  "seatAvailable": 3,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "O",
+                  "cabinClass": "Economy",
+                  "fareBasis": "OMESD0VF",
+                  "seatAvailable": 3,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-11|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-11|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 07:05",
+              "arrivalDate": "11-06-2026 08:05",
+              "airCraft": "32N",
+              "flightNumber": "1955",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 10:00",
+              "arrivalDate": "11-06-2026 12:05",
+              "airCraft": "32Q",
+              "flightNumber": "1206",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-12",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2138000,
+          "departDateTime": "11-06-2026 16:25",
+          "totalTimeDuring": 250,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "R-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-12|Y|Y",
+              "fareADT": 2138000,
+              "taxADT": 1070000,
+              "vatADT": 172000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "R",
+                  "cabinClass": "Economy",
+                  "fareBasis": "RMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-12|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-12|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "I-I",
+              "seatAvailable": 4,
+              "id": "SGNHAN-12|Y|Y",
+              "fareADT": 5868000,
+              "taxADT": 1070000,
+              "vatADT": 470000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD0VF",
+                  "seatAvailable": 4,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "I",
+                  "cabinClass": "Business",
+                  "fareBasis": "IMBPD1VF",
+                  "seatAvailable": 4,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "J-J",
+              "seatAvailable": 8,
+              "id": "SGNHAN-12|Y|Y",
+              "fareADT": 8418000,
+              "taxADT": 1070000,
+              "vatADT": 674000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD0VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "J",
+                  "cabinClass": "Business",
+                  "fareBasis": "JMBFD1VF",
+                  "seatAvailable": 8,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 2,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 16:25",
+              "arrivalDate": "11-06-2026 17:25",
+              "airCraft": "32Q",
+              "flightNumber": "1981",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 18:30",
+              "arrivalDate": "11-06-2026 20:35",
+              "airCraft": "32Q",
+              "flightNumber": "1232",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-13",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2418000,
+          "departDateTime": "11-06-2026 12:05",
+          "totalTimeDuring": 345,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "Q-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-13|Y|Y",
+              "fareADT": 2418000,
+              "taxADT": 1070000,
+              "vatADT": 194000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-13|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-13|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 12:05",
+              "arrivalDate": "11-06-2026 13:05",
+              "airCraft": "32Q",
+              "flightNumber": "1971",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 15:45",
+              "arrivalDate": "11-06-2026 17:50",
+              "airCraft": "32Q",
+              "flightNumber": "1224",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-14",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2418000,
+          "departDateTime": "11-06-2026 12:05",
+          "totalTimeDuring": 425,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "Q-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-14|Y|Y",
+              "fareADT": 2418000,
+              "taxADT": 1070000,
+              "vatADT": 194000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-14|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-14|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 12:05",
+              "arrivalDate": "11-06-2026 13:05",
+              "airCraft": "32Q",
+              "flightNumber": "1971",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 17:05",
+              "arrivalDate": "11-06-2026 19:10",
+              "airCraft": "32Q",
+              "flightNumber": "1230",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-15",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2518000,
+          "departDateTime": "11-06-2026 08:30",
+          "totalTimeDuring": 440,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "N-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-15|Y|Y",
+              "fareADT": 2518000,
+              "taxADT": 1070000,
+              "vatADT": 202000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "N",
+                  "cabinClass": "Economy",
+                  "fareBasis": "NMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-15|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-15|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 08:30",
+              "arrivalDate": "11-06-2026 09:30",
+              "airCraft": "32Q",
+              "flightNumber": "1961",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 13:45",
+              "arrivalDate": "11-06-2026 15:50",
+              "airCraft": "32Q",
+              "flightNumber": "1218",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-16",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2608000,
+          "departDateTime": "11-06-2026 11:35",
+          "totalTimeDuring": 255,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "M-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-16|Y|Y",
+              "fareADT": 2608000,
+              "taxADT": 1070000,
+              "vatADT": 209000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-16|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-16|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 11:35",
+              "arrivalDate": "11-06-2026 12:35",
+              "airCraft": "32N",
+              "flightNumber": "1969",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 13:45",
+              "arrivalDate": "11-06-2026 15:50",
+              "airCraft": "32Q",
+              "flightNumber": "1218",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-17",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2608000,
+          "departDateTime": "11-06-2026 10:35",
+          "totalTimeDuring": 315,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "M-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-17|Y|Y",
+              "fareADT": 2608000,
+              "taxADT": 1070000,
+              "vatADT": 209000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-17|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-17|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 10:35",
+              "arrivalDate": "11-06-2026 11:35",
+              "airCraft": "32N",
+              "flightNumber": "1965",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 13:45",
+              "arrivalDate": "11-06-2026 15:50",
+              "airCraft": "32Q",
+              "flightNumber": "1218",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-18",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2608000,
+          "departDateTime": "11-06-2026 11:35",
+          "totalTimeDuring": 375,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "M-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-18|Y|Y",
+              "fareADT": 2608000,
+              "taxADT": 1070000,
+              "vatADT": 209000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-18|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-18|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 11:35",
+              "arrivalDate": "11-06-2026 12:35",
+              "airCraft": "32N",
+              "flightNumber": "1969",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 15:45",
+              "arrivalDate": "11-06-2026 17:50",
+              "airCraft": "32Q",
+              "flightNumber": "1224",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-19",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2608000,
+          "departDateTime": "11-06-2026 10:35",
+          "totalTimeDuring": 435,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "M-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-19|Y|Y",
+              "fareADT": 2608000,
+              "taxADT": 1070000,
+              "vatADT": 209000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-19|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-19|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 10:35",
+              "arrivalDate": "11-06-2026 11:35",
+              "airCraft": "32N",
+              "flightNumber": "1965",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 15:45",
+              "arrivalDate": "11-06-2026 17:50",
+              "airCraft": "32Q",
+              "flightNumber": "1224",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        },
+        {
+          "id": "SGNHAN-20",
+          "airline": "9G",
+          "source": "9G",
+          "from": "SGN",
+          "to": "HAN",
+          "lowestFare": 2608000,
+          "departDateTime": "11-06-2026 11:35",
+          "totalTimeDuring": 455,
+          "isNDC": false,
+          "numberOfStop": 1,
+          "priceInfo": [
+            {
+              "class": "M-Q",
+              "seatAvailable": 9,
+              "id": "SGNHAN-20|Y|Y",
+              "fareADT": 2608000,
+              "taxADT": 1070000,
+              "vatADT": 209000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "Q",
+                  "cabinClass": "Economy",
+                  "fareBasis": "QMESD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "M-M",
+              "seatAvailable": 9,
+              "id": "SGNHAN-20|Y|Y",
+              "fareADT": 3078000,
+              "taxADT": 1070000,
+              "vatADT": 247000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "M",
+                  "cabinClass": "Economy",
+                  "fareBasis": "MMEPD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            },
+            {
+              "class": "B-B",
+              "seatAvailable": 9,
+              "id": "SGNHAN-20|Y|Y",
+              "fareADT": 4388000,
+              "taxADT": 1070000,
+              "vatADT": 352000,
+              "fareCHD": 0,
+              "taxCHD": 0,
+              "vatCHD": 0,
+              "fareINF": 0,
+              "taxINF": 0,
+              "vatINF": 0,
+              "fareInfo": [
+                {
+                  "market": "SGNPQC",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                },
+                {
+                  "market": "PQCHAN",
+                  "class": "B",
+                  "cabinClass": "Economy",
+                  "fareBasis": "BMEFD0VF",
+                  "seatAvailable": 9,
+                  "baggageInformations": [
+                    {
+                      "type": "BAG",
+                      "pieces": 1,
+                      "description": "23 Kg"
+                    }
+                  ]
+                }
+              ],
+              "refundable": true,
+              "changeable": true,
+              "source": "",
+              "isFareDiscountApplied": false,
+              "isPrivateFare": false,
+              "isFareCheckApplied": false,
+              "currencyCode": "VND"
+            }
+          ],
+          "routeInfo": [
+            {
+              "from": "SGN",
+              "to": "PQC",
+              "flightTimeHour": 1,
+              "flightTimeMinute": 0,
+              "departDate": "11-06-2026 11:35",
+              "arrivalDate": "11-06-2026 12:35",
+              "airCraft": "32N",
+              "flightNumber": "1969",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Tp. Hồ Chí Minh",
+              "arrivalCity": "Phú Quốc",
+              "startTerminal": "T3",
+              "endTerminal": "T",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            },
+            {
+              "from": "PQC",
+              "to": "HAN",
+              "flightTimeHour": 2,
+              "flightTimeMinute": 5,
+              "departDate": "11-06-2026 17:05",
+              "arrivalDate": "11-06-2026 19:10",
+              "airCraft": "32Q",
+              "flightNumber": "1230",
+              "carrierCode": "9G",
+              "carrierName": "Sun PhuQuoc Airways",
+              "departureCity": "Phú Quốc",
+              "arrivalCity": "Hà Nội",
+              "startTerminal": "T",
+              "endTerminal": "T1",
+              "marketingCarrier": "9G",
+              "operatingCarrier": "9G",
+              "operatingCarrierName": "Sun PhuQuoc Airways",
+              "source": "9G"
+            }
+          ],
+          "issueFee": 0,
+          "issueFeeADT": 0,
+          "issueFeeCHD": 0,
+          "combineSegment": false,
+          "systemName": "Sun PhuQuoc Airways",
+          "canPayNow": false,
+          "canBuyBaggage": true,
+          "canBuySeat": true,
+          "passportRequired": false,
+          "quoteRequired": false,
+          "birthdayRequired": false,
+          "showPassport": false,
+          "canSplitSegment": true,
+          "isFareDiscountApplied": false,
+          "checkLengthName": true
+        }
+      ]
+    },
+    "message": "success"
+  }
+}

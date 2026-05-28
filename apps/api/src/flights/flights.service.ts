@@ -123,13 +123,18 @@ export class FlightsService {
 
     offers.forEach((offer) => {
       const airline = airlineByCode.get(offer.airline.code);
-      if (airline) {
+      if (
+        airline &&
+        (!offer.airline.name || offer.airline.name === offer.airline.code)
+      ) {
         offer.airline.name = airline.name;
       }
 
       offer.segments.forEach((segment) => {
-        segment.from.city = airportByCode.get(segment.from.code)?.city;
-        segment.to.city = airportByCode.get(segment.to.code)?.city;
+        segment.from.city =
+          segment.from.city ?? airportByCode.get(segment.from.code)?.city;
+        segment.to.city =
+          segment.to.city ?? airportByCode.get(segment.to.code)?.city;
       });
     });
   }

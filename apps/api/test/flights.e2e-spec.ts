@@ -230,18 +230,28 @@ function mockProviderResult() {
             flightNumber: '247',
             from: 'SGN',
             to: 'HAN',
-            departDate: `${futureDate(30)} 08:00`,
-            arrivalDate: `${futureDate(30)} 10:10`,
+            departDate: toMuadiDateTime(futureDate(30), '08:00'),
+            arrivalDate: toMuadiDateTime(futureDate(30), '10:10'),
+            flightTimeHour: 2,
+            flightTimeMinute: 10,
           },
         ],
         priceInfo: [
           {
-            fareClass: 'Eco',
-            total: 1200000,
-            soldOut: false,
+            class: 'L',
+            seatAvailable: 9,
+            fareADT: 900000,
+            taxADT: 240000,
+            vatADT: 90000,
+            issueFeeADT: 50000,
           },
         ],
       },
     ],
   };
+}
+
+function toMuadiDateTime(isoDate: string, time: string): string {
+  const [year, month, day] = isoDate.split('-');
+  return `${day}-${month}-${year} ${time}`;
 }

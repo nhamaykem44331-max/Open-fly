@@ -4,6 +4,7 @@ import { MuadiClientService } from './muadi-client.service';
 import {
   IMuadiProvider,
   MuadiAirlineFailure,
+  MuadiBookingFee,
   MuadiRawFlight,
   SearchParams,
   SearchResult,
@@ -17,14 +18,28 @@ interface MuadiCreateSessionResponse {
 }
 
 interface MuadiSearchFlightResponse {
-  data?: {
+  data?: MuadiSearchFlightPayload;
+  departureFlight?: MuadiRawFlight[];
+  returnFlight?: MuadiRawFlight[];
+  gdsFlight?: {
     departureFlight?: MuadiRawFlight[];
     returnFlight?: MuadiRawFlight[];
-    gdsFlight?: {
-      departureFlight?: MuadiRawFlight[];
-      returnFlight?: MuadiRawFlight[];
-    };
   };
+  bookingFee?: MuadiBookingFee[];
+  bookingFees?: MuadiBookingFee[];
+  source?: unknown;
+}
+
+interface MuadiSearchFlightPayload {
+  departureFlight?: MuadiRawFlight[];
+  returnFlight?: MuadiRawFlight[];
+  gdsFlight?: {
+    departureFlight?: MuadiRawFlight[];
+    returnFlight?: MuadiRawFlight[];
+  };
+  bookingFee?: MuadiBookingFee[];
+  bookingFees?: MuadiBookingFee[];
+  source?: unknown;
 }
 
 @Injectable()
@@ -93,17 +108,19 @@ export class RealMuadiProvider implements IMuadiProvider {
                 sessionID,
               },
             );
+          const body = this.getSearchPayload(response);
+          const bookingFees = body.bookingFees ?? body.bookingFee;
 
           return {
             airline,
             departureFlight: [
-              ...(response.data?.departureFlight ?? []),
-              ...(response.data?.gdsFlight?.departureFlight ?? []),
-            ].map((flight) => this.withAirline(flight, airline)),
+              ...(body.departureFlight ?? []),
+              ...(body.gdsFlight?.departureFlight ?? []),
+            ].map((flight) => this.withAirline(flight, airline, bookingFees)),
             returnFlight: [
-              ...(response.data?.returnFlight ?? []),
-              ...(response.data?.gdsFlight?.returnFlight ?? []),
-            ].map((flight) => this.withAirline(flight, airline)),
+              ...(body.returnFlight ?? []),
+              ...(body.gdsFlight?.returnFlight ?? []),
+            ].map((flight) => this.withAirline(flight, airline, bookingFees)),
           };
         }),
       );
@@ -157,7 +174,7 @@ export class RealMuadiProvider implements IMuadiProvider {
     return {
       originCode: params.origin,
       destinationCode: params.destination,
-      departureDateTime: params.date,
+      departureDateTime: toMuadiDate(params.date),
       journeyType: 'OW',
       numberOfAdult: params.paxAdt,
       numberOfChildren: params.paxChd,
@@ -178,10 +195,31 @@ export class RealMuadiProvider implements IMuadiProvider {
     return String(reason);
   }
 
-  private withAirline(flight: MuadiRawFlight, airline: string): MuadiRawFlight {
+  private getSearchPayload(
+    response: MuadiSearchFlightResponse,
+  ): MuadiSearchFlightPayload {
+    return response.data ?? response;
+  }
+
+  private withAirline(
+    flight: MuadiRawFlight,
+    airline: string,
+    bookingFees: MuadiBookingFee[] | undefined,
+  ): MuadiRawFlight {
     return {
       ...flight,
       airline: flight.airline ?? airline,
+      bookingFees: flight.bookingFees ?? flight.bookingFee ?? bookingFees,
     };
   }
+}
+
+export function toMuadiDate(isoDate: string): string {
+  const match = isoDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    throw new Error(`Ngày bay không hợp lệ: ${isoDate}`);
+  }
+
+  const [, year, month, day] = match;
+  return `${day}-${month}-${year}`;
 }

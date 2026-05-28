@@ -31,8 +31,12 @@ export class FlightSegmentDto {
 export class FareClassDto {
   code!: string;
   name!: string;
+  baseFareVnd!: number;
+  taxesFeesVnd!: number;
   priceVnd!: number;
+  seatAvailable!: number;
   soldOut!: boolean;
   refundable?: boolean;
+  baggage?: string;
   baggageKg?: number;
 }
