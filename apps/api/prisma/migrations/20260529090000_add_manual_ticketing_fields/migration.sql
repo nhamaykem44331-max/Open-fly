@@ -1,0 +1,3 @@
+ALTER TYPE "BookingStatus" ADD VALUE IF NOT EXISTS 'ISSUE_FAILED';
+
+ALTER TABLE "BookingPnr" ADD COLUMN "ticketNumber" TEXT;

@@ -134,6 +134,7 @@ enum BookingStatus {
   PAID
   PRICING_PENDING
   TICKETED
+  ISSUE_FAILED
   EXPIRED
   CANCELLED
   REFUNDED
@@ -304,6 +305,7 @@ model BookingPnr {
   bookingId String
   airline   String
   pnr       String
+  ticketNumber String?
   timelimit DateTime?
   rawJson   Json?
   createdAt DateTime  @default(now())

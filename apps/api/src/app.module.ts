@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AdminBookingModule } from './admin/admin-booking.module';
 import { AuthModule } from './auth/auth.module';
 import { BookingModule } from './booking/booking.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -57,6 +58,7 @@ function validateEnv(config: Record<string, unknown>) {
     ]),
     ScheduleModule.forRoot(),
     PrismaModule,
+    AdminBookingModule,
     AuthModule,
     MuadiModule,
     RedisModule,
