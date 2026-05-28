@@ -130,6 +130,8 @@ model SearchHistory {
 enum BookingStatus {
   DRAFT
   HELD
+  PAYMENT_PENDING
+  PAID
   PRICING_PENDING
   TICKETED
   EXPIRED

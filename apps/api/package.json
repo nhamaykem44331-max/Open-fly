@@ -16,6 +16,7 @@
     "seed:muadi": "ts-node scripts/seed-muadi-session.ts",
     "seed:markup": "ts-node prisma/seed-markup.ts",
     "smoke:muadi": "ts-node scripts/smoke-muadi-search.ts",
+    "sepay:simulate": "ts-node scripts/sepay-simulate-webhook.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest",

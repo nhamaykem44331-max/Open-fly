@@ -11,6 +11,7 @@ import { HealthModule } from './health/health.module';
 import { MuadiModule } from './integrations/muadi/muadi.module';
 import { RedisModule } from './integrations/redis/redis.module';
 import { MeModule } from './me/me.module';
+import { PaymentModule } from './payment/payment.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 function validateEnv(config: Record<string, unknown>) {
@@ -58,6 +59,7 @@ function validateEnv(config: Record<string, unknown>) {
     RedisModule,
     FlightsModule,
     BookingModule,
+    PaymentModule,
     MeModule,
     HealthModule,
   ],
