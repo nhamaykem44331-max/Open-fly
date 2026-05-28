@@ -168,10 +168,10 @@ model Booking {
   voucherDiscount           Int     @default(0)
   appliedVoucherCode        String?
 
-  // ─── VAT (BẮT BUỘC mọi booking — quyết định 23) ───
-  vatCompanyName   String // "Công ty TNHH ABC"
-  vatTaxId         String // MST: "0102030405"
-  vatAddress       String // địa chỉ xuất hóa đơn
+  // ─── VAT (tùy chọn từ Sprint 2 Task 4) ───
+  vatCompanyName   String? // "Công ty TNHH ABC"
+  vatTaxId         String? // MST: "0102030405"
+  vatAddress       String? // địa chỉ xuất hóa đơn
   vatEmail         String? // email nhận hóa đơn (nullable, default = contactEmail)
   vatStatus        String    @default("PENDING") // PENDING | ISSUED | FAILED
   vatInvoiceNumber String? // số hóa đơn sau khi xuất

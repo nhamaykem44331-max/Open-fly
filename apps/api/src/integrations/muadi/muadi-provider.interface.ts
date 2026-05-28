@@ -113,6 +113,7 @@ export interface MuadiAirlineFailure {
 export interface SearchResult {
   provider: 'mock' | 'muadi';
   searchedAt: string;
+  muadiSessionId: number;
   rawFlights: MuadiRawFlight[];
   returnRawFlights?: MuadiRawFlight[];
   airlinesQueried: string[];

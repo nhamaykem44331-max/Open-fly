@@ -148,6 +148,7 @@ function mockProviderResult() {
   return {
     provider: 'mock' as const,
     searchedAt: '2026-05-28T10:00:00.000Z',
+    muadiSessionId: 123456,
     airlinesQueried: ['VN'],
     airlinesFailed: [],
     rawFlights: [

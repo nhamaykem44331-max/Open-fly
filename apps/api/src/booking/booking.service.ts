@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { GoneException, Inject, Injectable } from '@nestjs/common';
 import { BookingStatus, MembershipTier, Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import {
@@ -8,8 +8,10 @@ import {
   MuadiRawFare,
   MuadiRawFlight,
 } from '../integrations/muadi/muadi-provider.interface';
+import { RedisService } from '../integrations/redis/redis.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { parseMuadiDateTime } from '../flights/normalizer';
+import { OfferSnapshot, offerSnapshotKey } from '../flights/offer-snapshot';
 import { MarkupService } from '../pricing/markup.service';
 import { buildBookRequest } from './book-request.builder';
 import { HoldBookingDto } from './dto/hold-booking.dto';
@@ -32,12 +34,19 @@ export class BookingService {
     private readonly muadiProvider: IMuadiProvider,
     private readonly prisma: PrismaService,
     private readonly markupService: MarkupService,
+    private readonly redis: RedisService,
   ) {}
 
   async hold(dto: HoldBookingDto, options: HoldBookingOptions = {}) {
-    const flight = this.requireRawFlight(dto);
+    const snapshot = await this.loadOfferSnapshot(dto.offerId);
+    const flight = snapshot.rawFlight;
     const fare = this.resolveFare(dto, flight);
-    const request = this.buildRequest(dto, flight, fare);
+    const request = this.buildRequest(
+      dto,
+      flight,
+      fare,
+      snapshot.muadiSessionId,
+    );
 
     if (options.dryRun) {
       return {
@@ -48,7 +57,7 @@ export class BookingService {
 
     const holdResult = await this.muadiProvider.hold({
       bookRequest: request,
-      sessionId: dto.sessionId,
+      sessionId: snapshot.muadiSessionId,
     });
 
     return this.persistHeldBooking(
@@ -56,6 +65,7 @@ export class BookingService {
       options,
       flight,
       fare,
+      snapshot.muadiSessionId,
       request,
       holdResult,
     );
@@ -65,12 +75,13 @@ export class BookingService {
     dto: HoldBookingDto,
     flight: MuadiRawFlight,
     fare: MuadiRawFare,
+    muadiSessionId: number,
   ) {
     const firstSegment = flight.routeInfo?.[0];
     const lastSegment = flight.routeInfo?.[flight.routeInfo.length - 1];
 
     return buildBookRequest({
-      sessionId: dto.sessionId,
+      sessionId: muadiSessionId,
       originCode: firstSegment?.from ?? flight.from ?? '',
       destinationCode: lastSegment?.to ?? flight.to ?? '',
       departureDateTime: getMuadiDateOnly(
@@ -92,14 +103,12 @@ export class BookingService {
     options: HoldBookingOptions,
     flight: MuadiRawFlight,
     fare: MuadiRawFare,
+    muadiSessionId: number,
     bookRequest: Record<string, unknown>,
     holdResult: HoldResult,
   ) {
     if (!options.userId) {
       throw new Error('Thiếu userId để lưu booking HELD');
-    }
-    if (!options.vat) {
-      throw new Error('Thiếu thông tin VAT để lưu booking HELD');
     }
 
     const firstSegment = flight.routeInfo?.[0];
@@ -135,7 +144,7 @@ export class BookingService {
         userId: options.userId,
         status: BookingStatus.HELD,
         pnr: firstPnr?.pnr,
-        sessionId: String(dto.sessionId),
+        sessionId: String(muadiSessionId),
         airline: flight.airline,
         flightNumber: buildFlightNumber(firstSegment, flight),
         aircraft:
@@ -161,10 +170,10 @@ export class BookingService {
           : undefined,
         tax: totals.tax,
         fee: totals.fee,
-        vatCompanyName: options.vat.companyName,
-        vatTaxId: options.vat.taxId,
-        vatAddress: options.vat.address,
-        vatEmail: options.vat.email ?? dto.contact.email,
+        vatCompanyName: options.vat?.companyName ?? null,
+        vatTaxId: options.vat?.taxId ?? null,
+        vatAddress: options.vat?.address ?? null,
+        vatEmail: options.vat ? (options.vat.email ?? dto.contact.email) : null,
         priceLockedAt: new Date(),
         ttlExpiresAt: muadiHoldExpiresAt,
         muadiHoldExpiresAt,
@@ -224,23 +233,33 @@ export class BookingService {
     });
   }
 
-  private requireRawFlight(dto: HoldBookingDto): MuadiRawFlight {
-    if (!dto.rawFlight) {
-      throw new Error('rawFlight là bắt buộc cho hold core ở Task 1');
+  private async loadOfferSnapshot(offerId: string): Promise<OfferSnapshot> {
+    let snapshot: OfferSnapshot | null = null;
+    try {
+      snapshot = await this.redis.get<OfferSnapshot>(offerSnapshotKey(offerId));
+    } catch {
+      snapshot = null;
+    }
+    if (!snapshot?.rawFlight || !snapshot.muadiSessionId) {
+      throw new GoneException('Vé đã hết hạn giữ, vui lòng tìm lại');
     }
 
-    return dto.rawFlight;
+    return snapshot;
   }
 
   private resolveFare(
     dto: HoldBookingDto,
     flight: MuadiRawFlight,
   ): MuadiRawFare {
-    const fare =
-      dto.rawFare ??
-      flight.priceInfo?.find((item) => item.class === dto.fareClass);
+    const fare = flight.priceInfo?.find(
+      (item) =>
+        item.class === dto.fareClass || item.fareClass === dto.fareClass,
+    );
     if (!fare) {
       throw new Error('Không tìm thấy fare class trong dữ liệu Muadi');
+    }
+    if (fare.soldOut === true || (fare.seatAvailable ?? 1) <= 0) {
+      throw new Error('Hết chỗ');
     }
 
     return fare;

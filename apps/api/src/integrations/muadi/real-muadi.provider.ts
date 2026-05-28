@@ -155,6 +155,7 @@ export class RealMuadiProvider implements IMuadiProvider {
       return {
         provider: 'muadi',
         searchedAt: new Date().toISOString(),
+        muadiSessionId: sessionID,
         rawFlights,
         returnRawFlights:
           returnRawFlights.length > 0 ? returnRawFlights : undefined,

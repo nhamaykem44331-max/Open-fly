@@ -9,6 +9,7 @@ import { RedisService } from '../integrations/redis/redis.service';
 import { MarkupService } from '../pricing/markup.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FlightOfferDto } from './dto/flight-offer.dto';
+import { offerSnapshotKey, OfferSnapshot } from './offer-snapshot';
 import { SearchResponseDto } from './dto/search-response.dto';
 import { normalizeFlight } from './normalizer';
 
@@ -62,6 +63,20 @@ export class FlightsService {
     );
 
     await this.enrichOffers([...offers, ...(returnOffers ?? [])]);
+    await this.saveOfferSnapshots(
+      offers,
+      result.rawFlights,
+      result.muadiSessionId,
+      dto,
+    );
+    if (returnOffers && result.returnRawFlights) {
+      await this.saveOfferSnapshots(
+        returnOffers,
+        result.returnRawFlights,
+        result.muadiSessionId,
+        dto,
+      );
+    }
     await this.markupService.applyMarkupToOffers(
       [...offers, ...(returnOffers ?? [])],
       {
@@ -200,6 +215,48 @@ export class FlightsService {
     return Number.isFinite(value) && value > 0 ? value : 60;
   }
 
+  private async saveOfferSnapshots(
+    offers: FlightOfferDto[],
+    rawFlights: unknown[],
+    muadiSessionId: number,
+    dto: SearchParamsDto,
+  ): Promise<void> {
+    await Promise.all(
+      offers.map(async (offer, index) => {
+        const rawFlight = rawFlights[index];
+        if (!rawFlight) {
+          return;
+        }
+
+        const snapshot: OfferSnapshot = {
+          rawFlight: rawFlight as OfferSnapshot['rawFlight'],
+          muadiSessionId,
+          currencyCode: getCurrencyCode(rawFlight),
+          searchParams: dto,
+        };
+        try {
+          await this.redis.set(
+            offerSnapshotKey(offer.id),
+            snapshot,
+            this.getOfferSnapshotTtlSeconds(),
+          );
+        } catch (error) {
+          this.logger.warn(
+            `Offer snapshot write skipped for ${offer.id}: ${this.safeError(error)}`,
+          );
+        }
+      }),
+    );
+  }
+
+  private getOfferSnapshotTtlSeconds(): number {
+    const value = Number(
+      this.config.get<string>('MUADI_OFFER_SNAPSHOT_TTL_SECONDS'),
+    );
+
+    return Number.isFinite(value) && value > 0 ? value : 900;
+  }
+
   private safeError(error: unknown): string {
     if (error instanceof Error) {
       return error.message;
@@ -207,4 +264,11 @@ export class FlightsService {
 
     return String(error);
   }
+}
+
+function getCurrencyCode(rawFlight: unknown): string {
+  const flight = rawFlight as { priceInfo?: Array<{ currencyCode?: string }> };
+  return (
+    flight.priceInfo?.find((fare) => fare.currencyCode)?.currencyCode ?? 'VND'
+  );
 }

@@ -5,6 +5,7 @@ import {
   MuadiRawFare,
   MuadiRawFlight,
 } from '../../integrations/muadi/muadi-provider.interface';
+import { RedisService } from '../../integrations/redis/redis.service';
 import { MarkupService } from '../../pricing/markup.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { BookingService, parseTimelimit } from '../booking.service';
@@ -16,6 +17,7 @@ describe('BookingService hold', () => {
     booking: { create: jest.Mock };
     user: { findUnique: jest.Mock };
   };
+  let redis: jest.Mocked<Pick<RedisService, 'get'>>;
   let markup: jest.Mocked<
     Pick<MarkupService, 'classifyDomestic' | 'computeForFareClass'>
   >;
@@ -39,6 +41,21 @@ describe('BookingService hold', () => {
         findUnique: jest.fn().mockResolvedValue({ tier: 'STANDARD' }),
       },
     };
+    redis = {
+      get: jest.fn().mockResolvedValue({
+        rawFlight: mockFlight(),
+        muadiSessionId: 123456,
+        currencyCode: 'VND',
+        searchParams: {
+          origin: 'SGN',
+          destination: 'HAN',
+          date: '2026-06-11',
+          paxAdt: 1,
+          paxChd: 0,
+          paxInf: 0,
+        },
+      }),
+    };
     markup = {
       classifyDomestic: jest.fn().mockResolvedValue(true),
       computeForFareClass: jest.fn().mockResolvedValue({
@@ -56,6 +73,7 @@ describe('BookingService hold', () => {
       provider,
       prisma as unknown as PrismaService,
       markup as unknown as MarkupService,
+      redis as unknown as RedisService,
     );
   });
 
@@ -181,11 +199,9 @@ describe('BookingService hold', () => {
 
 function validDto(): HoldBookingDto {
   const flight = mockFlight();
-  const fare = flight.priceInfo![0];
 
   return {
     offerId: 'offer-id',
-    sessionId: 123456,
     fareClass: 'L',
     passengers: [
       {
@@ -199,8 +215,6 @@ function validDto(): HoldBookingDto {
       phone: '+84938121234',
       email: 'guest@example.com',
     },
-    rawFlight: flight,
-    rawFare: fare,
   };
 }
 

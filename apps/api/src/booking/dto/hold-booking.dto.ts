@@ -4,22 +4,15 @@ import {
   IsArray,
   IsEmail,
   IsIn,
-  IsInt,
-  IsObject,
   IsOptional,
   IsString,
   Matches,
-  Min,
   Validate,
   ValidateNested,
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import {
-  MuadiRawFare,
-  MuadiRawFlight,
-} from '../../integrations/muadi/muadi-provider.interface';
 
 export type PassengerType = 'ADT' | 'CHD' | 'INF';
 
@@ -82,14 +75,24 @@ export class HoldContactDto {
   email!: string;
 }
 
+export class HoldVatDto {
+  @IsString()
+  companyName!: string;
+
+  @IsString()
+  taxId!: string;
+
+  @IsString()
+  address!: string;
+
+  @IsOptional()
+  @IsEmail({}, { message: 'Email không hợp lệ' })
+  email?: string;
+}
+
 export class HoldBookingDto {
   @IsString()
   offerId!: string;
-
-  @IsInt()
-  @Min(1)
-  @Type(() => Number)
-  sessionId!: number;
 
   @IsString()
   fareClass!: string;
@@ -107,10 +110,7 @@ export class HoldBookingDto {
   contact!: HoldContactDto;
 
   @IsOptional()
-  @IsObject()
-  rawFlight?: MuadiRawFlight;
-
-  @IsOptional()
-  @IsObject()
-  rawFare?: MuadiRawFare;
+  @ValidateNested()
+  @Type(() => HoldVatDto)
+  vat?: HoldVatDto;
 }

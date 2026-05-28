@@ -14,6 +14,7 @@ export class MockMuadiProvider implements IMuadiProvider {
     return {
       provider: 'mock',
       searchedAt: new Date().toISOString(),
+      muadiSessionId: 123456,
       rawFlights: buildMockFlights(params),
       airlinesQueried: ['VN', 'VJ', 'QH', 'BL'],
       airlinesFailed: [],
