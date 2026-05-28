@@ -298,6 +298,7 @@ export class MuadiClientService {
       headers['X-Api-Version'] = options.apiVersion ?? '2';
     }
 
+    let serverDiff = 0;
     if (options.authenticated) {
       if (!options.sessionId) {
         throw new Error('Muadi authenticated request requires sessionId');
@@ -307,8 +308,11 @@ export class MuadiClientService {
         throw new Error('Muadi session access token is missing');
       }
       headers.authorization = session.accessToken;
-      headers.tsp = encryptMuadi(String(Math.floor(Date.now() / 1000) + session.serverDiff));
+      serverDiff = session.serverDiff;
     }
+
+    // tsp is required by Muadi gateway for every request, including login.
+    headers.tsp = encryptMuadi(String(Math.floor(Date.now() / 1000) + serverDiff));
 
     return headers;
   }
