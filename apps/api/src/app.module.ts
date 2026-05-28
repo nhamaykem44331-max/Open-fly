@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { BookingModule } from './booking/booking.module';
@@ -13,6 +14,7 @@ import { RedisModule } from './integrations/redis/redis.module';
 import { MeModule } from './me/me.module';
 import { PaymentModule } from './payment/payment.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
 
 function validateEnv(config: Record<string, unknown>) {
   const requiredKeys = ['GOOGLE_CLIENT_ID'];
@@ -53,6 +55,7 @@ function validateEnv(config: Record<string, unknown>) {
         limit: 100,
       },
     ]),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     MuadiModule,
@@ -60,6 +63,7 @@ function validateEnv(config: Record<string, unknown>) {
     FlightsModule,
     BookingModule,
     PaymentModule,
+    SchedulerModule,
     MeModule,
     HealthModule,
   ],

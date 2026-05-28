@@ -54,6 +54,26 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async setNx<T>(key: string, value: T, ttlSeconds: number): Promise<boolean> {
+    try {
+      await this.ensureConnected();
+      const result = await this.redis.set(
+        key,
+        JSON.stringify(value),
+        'EX',
+        ttlSeconds,
+        'NX',
+      );
+
+      return result === 'OK';
+    } catch (error) {
+      this.logger.warn(
+        `Redis SET NX failed for ${key}: ${this.safeError(error)}`,
+      );
+      throw error;
+    }
+  }
+
   async del(key: string): Promise<void> {
     try {
       await this.ensureConnected();

@@ -29,6 +29,15 @@ interface HoldBookingResponse {
   totalSellPrice: number;
 }
 
+type HoldIdempotencyRecord =
+  | {
+      status: 'processing';
+    }
+  | {
+      status: 'done';
+      response: HoldBookingResponse;
+    };
+
 @Controller('bookings')
 export class BookingController {
   constructor(
@@ -48,9 +57,16 @@ export class BookingController {
     }
 
     const cacheKey = `idempotency:booking-hold:${user.id}:${idempotencyKey.trim()}`;
-    const cached = await this.getCachedHold(cacheKey);
-    if (cached) {
-      return cached;
+    const acquired = await this.reserveHold(cacheKey);
+    if (!acquired) {
+      const cached = await this.getCachedHold(cacheKey);
+      if (cached?.status === 'done') {
+        return cached.response;
+      }
+
+      throw new ConflictException(
+        'Yêu cầu đang được xử lý, vui lòng đợi giây lát',
+      );
     }
 
     try {
@@ -59,10 +75,14 @@ export class BookingController {
         vat: dto.vat,
       })) as Booking;
       const response = toHoldResponse(booking);
-      await this.setCachedHold(cacheKey, response);
+      await this.setCachedHold(cacheKey, {
+        status: 'done',
+        response,
+      });
 
       return response;
     } catch (error) {
+      await this.clearHold(cacheKey);
       throw mapHoldError(error);
     }
   }
@@ -135,26 +155,50 @@ export class BookingController {
 
   private async getCachedHold(
     key: string,
-  ): Promise<HoldBookingResponse | null> {
+  ): Promise<HoldIdempotencyRecord | null> {
     try {
-      return await this.redis.get<HoldBookingResponse>(key);
+      return await this.redis.get<HoldIdempotencyRecord>(key);
     } catch (error) {
       throw new ServiceUnavailableException(
-        `Không đọc được cache idempotency: ${safeError(error)}`,
+        `Không đọc được trạng thái idempotency: ${safeError(error)}`,
+      );
+    }
+  }
+
+  private async reserveHold(key: string): Promise<boolean> {
+    try {
+      return await this.redis.setNx(
+        key,
+        {
+          status: 'processing',
+        },
+        300,
+      );
+    } catch (error) {
+      throw new ServiceUnavailableException(
+        `Không đặt được trạng thái idempotency: ${safeError(error)}`,
       );
     }
   }
 
   private async setCachedHold(
     key: string,
-    response: HoldBookingResponse,
+    record: HoldIdempotencyRecord,
   ): Promise<void> {
     try {
-      await this.redis.set(key, response, 300);
+      await this.redis.set(key, record, 300);
     } catch (error) {
       throw new ServiceUnavailableException(
-        `Không ghi được cache idempotency: ${safeError(error)}`,
+        `Không ghi được trạng thái idempotency: ${safeError(error)}`,
       );
+    }
+  }
+
+  private async clearHold(key: string): Promise<void> {
+    try {
+      await this.redis.del(key);
+    } catch {
+      // Fail-closed already happened on reserve; cleanup best effort only.
     }
   }
 }
