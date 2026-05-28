@@ -6,6 +6,7 @@ import {
 } from '../integrations/muadi/muadi-provider.interface';
 import { SearchParamsDto } from '../integrations/muadi/dto/search-params.dto';
 import { RedisService } from '../integrations/redis/redis.service';
+import { MarkupService } from '../pricing/markup.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FlightOfferDto } from './dto/flight-offer.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
@@ -22,6 +23,7 @@ export class FlightsService {
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
     private readonly config: ConfigService,
+    private readonly markupService: MarkupService,
   ) {}
 
   async search(dto: SearchParamsDto): Promise<SearchResponseDto> {
@@ -60,6 +62,14 @@ export class FlightsService {
     );
 
     await this.enrichOffers([...offers, ...(returnOffers ?? [])]);
+    await this.markupService.applyMarkupToOffers(
+      [...offers, ...(returnOffers ?? [])],
+      {
+        channel: 'B2C',
+        tier: null,
+        paxType: 'ADT',
+      },
+    );
 
     const response: SearchResponseDto = {
       query: dto,

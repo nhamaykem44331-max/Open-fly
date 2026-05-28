@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BookingStatus, Prisma } from '@prisma/client';
+import { BookingStatus, MembershipTier, Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import {
   HoldResult,
@@ -10,6 +10,7 @@ import {
 } from '../integrations/muadi/muadi-provider.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { parseMuadiDateTime } from '../flights/normalizer';
+import { MarkupService } from '../pricing/markup.service';
 import { buildBookRequest } from './book-request.builder';
 import { HoldBookingDto } from './dto/hold-booking.dto';
 
@@ -30,6 +31,7 @@ export class BookingService {
     @Inject(MUADI_PROVIDER)
     private readonly muadiProvider: IMuadiProvider,
     private readonly prisma: PrismaService,
+    private readonly markupService: MarkupService,
   ) {}
 
   async hold(dto: HoldBookingDto, options: HoldBookingOptions = {}) {
@@ -108,6 +110,24 @@ export class BookingService {
       ? new Date(muadiHoldExpiresAt.getTime() - 60 * 60 * 1000)
       : null;
     const totals = computeTotals(dto, fare, flight);
+    const fromCode = firstSegment?.from ?? flight.from ?? '';
+    const toCode = lastSegment?.to ?? flight.to ?? '';
+    const cabin = fare.fareInfo?.[0]?.cabinClass?.toLowerCase() ?? 'economy';
+    const tier = await this.resolveUserTier(options.userId);
+    const domestic = await this.markupService.classifyDomestic(
+      fromCode,
+      toCode,
+    );
+    const markup = await this.markupService.computeForFareClass({
+      airlineCode: flight.airline ?? firstSegment?.carrierCode ?? '',
+      channel: 'B2C',
+      cabin,
+      paxType: 'ADT',
+      domestic,
+      tier,
+      route: fromCode && toCode ? `${fromCode}-${toCode}` : null,
+      netPrice: totals.total,
+    });
 
     return this.prisma.booking.create({
       data: {
@@ -120,8 +140,8 @@ export class BookingService {
         flightNumber: buildFlightNumber(firstSegment, flight),
         aircraft:
           firstSegment?.airCraft ?? firstSegment?.aircraft ?? flight.aircraft,
-        fromCode: firstSegment?.from ?? flight.from ?? '',
-        toCode: lastSegment?.to ?? flight.to ?? '',
+        fromCode,
+        toCode,
         departTime: new Date(
           parseMuadiDateTime(
             requiredDate(firstSegment?.departDate ?? flight.departDateTime),
@@ -131,10 +151,14 @@ export class BookingService {
           ? new Date(parseMuadiDateTime(lastSegment.arrivalDate))
           : null,
         duration: getDuration(firstSegment),
-        cabin: fare.fareInfo?.[0]?.cabinClass?.toLowerCase() ?? 'economy',
+        cabin,
         totalNetPrice: totals.total,
-        totalSellPrice: totals.total,
-        totalMarkup: 0,
+        totalSellPrice: markup.sellPrice,
+        totalMarkup: markup.markupAmount,
+        appliedMarkupRuleId: markup.ruleId,
+        appliedMarkupRuleSnapshot: markup.ruleSnapshot
+          ? toJson(markup.ruleSnapshot)
+          : undefined,
         tax: totals.tax,
         fee: totals.fee,
         vatCompanyName: options.vat.companyName,
@@ -181,6 +205,12 @@ export class BookingService {
                 timelimit: pnr.timelimit,
               })),
               paymentDeadline: paymentDeadline?.toISOString() ?? null,
+              markup: {
+                ruleId: markup.ruleId,
+                ruleName: markup.ruleName,
+                markupAmount: markup.markupAmount,
+                sellPrice: markup.sellPrice,
+              },
             }),
             occurredAt: new Date(),
           },
@@ -214,6 +244,25 @@ export class BookingService {
     }
 
     return fare;
+  }
+
+  private async resolveUserTier(
+    userId: string | undefined,
+  ): Promise<MembershipTier | null> {
+    if (!userId) {
+      return null;
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        tier: true,
+      },
+    });
+
+    return user?.tier ?? null;
   }
 }
 

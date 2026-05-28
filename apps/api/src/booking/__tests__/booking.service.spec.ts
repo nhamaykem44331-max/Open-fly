@@ -5,13 +5,20 @@ import {
   MuadiRawFare,
   MuadiRawFlight,
 } from '../../integrations/muadi/muadi-provider.interface';
+import { MarkupService } from '../../pricing/markup.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { BookingService, parseTimelimit } from '../booking.service';
 import { HoldBookingDto } from '../dto/hold-booking.dto';
 
 describe('BookingService hold', () => {
   let provider: jest.Mocked<IMuadiProvider>;
-  let prisma: { booking: { create: jest.Mock } };
+  let prisma: {
+    booking: { create: jest.Mock };
+    user: { findUnique: jest.Mock };
+  };
+  let markup: jest.Mocked<
+    Pick<MarkupService, 'classifyDomestic' | 'computeForFareClass'>
+  >;
   let service: BookingService;
 
   beforeEach(() => {
@@ -28,8 +35,28 @@ describe('BookingService hold', () => {
           }),
         ),
       },
+      user: {
+        findUnique: jest.fn().mockResolvedValue({ tier: 'STANDARD' }),
+      },
     };
-    service = new BookingService(provider, prisma as unknown as PrismaService);
+    markup = {
+      classifyDomestic: jest.fn().mockResolvedValue(true),
+      computeForFareClass: jest.fn().mockResolvedValue({
+        ruleId: 'markup-rule-id',
+        ruleName: 'Domestic 3.5%',
+        markupAmount: 101010,
+        sellPrice: 2987010,
+        ruleSnapshot: {
+          id: 'markup-rule-id',
+          name: 'Domestic 3.5%',
+        },
+      }),
+    };
+    service = new BookingService(
+      provider,
+      prisma as unknown as PrismaService,
+      markup as unknown as MarkupService,
+    );
   });
 
   it('builds a dry-run book request without calling Muadi hold', async () => {
@@ -94,9 +121,27 @@ describe('BookingService hold', () => {
         pnr: 'ABC123',
         sessionId: '123456',
         totalNetPrice: 2886000,
-        totalSellPrice: 2886000,
+        totalSellPrice: 2987010,
+        totalMarkup: 101010,
+        appliedMarkupRuleId: 'markup-rule-id',
         tax: 737000,
         fee: 50000,
+      }),
+    );
+    expect(markup.computeForFareClass).toHaveBeenCalledWith(
+      expect.objectContaining({
+        airlineCode: 'VN',
+        channel: 'B2C',
+        cabin: 'economy',
+        domestic: true,
+        tier: 'STANDARD',
+        route: 'SGN-HAN',
+        netPrice: 2886000,
+      }),
+    );
+    expect(createArg.data.appliedMarkupRuleSnapshot).toEqual(
+      expect.objectContaining({
+        id: 'markup-rule-id',
       }),
     );
     expect(createArg.data.muadiHoldExpiresAt.toISOString()).toBe(
@@ -115,6 +160,13 @@ describe('BookingService hold', () => {
       expect.objectContaining({
         eventType: 'HELD',
         title: 'Đã giữ chỗ thành công',
+        payload: expect.objectContaining({
+          markup: expect.objectContaining({
+            ruleId: 'markup-rule-id',
+            markupAmount: 101010,
+            sellPrice: 2987010,
+          }),
+        }),
       }),
     );
   });
