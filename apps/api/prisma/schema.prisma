@@ -176,9 +176,11 @@ model Booking {
   vatIssuedAt      DateTime?
   vatProviderRef   String? // ref từ MISA/Viettel SInvoice
 
-  priceLockedAt DateTime?
-  ttlExpiresAt  DateTime? // hết hạn giữ chỗ
-  rawMuadiJson  Json? // toàn bộ payload từ Muadi
+  priceLockedAt      DateTime?
+  ttlExpiresAt       DateTime? // hết hạn giữ chỗ
+  muadiHoldExpiresAt DateTime?
+  paymentDeadline    DateTime?
+  rawMuadiJson       Json? // toàn bộ payload từ Muadi
 
   contactEmail String
   contactPhone String

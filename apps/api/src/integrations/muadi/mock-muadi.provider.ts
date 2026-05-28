@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
+  HoldParams,
+  HoldResult,
   IMuadiProvider,
   MuadiRawFlight,
   SearchParams,
@@ -15,6 +17,39 @@ export class MockMuadiProvider implements IMuadiProvider {
       rawFlights: buildMockFlights(params),
       airlinesQueried: ['VN', 'VJ', 'QH', 'BL'],
       airlinesFailed: [],
+    };
+  }
+
+  async hold(params: HoldParams): Promise<HoldResult> {
+    const timelimit = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+    const pnr = {
+      airline: 'VN',
+      pnr: 'OFMOCK',
+      status: 'HELD',
+      timelimit,
+      rawJson: {
+        airline: 'VN',
+        pnr: 'OFMOCK',
+        status: 'HELD',
+        timelimit,
+      },
+    };
+
+    return {
+      bookingResponse: {
+        success: true,
+        data: {
+          sessionID: params.sessionId,
+        },
+      },
+      ticketInfo: {
+        success: true,
+        data: {
+          listPNR: [pnr.rawJson],
+        },
+      },
+      protectionVerified: false,
+      pnrs: [pnr],
     };
   }
 }

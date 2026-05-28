@@ -23,6 +23,7 @@ describe('Flights search (e2e)', () => {
     await flushRedis();
     provider = {
       search: jest.fn().mockResolvedValue(mockProviderResult()),
+      hold: jest.fn(),
     };
     app = await createApp(provider);
   });

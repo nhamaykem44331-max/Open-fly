@@ -20,6 +20,7 @@ export interface MuadiRawSegment {
   aircraft?: string;
   airCraft?: string;
   duration?: string | number;
+  flightTime?: string | number;
   flightTimeHour?: number;
   flightTimeMinute?: number;
   departureCity?: string;
@@ -53,6 +54,7 @@ export interface MuadiBookingFee {
 }
 
 export interface MuadiRawFare {
+  id?: string;
   total?: number;
   soldOut?: boolean;
   class?: string;
@@ -73,10 +75,13 @@ export interface MuadiRawFare {
   refundable?: boolean;
   changeable?: boolean;
   currencyCode?: string;
+  source?: string;
+  typeOfBook?: string;
   fareInfo?: MuadiFareInfo[];
 }
 
 export interface MuadiRawFlight {
+  id?: string;
   airline?: string;
   carrierCode?: string;
   flightNumber?: string;
@@ -89,6 +94,9 @@ export interface MuadiRawFlight {
   departDate?: string;
   arrivalDate?: string;
   aircraft?: string;
+  source?: string;
+  typeOfBook?: string;
+  isNDC?: boolean;
   lowestFare?: number;
   numberOfStop?: number;
   issueFeeADT?: number;
@@ -111,6 +119,31 @@ export interface SearchResult {
   airlinesFailed: MuadiAirlineFailure[];
 }
 
+export interface HoldPnr {
+  airline: string;
+  pnr: string;
+  status?: string;
+  timelimit?: string;
+  message?: string;
+  rawJson?: unknown;
+}
+
+export interface HoldParams {
+  bookRequest: Record<string, unknown>;
+  sessionId: number;
+  username?: string;
+  pollAttempts?: number;
+  pollDelayMs?: number;
+}
+
+export interface HoldResult {
+  bookingResponse: unknown;
+  ticketInfo: unknown;
+  protectionVerified: boolean;
+  pnrs: HoldPnr[];
+}
+
 export interface IMuadiProvider {
   search(params: SearchParams): Promise<SearchResult>;
+  hold(params: HoldParams): Promise<HoldResult>;
 }

@@ -15,6 +15,7 @@ describe('FlightsService', () => {
   beforeEach(() => {
     provider = {
       search: jest.fn().mockResolvedValue(mockProviderResult()),
+      hold: jest.fn(),
     };
     redis = {
       get: jest.fn().mockResolvedValue(null),

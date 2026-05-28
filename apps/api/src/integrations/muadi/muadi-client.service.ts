@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MuadiSession } from '@prisma/client';
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { decryptApp, encryptApp } from '../../common/utils/app-crypto.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { decodeJwtExpiry, encryptMuadi } from './muadi-crypto.util';
@@ -278,6 +278,80 @@ export class MuadiClientService {
       authenticated: true,
       apiVersion: '2',
     });
+  }
+
+  async createBooking<T>(sessionId: string, body: unknown): Promise<T> {
+    await this.ensureValidSession(sessionId);
+    return this.request<T>('/booking/create-booking', body, {
+      sessionId,
+      authenticated: true,
+      apiVersion: '3',
+      timeoutMs: this.getNumberConfig(
+        'MUADI_CREATE_BOOKING_TIMEOUT_MS',
+        150000,
+      ),
+      retryOnHttpError: false,
+    });
+  }
+
+  async getTicketInfoBySessionId<T>(
+    sessionId: string,
+    muadiSessionID: number,
+  ): Promise<T> {
+    await this.ensureValidSession(sessionId);
+    return this.request<T>(
+      '/booking/ticket-info-by-id',
+      {
+        sessionID: muadiSessionID,
+      },
+      {
+        sessionId,
+        authenticated: true,
+        apiVersion: '3',
+        retryOnHttpError: false,
+      },
+    );
+  }
+
+  async verifyAgent<T>(sessionId: string, body: unknown): Promise<T> {
+    await this.ensureValidSession(sessionId);
+    return this.request<T>('/agent/verify', body, {
+      sessionId,
+      authenticated: true,
+      apiVersion: null,
+    });
+  }
+
+  async createBookingWithProtection<T>(
+    sessionId: string,
+    bookRequest: unknown,
+    username: string,
+    otp = randomOtpCode(),
+  ): Promise<{ bookingResponse: T; protectionVerified: boolean }> {
+    try {
+      return {
+        bookingResponse: await this.createBooking<T>(sessionId, bookRequest),
+        protectionVerified: false,
+      };
+    } catch (error) {
+      if (!isBookingProtectionError(error)) {
+        throw error;
+      }
+
+      await this.verifyAgent(
+        sessionId,
+        buildBookingProtectionVerify(
+          getBookingProtectionSalt(error),
+          otp,
+          username,
+        ),
+      );
+
+      return {
+        bookingResponse: await this.createBooking<T>(sessionId, bookRequest),
+        protectionVerified: true,
+      };
+    }
   }
 
   private async sendEncryptedRequest<T>(
@@ -587,4 +661,76 @@ export class MuadiClientService {
 
     return String(error);
   }
+}
+
+export function isBookingProtectionError(error: unknown): boolean {
+  const body = getMuadiErrorBody(error);
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+
+  const status =
+    error instanceof MuadiHttpError
+      ? error.status
+      : typeof error === 'object' && error !== null && 'status' in error
+        ? Number((error as { status?: unknown }).status)
+        : 0;
+  const code = String((body as { code?: unknown }).code ?? '');
+
+  return (
+    status === 403 && code === '120' && Boolean(getBookingProtectionSalt(error))
+  );
+}
+
+export function buildBookingProtectionVerify(
+  salt: string,
+  otp: string,
+  username: string,
+): { otp: string; verify: string } {
+  if (!salt) {
+    throw new Error('Muadi booking protection did not return a salt');
+  }
+  if (!username) {
+    throw new Error('Muadi booking protection username is missing');
+  }
+
+  const otpCode = normalizeOtpCode(otp);
+  const verify = createHash('md5')
+    .update(`${salt}|${otpCode}|${username}`)
+    .digest('hex')
+    .toUpperCase();
+
+  return {
+    otp: otpCode,
+    verify,
+  };
+}
+
+function getBookingProtectionSalt(error: unknown): string {
+  const body = getMuadiErrorBody(error) as { data?: unknown } | null;
+  return typeof body?.data === 'string' ? body.data : '';
+}
+
+function getMuadiErrorBody(error: unknown): unknown {
+  if (error instanceof MuadiHttpError) {
+    return error.body;
+  }
+  if (error && typeof error === 'object') {
+    const candidate = error as { body?: unknown; data?: unknown };
+    return candidate.body ?? candidate.data;
+  }
+
+  return null;
+}
+
+function normalizeOtpCode(value: string): string {
+  const normalized = value
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 4)
+    .toUpperCase();
+  return normalized || randomOtpCode();
+}
+
+function randomOtpCode(): string {
+  return randomBytes(3).toString('hex').slice(0, 4).toUpperCase();
 }

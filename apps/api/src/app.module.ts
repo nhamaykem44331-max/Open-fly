@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
+import { BookingModule } from './booking/booking.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { FlightsModule } from './flights/flights.module';
 import { HealthModule } from './health/health.module';
@@ -56,6 +57,7 @@ function validateEnv(config: Record<string, unknown>) {
     MuadiModule,
     RedisModule,
     FlightsModule,
+    BookingModule,
     MeModule,
     HealthModule,
   ],

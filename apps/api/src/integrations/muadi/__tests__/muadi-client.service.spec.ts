@@ -1,7 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { MuadiSession } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { MuadiClientService } from '../muadi-client.service';
+import {
+  buildBookingProtectionVerify,
+  MuadiClientService,
+} from '../muadi-client.service';
 
 type SessionFreshProbe = {
   isSessionFresh(
@@ -74,6 +77,15 @@ describe('MuadiClientService token freshness', () => {
         record,
       ),
     ).toBe(true);
+  });
+});
+
+describe('Muadi booking protection', () => {
+  it('builds uppercase MD5 verify from salt, otp, and username', () => {
+    expect(buildBookingProtectionVerify('SALT', 'ABCD', 'HTXTP01')).toEqual({
+      otp: 'ABCD',
+      verify: 'E620F9C63FD3FF0C0FB639B51503CA40',
+    });
   });
 });
 
