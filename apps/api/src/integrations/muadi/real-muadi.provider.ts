@@ -707,7 +707,7 @@ function readMoney(value: unknown): number | null {
         ? Number(value.replace(/[^\d.-]/g, ''))
         : NaN;
 
-  return Number.isFinite(amount) && amount >= 0 ? Math.round(amount) : null;
+  return Number.isFinite(amount) && amount > 0 ? Math.round(amount) : null;
 }
 
 function isPriceChanged(
