@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { MuadiClientService } from '../muadi-client.service';
+import { MuadiSessionPoolService } from '../muadi-session-pool.service';
 import { RealMuadiProvider } from '../real-muadi.provider';
 
 describe('RealMuadiProvider hold', () => {
@@ -64,10 +65,14 @@ describe('RealMuadiProvider hold', () => {
         return values[key];
       }),
     };
+    const sessionPool = new MuadiSessionPoolService(
+      prisma as unknown as PrismaService,
+      config as unknown as ConfigService,
+    );
     provider = new RealMuadiProvider(
       client as unknown as MuadiClientService,
-      prisma as unknown as PrismaService,
       config as ConfigService,
+      sessionPool,
     );
   });
 

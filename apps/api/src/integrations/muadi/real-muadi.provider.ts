@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { buildBookRequest } from '../../booking/book-request.builder';
 import { parseMuadiDateTime } from '../../flights/normalizer';
-import { PrismaService } from '../../prisma/prisma.service';
 import { MuadiClientService } from './muadi-client.service';
+import { MuadiSessionPoolService } from './muadi-session-pool.service';
 import {
   HoldParams,
   HoldPricing,
@@ -53,38 +53,13 @@ interface MuadiSearchFlightPayload {
 export class RealMuadiProvider implements IMuadiProvider {
   constructor(
     private readonly muadiClient: MuadiClientService,
-    private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly sessionPool: MuadiSessionPoolService,
   ) {}
 
   async search(params: SearchParams): Promise<SearchResult> {
-    const session = await this.prisma.muadiSession.findFirst({
-      where: {
-        active: true,
-        busy: false,
-      },
-      orderBy: {
-        lastUsedAt: 'asc',
-      },
-    });
-    if (!session) {
-      throw new Error('Muadi session chưa được cấu hình hoặc đang bận');
-    }
-
-    const lock = await this.prisma.muadiSession.updateMany({
-      where: {
-        id: session.id,
-        active: true,
-        busy: false,
-      },
-      data: {
-        busy: true,
-        lastUsedAt: new Date(),
-      },
-    });
-    if (lock.count !== 1) {
-      throw new Error('Muadi session vừa được dùng bởi request khác');
-    }
+    const session = await this.sessionPool.acquireForRealtime();
+    let success = false;
 
     try {
       await this.muadiClient.ensureValidSession(session.id);
@@ -157,6 +132,7 @@ export class RealMuadiProvider implements IMuadiProvider {
         throw new Error('Tất cả hãng bay Muadi search đều thất bại');
       }
 
+      success = true;
       return {
         provider: 'muadi',
         searchedAt: new Date().toISOString(),
@@ -168,45 +144,13 @@ export class RealMuadiProvider implements IMuadiProvider {
         airlinesFailed,
       };
     } finally {
-      await this.prisma.muadiSession.update({
-        where: {
-          id: session.id,
-        },
-        data: {
-          busy: false,
-        },
-      });
+      await this.sessionPool.release(session.id, success);
     }
   }
 
   async hold(params: HoldParams): Promise<HoldResult> {
-    const session = await this.prisma.muadiSession.findFirst({
-      where: {
-        active: true,
-        busy: false,
-      },
-      orderBy: {
-        lastUsedAt: 'asc',
-      },
-    });
-    if (!session) {
-      throw new Error('Muadi session chưa được cấu hình hoặc đang bận');
-    }
-
-    const lock = await this.prisma.muadiSession.updateMany({
-      where: {
-        id: session.id,
-        active: true,
-        busy: false,
-      },
-      data: {
-        busy: true,
-        lastUsedAt: new Date(),
-      },
-    });
-    if (lock.count !== 1) {
-      throw new Error('Muadi session vừa được dùng bởi request khác');
-    }
+    const session = await this.sessionPool.acquireForRealtime();
+    let success = false;
 
     try {
       await this.muadiClient.ensureValidSession(session.id);
@@ -277,6 +221,7 @@ export class RealMuadiProvider implements IMuadiProvider {
       );
       const pnrs = extractPnrs(reconciled.ticketInfo, reconciled.pricing);
 
+      success = true;
       return {
         bookingResponse: protectedBooking.bookingResponse,
         ticketInfo: reconciled.ticketInfo,
@@ -294,14 +239,7 @@ export class RealMuadiProvider implements IMuadiProvider {
         ),
       };
     } finally {
-      await this.prisma.muadiSession.update({
-        where: {
-          id: session.id,
-        },
-        data: {
-          busy: false,
-        },
-      });
+      await this.sessionPool.release(session.id, success);
     }
   }
 
