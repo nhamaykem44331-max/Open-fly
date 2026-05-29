@@ -1,6 +1,7 @@
 import { Module, Provider } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
 import { QueueModule } from '../queue/queue.module';
+import { NotificationContentService } from './notification-content.service';
 import { NotificationController } from './notification.controller';
 import { NotifierService } from './notifier.service';
 import { NotifyDispatchProcessor } from './notify-dispatch.processor';
@@ -13,7 +14,12 @@ const workerProviders: Provider[] =
 @Module({
   imports: [PrismaModule, QueueModule],
   controllers: [NotificationController],
-  providers: [NotifierService, TelegramService, ...workerProviders],
+  providers: [
+    NotifierService,
+    TelegramService,
+    NotificationContentService,
+    ...workerProviders,
+  ],
   exports: [NotifierService],
 })
 export class NotifierModule {}

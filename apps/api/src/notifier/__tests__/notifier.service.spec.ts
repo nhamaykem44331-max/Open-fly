@@ -1,6 +1,7 @@
 import { NotificationChannel, NotificationKind } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NotificationContentService } from '../notification-content.service';
 import {
   NotifierService,
   quietHoursDeferMs,
@@ -33,6 +34,7 @@ describe('NotifierService', () => {
       update: jest.Mock;
     };
     notificationPreference: { findUnique: jest.Mock };
+    user: { findUnique: jest.Mock };
   };
   let telegram: { sendMessage: jest.Mock };
   let queue: { add: jest.Mock };
@@ -46,12 +48,14 @@ describe('NotifierService', () => {
         update: jest.fn().mockResolvedValue({}),
       },
       notificationPreference: { findUnique: jest.fn() },
+      user: { findUnique: jest.fn().mockResolvedValue({ fullName: null }) },
     };
     telegram = { sendMessage: jest.fn().mockResolvedValue(true) };
     queue = { add: jest.fn().mockResolvedValue({}) };
     service = new NotifierService(
       prisma as unknown as PrismaService,
       telegram as unknown as TelegramService,
+      new NotificationContentService(),
       queue as unknown as Queue,
     );
   });
@@ -71,8 +75,7 @@ describe('NotifierService', () => {
     await service.enqueue({
       userId: 'u1',
       kind: NotificationKind.HUNT_FOUND,
-      title: 'Tìm thấy vé',
-      body: 'HAN-SGN 1.490.000',
+      payload: { autoHeld: false, route: 'HAN-SGN', price: 1_490_000 },
       requestedChannels: ['telegram', 'in_app'],
     });
 

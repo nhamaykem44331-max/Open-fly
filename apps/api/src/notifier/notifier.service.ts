@@ -7,6 +7,7 @@ import {
 } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationContentService } from './notification-content.service';
 import { TelegramService } from './telegram.service';
 
 export const NOTIFY_QUEUE = 'notify.dispatch';
@@ -31,13 +32,11 @@ const CHANNEL_BY_STRING: Record<string, NotificationChannel> = {
 export interface NotifyInput {
   userId: string;
   kind: NotificationKind;
-  title: string;
-  body: string;
+  // Nội dung (title/body/cta) do Sol NotificationContentService render từ
+  // kind + payload + user (Q-59). Caller chỉ cung cấp dữ liệu, không tự viết text.
+  payload?: Record<string, unknown>;
   huntId?: string;
   bookingId?: string;
-  ctaUrl?: string;
-  ctaLabel?: string;
-  payload?: Prisma.InputJsonValue;
   requestedChannels?: string[]; // hunt.channels; rỗng -> tất cả kênh user bật
 }
 
@@ -70,6 +69,7 @@ export class NotifierService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly telegram: TelegramService,
+    private readonly content: NotificationContentService,
     @InjectQueue(NOTIFY_QUEUE) private readonly queue: Queue,
   ) {}
 
@@ -78,15 +78,22 @@ export class NotifierService {
     const prefs = await this.loadPrefs(input.userId);
     const attempted = this.resolveChannels(prefs, input.requestedChannels);
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: input.userId },
+      select: { fullName: true },
+    });
+    const payload = input.payload ?? {};
+    const rendered = this.content.render(input.kind, payload, user, 'in_app');
+
     const notification = await this.prisma.notification.create({
       data: {
         userId: input.userId,
         kind: input.kind,
-        title: input.title,
-        body: input.body,
-        ctaUrl: input.ctaUrl ?? null,
-        ctaLabel: input.ctaLabel ?? null,
-        payload: input.payload ?? Prisma.JsonNull,
+        title: rendered.title,
+        body: rendered.body,
+        ctaUrl: rendered.ctaUrl ?? null,
+        ctaLabel: rendered.ctaLabel ?? null,
+        payload: toJson(payload),
         huntId: input.huntId ?? null,
         bookingId: input.bookingId ?? null,
         channelsAttempted: attempted,
@@ -206,6 +213,10 @@ export class NotifierService {
 
     return Array.from(requestedEnums);
   }
+}
+
+function toJson(value: unknown): Prisma.InputJsonValue {
+  return JSON.parse(JSON.stringify(value ?? {})) as Prisma.InputJsonValue;
 }
 
 function formatMessage(

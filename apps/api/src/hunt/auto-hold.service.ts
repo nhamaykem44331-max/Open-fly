@@ -145,22 +145,17 @@ export class AutoHoldService {
     hunt: Hunt,
     booking: { id: string; orderCode: string; totalSellPrice: number; paymentDeadline: Date | null },
   ): Promise<string> {
-    const deadline = booking.paymentDeadline
-      ? booking.paymentDeadline.toLocaleString('vi-VN')
-      : 'sớm';
-
     return this.notifier.enqueue({
       userId: hunt.userId,
       kind: 'HUNT_FOUND',
-      title: 'OpenFly đã giữ chỗ cho bạn',
-      body: `${hunt.fromCode}-${hunt.toCode} giá ${booking.totalSellPrice.toLocaleString('vi-VN')}đ. Thanh toán trước ${deadline} để giữ vé.`,
       huntId: hunt.id,
       bookingId: booking.id,
-      ctaLabel: 'Thanh toán',
       payload: {
+        autoHeld: true,
+        route: `${hunt.fromCode}-${hunt.toCode}`,
+        price: booking.totalSellPrice,
+        deadline: booking.paymentDeadline?.toISOString() ?? null,
         orderCode: booking.orderCode,
-        sellPrice: booking.totalSellPrice,
-        paymentDeadline: booking.paymentDeadline?.toISOString() ?? null,
       },
       requestedChannels: hunt.channels,
     });

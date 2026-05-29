@@ -244,9 +244,11 @@ export class HunterRunService {
       await this.notifier.enqueue({
         userId: hunt.userId,
         kind: 'SYSTEM',
-        title: 'Đã tạm dừng săn vé',
-        body: `Săn vé ${hunt.fromCode}-${hunt.toCode} tạm dừng do lỗi liên tiếp. Bạn có thể bật lại trong ứng dụng.`,
         huntId: hunt.id,
+        payload: {
+          title: 'Đã tạm dừng săn vé',
+          body: `Săn vé ${hunt.fromCode}-${hunt.toCode} tạm dừng do lỗi liên tiếp. Bạn có thể bật lại trong ứng dụng.`,
+        },
         requestedChannels: hunt.channels,
       });
       return;
@@ -317,30 +319,27 @@ export class HunterRunService {
     return this.notifier.enqueue({
       userId: hunt.userId,
       kind: 'HUNT_FOUND',
-      title: 'Tìm thấy vé đúng giá',
-      body: `${hunt.fromCode}-${hunt.toCode} giá ${cheapest.item.sellPriceVnd.toLocaleString('vi-VN')}đ. Đặt ngay để giữ giá.`,
       huntId: hunt.id,
-      ctaLabel: 'Đặt ngay',
       payload: {
+        autoHeld: false,
+        route: `${hunt.fromCode}-${hunt.toCode}`,
+        price: cheapest.item.sellPriceVnd,
         offerId: cheapest.offerId,
         fareClass: cheapest.fareClass,
-        sellPrice: cheapest.item.sellPriceVnd,
       },
       requestedChannels: hunt.channels,
     });
   }
 
   private notifyProgress(hunt: Hunt, cheapest: ScanItem | null): Promise<string> {
-    const price = cheapest
-      ? `${cheapest.item.sellPriceVnd.toLocaleString('vi-VN')}đ`
-      : 'mức mới';
-
     return this.notifier.enqueue({
       userId: hunt.userId,
       kind: 'HUNT_PROGRESS',
-      title: 'Giá đang giảm',
-      body: `${hunt.fromCode}-${hunt.toCode} hiện ${price}. Theo dõi tiếp nhé.`,
       huntId: hunt.id,
+      payload: {
+        route: `${hunt.fromCode}-${hunt.toCode}`,
+        price: cheapest?.item.sellPriceVnd ?? null,
+      },
       requestedChannels: hunt.channels,
     });
   }
