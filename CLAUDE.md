@@ -94,7 +94,7 @@ Bắt buộc:
 ### 5.3. Database & Prisma
 
 - KHÔNG sửa `schema.prisma` mà không tạo migration file
-- Mọi giá tiền lưu dạng `Int` đơn vị **VND nghìn** (890 = 890.000 VND) — convert sang VND đầy đủ chỉ ở boundary với payment gateway
+- Mọi giá tiền lưu dạng `Int` đơn vị **VND nguyên đồng** (2592000 = 2.592.000 VND) — KHÔNG chia 1000 (Q-45, chốt 2026-05-28). Lý do: SePay/Muadi đều dùng full VND → tránh lỗi 1000x; PERCENT markup giữ precision
 - Foreign key dùng `onDelete: Cascade` cẩn thận — đặc biệt KHÔNG cascade Booking khi User bị xóa (giữ audit/legal)
 - `rawMuadiJson`, `rawCreatePayload` JSON blob có TTL 30 ngày — auto-cleanup
 
@@ -135,6 +135,7 @@ Mọi external call (Muadi, SePay, eSMS, Telegram, n8n, AI provider):
 
 ### 5.8. Frontend (PWA + Admin)
 
+- **LƯU Ý QUAN TRỌNG — Khi bắt đầu triển khai UI/UX (apps/web hoặc apps/admin) → NHẮC user chuyển implementer sang model Claude** (KHÔNG dùng Codex cho frontend; Lần 6 là editorial design tinh tế, cần Claude làm đúng thẩm mỹ). Ghi nhận 2026-05-28.
 - Mobile-first cho `apps/web` (PWA end-user)
 - Desktop-first cho `apps/admin` (Next.js admin)
 - Components fetch async data BẮT BUỘC có: **loading skeleton** + **error state** + **empty state** — port từ Lần 6 (`screens-states-*.jsx` trong [OpenFly/](OpenFly/))
