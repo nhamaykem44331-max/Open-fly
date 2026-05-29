@@ -179,10 +179,22 @@ export function contactFromSession(
   return {
     email: contact.email,
     fullName: `${passenger.firstName} ${passenger.lastName}`.trim(),
-    phoneNumber: contact.phone,
+    phoneNumber: toLocalVnPhone(contact.phone),
     address: '',
     extraInfo: '',
   };
+}
+
+function toLocalVnPhone(phone: string): string {
+  const trimmed = phone.trim();
+  if (trimmed.startsWith('+84')) {
+    return `0${trimmed.slice(3)}`;
+  }
+  if (trimmed.startsWith('84')) {
+    return `0${trimmed.slice(2)}`;
+  }
+
+  return trimmed;
 }
 
 function segmentsOf(flight: MuadiRawFlight): MuadiRawSegment[] {
