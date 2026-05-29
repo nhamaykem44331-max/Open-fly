@@ -3,12 +3,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisOptions } from 'ioredis';
 import { HuntRunProcessor } from './hunt-run.processor';
-import { NotifyDispatchProcessor } from './notify-dispatch.processor';
 
+// notify.dispatch processor sống trong NotifierModule (T8); hunt.run sẽ chuyển
+// sang HunterModule ở T5. QueueModule giữ infra + producer là chính.
 const queueProcessors =
-  process.env.RUN_WORKERS === 'false'
-    ? []
-    : [HuntRunProcessor, NotifyDispatchProcessor];
+  process.env.RUN_WORKERS === 'false' ? [] : [HuntRunProcessor];
 
 @Module({
   imports: [

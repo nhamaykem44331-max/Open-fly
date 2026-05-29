@@ -14,6 +14,7 @@ import { HuntModule } from './hunt/hunt.module';
 import { MuadiModule } from './integrations/muadi/muadi.module';
 import { RedisModule } from './integrations/redis/redis.module';
 import { MeModule } from './me/me.module';
+import { NotifierModule } from './notifier/notifier.module';
 import { PaymentModule } from './payment/payment.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { QueueModule } from './queue/queue.module';
@@ -69,6 +70,7 @@ function validateEnv(config: Record<string, unknown>) {
     PaymentModule,
     QueueModule,
     HuntModule,
+    NotifierModule,
     SchedulerModule,
     MeModule,
     HealthModule,
