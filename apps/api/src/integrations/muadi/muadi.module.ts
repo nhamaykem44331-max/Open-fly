@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MuadiClientService } from './muadi-client.service';
+import { MuadiSessionMaintenanceCron } from './muadi-session-maintenance.cron';
 import { MuadiSessionPoolService } from './muadi-session-pool.service';
 import { MUADI_PROVIDER } from './muadi-provider.interface';
 import { MockMuadiProvider } from './mock-muadi.provider';
@@ -10,6 +11,7 @@ import { RealMuadiProvider } from './real-muadi.provider';
   providers: [
     MuadiClientService,
     MuadiSessionPoolService,
+    MuadiSessionMaintenanceCron,
     MockMuadiProvider,
     RealMuadiProvider,
     {

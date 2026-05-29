@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { MuadiSessionPoolService } from '../muadi-session-pool.service';
@@ -133,5 +134,49 @@ describe('MuadiSessionPoolService', () => {
         data: { busy: false, failureCount: 0 },
       }),
     );
+  });
+
+  describe('reactivateStale', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('updateMany với active:false + updatedAt <= mốc cooldown, set active:true + failureCount:0; trả count', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-05-29T10:00:00.000Z'));
+      prisma.muadiSession.updateMany.mockResolvedValue({ count: 2 });
+
+      const count = await pool.reactivateStale();
+
+      expect(count).toBe(2);
+      expect(prisma.muadiSession.updateMany).toHaveBeenCalledWith({
+        where: {
+          active: false,
+          // cooldown mặc định = 10 phút -> mốc 09:50.
+          updatedAt: { lte: new Date('2026-05-29T09:50:00.000Z') },
+        },
+        data: { active: true, failureCount: 0 },
+      });
+    });
+
+    it('log khi reactivate được >0 session', async () => {
+      const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation();
+      prisma.muadiSession.updateMany.mockResolvedValue({ count: 3 });
+
+      await pool.reactivateStale();
+
+      expect(logSpy).toHaveBeenCalled();
+      logSpy.mockRestore();
+    });
+
+    it('KHÔNG log khi không có session nào để reactivate', async () => {
+      const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation();
+      prisma.muadiSession.updateMany.mockResolvedValue({ count: 0 });
+
+      const count = await pool.reactivateStale();
+
+      expect(count).toBe(0);
+      expect(logSpy).not.toHaveBeenCalled();
+      logSpy.mockRestore();
+    });
   });
 });

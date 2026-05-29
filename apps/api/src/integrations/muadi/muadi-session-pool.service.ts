@@ -96,6 +96,39 @@ export class MuadiSessionPoolService {
     }
   }
 
+  /**
+   * Tự kích hoạt lại (half-open) các session đã bị circuit breaker ngắt
+   * sau khi quá cooldown, để pool tự hồi phục mà không cần can thiệp tay.
+   *
+   * Dựa vào updatedAt làm mốc "thời điểm bị ngắt": session đã ngắt không bị
+   * update nào khác chạm tới (acquire lọc active:true, release chỉ chạm session
+   * đang giữ) nên updatedAt giữ nguyên cho tới lần reactivate này. KHÔNG đụng
+   * busy/token — ensureValidSession sẽ login lại lazy ở lần acquire kế tiếp.
+   */
+  async reactivateStale(): Promise<number> {
+    const cutoff = new Date(
+      Date.now() - this.getReactivateCooldownMinutes() * 60_000,
+    );
+    const result = await this.prisma.muadiSession.updateMany({
+      where: {
+        active: false,
+        updatedAt: { lte: cutoff },
+      },
+      data: {
+        active: true,
+        failureCount: 0,
+      },
+    });
+
+    if (result.count > 0) {
+      this.logger.log(
+        `Reactivate ${result.count} Muadi session sau cooldown để thử lại`,
+      );
+    }
+
+    return result.count;
+  }
+
   private findFreeSession(): Promise<MuadiSession | null> {
     return this.prisma.muadiSession.findFirst({
       where: { active: true, busy: false },
@@ -120,5 +153,12 @@ export class MuadiSessionPoolService {
   private getMaxFailures(): number {
     const value = Number(this.config.get<string>('MUADI_SESSION_MAX_FAILURES'));
     return Number.isInteger(value) && value >= 1 ? value : 3;
+  }
+
+  private getReactivateCooldownMinutes(): number {
+    const value = Number(
+      this.config.get<string>('MUADI_SESSION_REACTIVATE_COOLDOWN_MINUTES'),
+    );
+    return Number.isInteger(value) && value >= 1 ? value : 10;
   }
 }
