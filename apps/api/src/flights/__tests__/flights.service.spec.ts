@@ -118,10 +118,26 @@ describe('FlightsService', () => {
 
   it('writes response to cache on miss', async () => {
     const response = await service.search(validSearchBody());
+    const snapshotWrite = redis.set.mock.calls.find(
+      ([key]) => key === `offer:${response.offers[0].id}`,
+    );
 
     expect(response.offers[0].fareClasses[0].priceVnd).toBe(1324800);
     expect(response.offers[0].cheapestPriceVnd).toBe(1324800);
     expect(response.cached).toBe(false);
+    expect(snapshotWrite?.[1]).toEqual(
+      expect.objectContaining({
+        from: 'SGN',
+        to: 'HAN',
+        date: '2026-06-15',
+        airline: 'VN',
+        flightNumber: 'VN247',
+        fareClass: 'L',
+        snapshotPriceVnd: 1280000,
+      }),
+    );
+    expect(snapshotWrite?.[1]).not.toHaveProperty('rawFlight');
+    expect(snapshotWrite?.[1]).not.toHaveProperty('muadiSessionId');
     expect(redis.set).toHaveBeenCalledWith(
       'flights:search:SGN:HAN:2026-06-15:1:0:0',
       expect.objectContaining({

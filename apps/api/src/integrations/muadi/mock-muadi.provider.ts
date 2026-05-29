@@ -23,16 +23,37 @@ export class MockMuadiProvider implements IMuadiProvider {
 
   async hold(params: HoldParams): Promise<HoldResult> {
     const timelimit = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+    const flights = buildMockFlights({
+      origin: params.snapshot.from,
+      destination: params.snapshot.to,
+      date: params.snapshot.date,
+      paxAdt: params.snapshot.paxAdt,
+      paxChd: params.snapshot.paxChd,
+      paxInf: params.snapshot.paxInf,
+    });
+    const flight = flights.find(
+      (item) => (item.airline ?? '').toUpperCase() === params.snapshot.airline,
+    );
+    const fare = flight?.priceInfo?.find(
+      (item) =>
+        item.class === params.fareClass || item.fareClass === params.fareClass,
+    );
+    if (!flight || !fare || (fare.seatAvailable ?? 1) <= 0) {
+      throw new Error('Hết chỗ');
+    }
+    const total = fareTotal(fare, flight);
     const pnr = {
       airline: 'VN',
       pnr: 'OFMOCK',
       status: 'HELD',
       timelimit,
+      total,
       rawJson: {
         airline: 'VN',
         pnr: 'OFMOCK',
         status: 'HELD',
         timelimit,
+        total,
       },
     };
 
@@ -40,7 +61,7 @@ export class MockMuadiProvider implements IMuadiProvider {
       bookingResponse: {
         success: true,
         data: {
-          sessionID: params.sessionId,
+          sessionID: 223344,
         },
       },
       ticketInfo: {
@@ -51,6 +72,32 @@ export class MockMuadiProvider implements IMuadiProvider {
       },
       protectionVerified: false,
       pnrs: [pnr],
+      pricing: {
+        verified: true,
+        source: 'booking/ticket-info-by-id',
+        totalNetPrice: total,
+        currency: 'VND',
+        byPnr: [
+          {
+            pnr: pnr.pnr,
+            airline: pnr.airline,
+            status: pnr.status,
+            timelimit,
+            total,
+            rawJson: pnr.rawJson,
+          },
+        ],
+        syncedAt: new Date().toISOString(),
+      },
+      flight,
+      fare,
+      bookRequest: {
+        sessionID: 223344,
+        isExportNow: false,
+      },
+      muadiSessionId: 223344,
+      snapshotPriceVnd: params.snapshot.snapshotPriceVnd,
+      priceChanged: isPriceChanged(params.snapshot.snapshotPriceVnd, total),
     };
   }
 }
@@ -317,6 +364,34 @@ function fare(params: {
     changeable: params.refundable,
     currencyCode: 'VND',
   };
+}
+
+function fareTotal(
+  fare: {
+    fareADT?: number;
+    taxADT?: number;
+    vatADT?: number;
+    issueFeeADT?: number;
+  },
+  flight: { issueFeeADT?: number },
+): number {
+  return (
+    money(fare.fareADT) +
+    money(fare.taxADT) +
+    money(fare.vatADT) +
+    money(fare.issueFeeADT ?? flight.issueFeeADT)
+  );
+}
+
+function isPriceChanged(snapshotPriceVnd: number, totalNetPrice: number): boolean {
+  return (
+    snapshotPriceVnd > 0 &&
+    Math.abs(totalNetPrice - snapshotPriceVnd) / snapshotPriceVnd > 0.05
+  );
+}
+
+function money(value: number | undefined): number {
+  return Number(value || 0);
 }
 
 function dateTime(isoDate: string, time: string): string {

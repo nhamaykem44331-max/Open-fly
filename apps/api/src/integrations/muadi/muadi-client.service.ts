@@ -19,6 +19,7 @@ interface MuadiRequestOptions {
   sessionId?: string;
   authenticated?: boolean;
   apiVersion?: MuadiApiVersion;
+  encrypt?: boolean;
   timeoutMs?: number;
   retryOnHttpError?: boolean;
   retried?: boolean;
@@ -313,6 +314,18 @@ export class MuadiClientService {
     );
   }
 
+  async listBookings<T>(sessionId: string): Promise<T> {
+    await this.ensureValidSession(sessionId);
+    return this.request<T>('/management/list-booking', undefined, {
+      sessionId,
+      authenticated: true,
+      apiVersion: null,
+      encrypt: false,
+      retryOnHttpError: true,
+      timeoutMs: 20000,
+    });
+  }
+
   async verifyAgent<T>(sessionId: string, body: unknown): Promise<T> {
     await this.ensureValidSession(sessionId);
     return this.request<T>('/agent/verify', body, {
@@ -370,9 +383,7 @@ export class MuadiClientService {
       const response = await fetch(this.buildUrl(path), {
         method: 'POST',
         headers: await this.buildHeaders(options),
-        body: JSON.stringify({
-          encrypted: encryptMuadi(JSON.stringify(body)),
-        }),
+        body: this.buildBody(body, options),
         signal: controller.signal,
       });
       if (options.sessionId) {
@@ -429,6 +440,16 @@ export class MuadiClientService {
     );
 
     return headers;
+  }
+
+  private buildBody(body: unknown, options: MuadiRequestOptions): string | undefined {
+    if (options.encrypt === false) {
+      return body === undefined ? undefined : JSON.stringify(body);
+    }
+
+    return JSON.stringify({
+      encrypted: encryptMuadi(JSON.stringify(body ?? {})),
+    });
   }
 
   private async loadSessionState(

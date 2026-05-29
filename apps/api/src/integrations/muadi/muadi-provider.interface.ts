@@ -120,21 +120,67 @@ export interface SearchResult {
   airlinesFailed: MuadiAirlineFailure[];
 }
 
+export interface HoldOfferSnapshot {
+  from: string;
+  to: string;
+  date: string;
+  paxAdt: number;
+  paxChd: number;
+  paxInf: number;
+  airline: string;
+  flightNumber: string;
+  departDate: string;
+  fareClass: string;
+  snapshotPriceVnd: number;
+}
+
 export interface HoldPnr {
   airline: string;
   pnr: string;
   status?: string;
   timelimit?: string;
+  total?: number;
   message?: string;
   rawJson?: unknown;
 }
 
+export interface HoldPassengerInput {
+  title: string;
+  firstName: string;
+  lastName: string;
+  type: 'ADT' | 'CHD' | 'INF';
+  dob?: string;
+}
+
+export interface HoldContactInput {
+  phone: string;
+  email: string;
+}
+
+export interface HoldPricingPnr {
+  pnr: string;
+  total: number;
+  airline?: string;
+  status?: string;
+  timelimit?: string;
+  rawJson?: unknown;
+}
+
+export interface HoldPricing {
+  verified: true;
+  source: 'booking/ticket-info-by-id' | 'management/list-booking-fallback';
+  totalNetPrice: number;
+  currency: string;
+  byPnr: HoldPricingPnr[];
+  syncedAt: string;
+}
+
 export interface HoldParams {
-  bookRequest: Record<string, unknown>;
-  sessionId: number;
+  snapshot: HoldOfferSnapshot;
+  fareClass: string;
+  passengers: HoldPassengerInput[];
+  contact: HoldContactInput;
   username?: string;
-  pollAttempts?: number;
-  pollDelayMs?: number;
 }
 
 export interface HoldResult {
@@ -142,6 +188,13 @@ export interface HoldResult {
   ticketInfo: unknown;
   protectionVerified: boolean;
   pnrs: HoldPnr[];
+  pricing: HoldPricing;
+  flight: MuadiRawFlight;
+  fare: MuadiRawFare;
+  bookRequest: Record<string, unknown>;
+  muadiSessionId: number;
+  snapshotPriceVnd: number;
+  priceChanged: boolean;
 }
 
 export interface IMuadiProvider {

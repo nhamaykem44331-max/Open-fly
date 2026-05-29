@@ -1,19 +1,22 @@
-import { GoneException, Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  GoneException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { BookingStatus, MembershipTier, Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import {
   HoldResult,
   IMuadiProvider,
   MUADI_PROVIDER,
-  MuadiRawFare,
-  MuadiRawFlight,
 } from '../integrations/muadi/muadi-provider.interface';
 import { RedisService } from '../integrations/redis/redis.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { parseMuadiDateTime } from '../flights/normalizer';
 import { OfferSnapshot, offerSnapshotKey } from '../flights/offer-snapshot';
 import { MarkupService } from '../pricing/markup.service';
-import { buildBookRequest } from './book-request.builder';
 import { HoldBookingDto } from './dto/hold-booking.dto';
 
 export interface HoldBookingOptions {
@@ -35,92 +38,64 @@ export class BookingService {
     private readonly prisma: PrismaService,
     private readonly markupService: MarkupService,
     private readonly redis: RedisService,
+    private readonly config: ConfigService,
   ) {}
 
   async hold(dto: HoldBookingDto, options: HoldBookingOptions = {}) {
-    const snapshot = await this.loadOfferSnapshot(dto.offerId);
-    const flight = snapshot.rawFlight;
-    const fare = this.resolveFare(dto, flight);
-    const request = this.buildRequest(
-      dto,
-      flight,
-      fare,
-      snapshot.muadiSessionId,
-    );
+    if (!options.dryRun && !options.userId) {
+      throw new Error('Thiếu userId để lưu booking HELD');
+    }
 
+    const snapshot = await this.loadOfferSnapshot(dto.offerId);
     if (options.dryRun) {
       return {
         dryRun: true,
-        bookRequest: request,
+        snapshot,
       };
     }
 
     const holdResult = await this.muadiProvider.hold({
-      bookRequest: request,
-      sessionId: snapshot.muadiSessionId,
-    });
-
-    return this.persistHeldBooking(
-      dto,
-      options,
-      flight,
-      fare,
-      snapshot.muadiSessionId,
-      request,
-      holdResult,
-    );
-  }
-
-  private buildRequest(
-    dto: HoldBookingDto,
-    flight: MuadiRawFlight,
-    fare: MuadiRawFare,
-    muadiSessionId: number,
-  ) {
-    const firstSegment = flight.routeInfo?.[0];
-    const lastSegment = flight.routeInfo?.[flight.routeInfo.length - 1];
-
-    return buildBookRequest({
-      sessionId: muadiSessionId,
-      originCode: firstSegment?.from ?? flight.from ?? '',
-      destinationCode: lastSegment?.to ?? flight.to ?? '',
-      departureDateTime: getMuadiDateOnly(
-        firstSegment?.departDate ?? flight.departDateTime,
-      ),
-      numberOfAdult: countPassengers(dto, 'ADT'),
-      numberOfChildren: countPassengers(dto, 'CHD'),
-      numberOfInfant: countPassengers(dto, 'INF'),
-      flight,
-      fare,
+      snapshot,
+      fareClass: dto.fareClass,
       passengers: dto.passengers,
       contact: dto.contact,
-      isExportNow: false,
     });
+
+    return this.persistHeldBooking(dto, options, snapshot, holdResult);
   }
 
   private async persistHeldBooking(
     dto: HoldBookingDto,
     options: HoldBookingOptions,
-    flight: MuadiRawFlight,
-    fare: MuadiRawFare,
-    muadiSessionId: number,
-    bookRequest: Record<string, unknown>,
+    snapshot: OfferSnapshot,
     holdResult: HoldResult,
   ) {
     if (!options.userId) {
       throw new Error('Thiếu userId để lưu booking HELD');
     }
 
+    const flight = holdResult.flight;
+    const fare = holdResult.fare;
     const firstSegment = flight.routeInfo?.[0];
     const lastSegment = flight.routeInfo?.[flight.routeInfo.length - 1];
     const firstPnr = holdResult.pnrs[0];
-    const muadiHoldExpiresAt = parseTimelimit(firstPnr?.timelimit);
-    const paymentDeadline = muadiHoldExpiresAt
-      ? new Date(muadiHoldExpiresAt.getTime() - 60 * 60 * 1000)
-      : null;
-    const totals = computeTotals(dto, fare, flight);
-    const fromCode = firstSegment?.from ?? flight.from ?? '';
-    const toCode = lastSegment?.to ?? flight.to ?? '';
+    const departTime = new Date(
+      parseMuadiDateTime(
+        requiredDate(firstSegment?.departDate ?? flight.departDateTime),
+      ),
+    );
+    const muadiHoldExpiresAt = this.resolveHoldExpiresAt(
+      holdResult,
+      departTime,
+    );
+    const paymentDeadline = new Date(
+      muadiHoldExpiresAt.getTime() - this.getPaymentBufferMinutes() * 60_000,
+    );
+    this.assertPaymentWindow(paymentDeadline);
+
+    const totalNetPrice = holdResult.pricing.totalNetPrice;
+    const fromCode = firstSegment?.from ?? flight.from ?? snapshot.from;
+    const toCode = lastSegment?.to ?? flight.to ?? snapshot.to;
     const cabin = fare.fareInfo?.[0]?.cabinClass?.toLowerCase() ?? 'economy';
     const tier = await this.resolveUserTier(options.userId);
     const domestic = await this.markupService.classifyDomestic(
@@ -135,7 +110,7 @@ export class BookingService {
       domestic,
       tier,
       route: fromCode && toCode ? `${fromCode}-${toCode}` : null,
-      netPrice: totals.total,
+      netPrice: totalNetPrice,
     });
 
     return this.prisma.booking.create({
@@ -144,32 +119,28 @@ export class BookingService {
         userId: options.userId,
         status: BookingStatus.HELD,
         pnr: firstPnr?.pnr,
-        sessionId: String(muadiSessionId),
+        sessionId: String(holdResult.muadiSessionId),
         airline: flight.airline,
         flightNumber: buildFlightNumber(firstSegment, flight),
         aircraft:
           firstSegment?.airCraft ?? firstSegment?.aircraft ?? flight.aircraft,
         fromCode,
         toCode,
-        departTime: new Date(
-          parseMuadiDateTime(
-            requiredDate(firstSegment?.departDate ?? flight.departDateTime),
-          ),
-        ),
+        departTime,
         arriveTime: lastSegment?.arrivalDate
           ? new Date(parseMuadiDateTime(lastSegment.arrivalDate))
           : null,
         duration: getDuration(firstSegment),
         cabin,
-        totalNetPrice: totals.total,
+        totalNetPrice,
         totalSellPrice: markup.sellPrice,
         totalMarkup: markup.markupAmount,
         appliedMarkupRuleId: markup.ruleId,
         appliedMarkupRuleSnapshot: markup.ruleSnapshot
           ? toJson(markup.ruleSnapshot)
           : undefined,
-        tax: totals.tax,
-        fee: totals.fee,
+        tax: 0,
+        fee: 0,
         vatCompanyName: options.vat?.companyName ?? null,
         vatTaxId: options.vat?.taxId ?? null,
         vatAddress: options.vat?.address ?? null,
@@ -179,9 +150,12 @@ export class BookingService {
         muadiHoldExpiresAt,
         paymentDeadline,
         rawMuadiJson: toJson({
-          bookRequest,
+          bookRequest: holdResult.bookRequest,
           bookingResponse: holdResult.bookingResponse,
           ticketInfo: holdResult.ticketInfo,
+          pricing: holdResult.pricing,
+          snapshot,
+          priceChanged: holdResult.priceChanged,
           protectionVerified: holdResult.protectionVerified,
         }),
         contactEmail: dto.contact.email,
@@ -199,7 +173,7 @@ export class BookingService {
           create: holdResult.pnrs.map((pnr) => ({
             airline: pnr.airline,
             pnr: pnr.pnr,
-            timelimit: parseTimelimit(pnr.timelimit),
+            timelimit: parseTimelimit(pnr.timelimit) ?? muadiHoldExpiresAt,
             rawJson: toJson(pnr.rawJson ?? pnr),
           })),
         },
@@ -211,9 +185,17 @@ export class BookingService {
               pnrs: holdResult.pnrs.map((pnr) => ({
                 airline: pnr.airline,
                 pnr: pnr.pnr,
-                timelimit: pnr.timelimit,
+                timelimit:
+                  pnr.timelimit ?? muadiHoldExpiresAt.toISOString(),
+                total: pnr.total ?? null,
               })),
-              paymentDeadline: paymentDeadline?.toISOString() ?? null,
+              paymentDeadline: paymentDeadline.toISOString(),
+              pricing: {
+                source: holdResult.pricing.source,
+                totalNetPrice,
+                snapshotPriceVnd: holdResult.snapshotPriceVnd,
+                priceChanged: holdResult.priceChanged,
+              },
               markup: {
                 ruleId: markup.ruleId,
                 ruleName: markup.ruleName,
@@ -240,29 +222,11 @@ export class BookingService {
     } catch {
       snapshot = null;
     }
-    if (!snapshot?.rawFlight || !snapshot.muadiSessionId) {
+    if (!snapshot?.flightNumber || !snapshot.airline || !snapshot.date) {
       throw new GoneException('Vé đã hết hạn giữ, vui lòng tìm lại');
     }
 
     return snapshot;
-  }
-
-  private resolveFare(
-    dto: HoldBookingDto,
-    flight: MuadiRawFlight,
-  ): MuadiRawFare {
-    const fare = flight.priceInfo?.find(
-      (item) =>
-        item.class === dto.fareClass || item.fareClass === dto.fareClass,
-    );
-    if (!fare) {
-      throw new Error('Không tìm thấy fare class trong dữ liệu Muadi');
-    }
-    if (fare.soldOut === true || (fare.seatAvailable ?? 1) <= 0) {
-      throw new Error('Hết chỗ');
-    }
-
-    return fare;
   }
 
   private async resolveUserTier(
@@ -283,6 +247,48 @@ export class BookingService {
 
     return user?.tier ?? null;
   }
+
+  private resolveHoldExpiresAt(
+    holdResult: HoldResult,
+    departTime: Date,
+  ): Date {
+    const parsedTimelimits = holdResult.pnrs
+      .map((pnr) => parseTimelimit(pnr.timelimit))
+      .filter((value): value is Date => value !== null)
+      .sort((left, right) => left.getTime() - right.getTime());
+    if (parsedTimelimits[0]) {
+      return parsedTimelimits[0];
+    }
+
+    const fallbackHours = this.getNumberConfig('MUADI_HOLD_FALLBACK_HOURS', 4);
+    const fallbackFromNow = new Date(Date.now() + fallbackHours * 60 * 60_000);
+    const fallbackBeforeDepart = new Date(
+      departTime.getTime() - 3 * 60 * 60_000,
+    );
+
+    return fallbackFromNow.getTime() < fallbackBeforeDepart.getTime()
+      ? fallbackFromNow
+      : fallbackBeforeDepart;
+  }
+
+  private assertPaymentWindow(paymentDeadline: Date): void {
+    const minWindowMs =
+      this.getNumberConfig('MIN_PAYMENT_WINDOW_MINUTES', 15) * 60_000;
+    if (paymentDeadline.getTime() <= Date.now() + minWindowMs) {
+      throw new ConflictException(
+        'Vé này có thời hạn giữ chỗ quá ngắn, vui lòng chọn chuyến khác hoặc thanh toán ngay',
+      );
+    }
+  }
+
+  private getPaymentBufferMinutes(): number {
+    return this.getNumberConfig('PAYMENT_BUFFER_MINUTES', 60);
+  }
+
+  private getNumberConfig(key: string, fallback: number): number {
+    const value = Number(this.config.get<string>(key));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  }
 }
 
 export function parseTimelimit(value: string | undefined): Date | null {
@@ -297,50 +303,9 @@ export function parseTimelimit(value: string | undefined): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function computeTotals(
-  dto: HoldBookingDto,
-  fare: MuadiRawFare,
-  flight: MuadiRawFlight,
-): { total: number; tax: number; fee: number } {
-  const adultCount = countPassengers(dto, 'ADT');
-  const childCount = countPassengers(dto, 'CHD');
-  const infantCount = countPassengers(dto, 'INF');
-  const adultFee = money(fare.issueFeeADT ?? flight.issueFeeADT);
-  const childFee = money(flight.issueFeeCHD);
-  const tax =
-    adultCount * (money(fare.taxADT) + money(fare.vatADT)) +
-    childCount * (money(fare.taxCHD) + money(fare.vatCHD)) +
-    infantCount * (money(fare.taxINF) + money(fare.vatINF));
-  const fee = adultCount * adultFee + childCount * childFee;
-  const total =
-    adultCount * money(fare.fareADT) +
-    childCount * money(fare.fareCHD) +
-    infantCount * money(fare.fareINF) +
-    tax +
-    fee;
-
-  return {
-    total,
-    tax,
-    fee,
-  };
-}
-
-function countPassengers(dto: HoldBookingDto, type: 'ADT' | 'CHD' | 'INF') {
-  return dto.passengers.filter((passenger) => passenger.type === type).length;
-}
-
-function getMuadiDateOnly(value: string | undefined): string {
-  if (!value) {
-    return '';
-  }
-
-  return value.split(' ')[0];
-}
-
 function buildFlightNumber(
   segment: { carrierCode?: string; flightNumber?: string } | undefined,
-  flight: MuadiRawFlight,
+  flight: { carrierCode?: string; airline?: string; flightNumber?: string },
 ): string | undefined {
   const carrier = segment?.carrierCode ?? flight.carrierCode ?? flight.airline;
   const number = segment?.flightNumber ?? flight.flightNumber;

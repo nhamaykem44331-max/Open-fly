@@ -185,17 +185,17 @@ describe('Booking endpoints (e2e)', () => {
     await redis.set(
       offerSnapshotKey(offerId),
       {
-        rawFlight: mockFlight(),
-        muadiSessionId: 123456,
-        currencyCode: 'VND',
-        searchParams: {
-          origin: 'SGN',
-          destination: 'HAN',
-          date: '2026-06-11',
-          paxAdt: 1,
-          paxChd: 0,
-          paxInf: 0,
-        },
+        from: 'SGN',
+        to: 'HAN',
+        date: '2026-06-11',
+        paxAdt: 1,
+        paxChd: 0,
+        paxInf: 0,
+        airline: 'VN',
+        flightNumber: 'VN252',
+        departDate: '2026-06-11T16:40:00+07:00',
+        fareClass: 'L',
+        snapshotPriceVnd: 2886000,
       },
       900,
     );
@@ -399,6 +399,11 @@ function mockFlight(): MuadiRawFlight {
 }
 
 function mockHoldResult(): HoldResult {
+  const flight = mockFlight();
+  const fare = flight.priceInfo![0];
+  const total = 2886000;
+  const timelimit = '11-06-2026 23:50:00';
+
   return {
     bookingResponse: {
       success: true,
@@ -410,7 +415,8 @@ function mockHoldResult(): HoldResult {
             airline: 'VN',
             pnr: 'E2EPNR',
             status: 'HELD',
-            timelimit: '11-06-2026 23:50',
+            timelimit,
+            total,
           },
         ],
       },
@@ -421,8 +427,34 @@ function mockHoldResult(): HoldResult {
         airline: 'VN',
         pnr: 'E2EPNR',
         status: 'HELD',
-        timelimit: '11-06-2026 23:50',
+        timelimit,
+        total,
       },
     ],
+    pricing: {
+      verified: true,
+      source: 'booking/ticket-info-by-id',
+      totalNetPrice: total,
+      currency: 'VND',
+      byPnr: [
+        {
+          airline: 'VN',
+          pnr: 'E2EPNR',
+          status: 'HELD',
+          timelimit,
+          total,
+        },
+      ],
+      syncedAt: '2026-06-11T09:00:00.000Z',
+    },
+    flight,
+    fare,
+    bookRequest: {
+      sessionID: 654321,
+      isExportNow: false,
+    },
+    muadiSessionId: 654321,
+    snapshotPriceVnd: total,
+    priceChanged: false,
   };
 }

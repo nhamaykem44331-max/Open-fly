@@ -1,3 +1,5 @@
+import { ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { BookingStatus } from '@prisma/client';
 import {
   HoldResult,
@@ -21,6 +23,7 @@ describe('BookingService hold', () => {
   let markup: jest.Mocked<
     Pick<MarkupService, 'classifyDomestic' | 'computeForFareClass'>
   >;
+  let config: Pick<ConfigService, 'get'>;
   let service: BookingService;
 
   beforeEach(() => {
@@ -42,31 +45,30 @@ describe('BookingService hold', () => {
       },
     };
     redis = {
-      get: jest.fn().mockResolvedValue({
-        rawFlight: mockFlight(),
-        muadiSessionId: 123456,
-        currencyCode: 'VND',
-        searchParams: {
-          origin: 'SGN',
-          destination: 'HAN',
-          date: '2026-06-11',
-          paxAdt: 1,
-          paxChd: 0,
-          paxInf: 0,
-        },
-      }),
+      get: jest.fn().mockResolvedValue(mockSnapshot()),
     };
     markup = {
       classifyDomestic: jest.fn().mockResolvedValue(true),
       computeForFareClass: jest.fn().mockResolvedValue({
         ruleId: 'markup-rule-id',
         ruleName: 'Domestic 3.5%',
-        markupAmount: 101010,
-        sellPrice: 2987010,
+        markupAmount: 105000,
+        sellPrice: 3105000,
         ruleSnapshot: {
           id: 'markup-rule-id',
           name: 'Domestic 3.5%',
         },
+      }),
+    };
+    config = {
+      get: jest.fn((key: string) => {
+        const values: Record<string, string> = {
+          PAYMENT_BUFFER_MINUTES: '60',
+          MIN_PAYMENT_WINDOW_MINUTES: '15',
+          MUADI_HOLD_FALLBACK_HOURS: '4',
+        };
+
+        return values[key];
       }),
     };
     service = new BookingService(
@@ -74,53 +76,32 @@ describe('BookingService hold', () => {
       prisma as unknown as PrismaService,
       markup as unknown as MarkupService,
       redis as unknown as RedisService,
+      config as ConfigService,
     );
   });
 
-  it('builds a dry-run book request without calling Muadi hold', async () => {
+  it('returns a dry-run snapshot without calling Muadi hold', async () => {
     const result = (await service.hold(validDto(), {
       dryRun: true,
     })) as unknown as {
       dryRun: true;
-      bookRequest: {
-        listRoutes: Array<Record<string, unknown>>;
-        listPax: Array<Record<string, unknown>>;
-      } & Record<string, unknown>;
+      snapshot: Record<string, unknown>;
     };
 
     expect(provider.hold).not.toHaveBeenCalled();
     expect(result).toEqual(
       expect.objectContaining({
         dryRun: true,
-        bookRequest: expect.objectContaining({
-          sessionID: 123456,
-          isExportNow: false,
-          isReBook: false,
-          adt: 1,
-          chd: 0,
-          inf: 0,
-          currencyCode: 'VND',
+        snapshot: expect.objectContaining({
+          airline: 'VN',
+          flightNumber: 'VN252',
+          snapshotPriceVnd: 2886000,
         }),
-      }),
-    );
-    expect(result.bookRequest.listRoutes[0]).toEqual(
-      expect.objectContaining({
-        airline: 'VN',
-        from: 'SGN',
-        to: 'HAN',
-      }),
-    );
-    expect(result.bookRequest.listPax[0]).toEqual(
-      expect.objectContaining({
-        title: 'MR',
-        firstName: 'ANH',
-        lastName: 'VU',
-        type: 'ADT',
       }),
     );
   });
 
-  it('persists HELD booking with PNR and deadlines', async () => {
+  it('persists HELD booking with authoritative reconcile price and deadlines', async () => {
     await service.hold(validDto(), {
       userId: 'user-id',
       vat: {
@@ -131,19 +112,29 @@ describe('BookingService hold', () => {
     });
 
     expect(provider.hold).toHaveBeenCalledTimes(1);
+    expect(provider.hold).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fareClass: 'L',
+        snapshot: expect.objectContaining({
+          airline: 'VN',
+          flightNumber: 'VN252',
+          snapshotPriceVnd: 2886000,
+        }),
+      }),
+    );
     const createArg = prisma.booking.create.mock.calls[0][0];
     expect(createArg.data).toEqual(
       expect.objectContaining({
         userId: 'user-id',
         status: BookingStatus.HELD,
         pnr: 'ABC123',
-        sessionId: '123456',
-        totalNetPrice: 2886000,
-        totalSellPrice: 2987010,
-        totalMarkup: 101010,
+        sessionId: '654321',
+        totalNetPrice: 3000000,
+        totalSellPrice: 3105000,
+        totalMarkup: 105000,
         appliedMarkupRuleId: 'markup-rule-id',
-        tax: 737000,
-        fee: 50000,
+        tax: 0,
+        fee: 0,
       }),
     );
     expect(markup.computeForFareClass).toHaveBeenCalledWith(
@@ -154,7 +145,7 @@ describe('BookingService hold', () => {
         domestic: true,
         tier: 'STANDARD',
         route: 'SGN-HAN',
-        netPrice: 2886000,
+        netPrice: 3000000,
       }),
     );
     expect(createArg.data.appliedMarkupRuleSnapshot).toEqual(
@@ -179,18 +170,80 @@ describe('BookingService hold', () => {
         eventType: 'HELD',
         title: 'Đã giữ chỗ thành công',
         payload: expect.objectContaining({
+          pricing: expect.objectContaining({
+            totalNetPrice: 3000000,
+            snapshotPriceVnd: 2886000,
+            priceChanged: false,
+          }),
           markup: expect.objectContaining({
             ruleId: 'markup-rule-id',
-            markupAmount: 101010,
-            sellPrice: 2987010,
+            markupAmount: 105000,
+            sellPrice: 3105000,
           }),
         }),
       }),
     );
   });
 
+  it('does not persist when payment window is too short', async () => {
+    provider.hold.mockResolvedValueOnce(
+      mockHoldResult({
+        timelimit: new Date(Date.now() + 70 * 60_000).toISOString(),
+      }),
+    );
+
+    await expect(
+      service.hold(validDto(), {
+        userId: 'user-id',
+      }),
+    ).rejects.toThrow(ConflictException);
+    expect(prisma.booking.create).not.toHaveBeenCalled();
+  });
+
+  it('records priceChanged when authoritative price differs by more than 5%', async () => {
+    provider.hold.mockResolvedValueOnce(
+      mockHoldResult({
+        total: 3200000,
+        priceChanged: true,
+      }),
+    );
+
+    await service.hold(validDto(), {
+      userId: 'user-id',
+    });
+
+    const createArg = prisma.booking.create.mock.calls[0][0];
+    expect(createArg.data.totalNetPrice).toBe(3200000);
+    expect(createArg.data.timeline.create.payload.pricing).toEqual(
+      expect.objectContaining({
+        totalNetPrice: 3200000,
+        snapshotPriceVnd: 2886000,
+        priceChanged: true,
+      }),
+    );
+  });
+
+  it('sets fallback hold expiry and payment deadline when PNR timelimit is missing', async () => {
+    provider.hold.mockResolvedValueOnce(
+      mockHoldResult({
+        timelimit: null,
+      }),
+    );
+
+    await service.hold(validDto(), {
+      userId: 'user-id',
+    });
+
+    const createArg = prisma.booking.create.mock.calls[0][0];
+    expect(createArg.data.muadiHoldExpiresAt).toBeInstanceOf(Date);
+    expect(createArg.data.paymentDeadline).toBeInstanceOf(Date);
+    expect(createArg.data.pnrs.create[0].timelimit).toBe(
+      createArg.data.muadiHoldExpiresAt,
+    );
+  });
+
   it('computes payment deadline as timelimit minus 60 minutes', () => {
-    const timelimit = parseTimelimit('11-06-2026 23:50');
+    const timelimit = parseTimelimit('11-06-2026 23:50:00');
     const paymentDeadline = new Date(timelimit!.getTime() - 60 * 60 * 1000);
 
     expect(paymentDeadline.toISOString()).toBe('2026-06-11T15:50:00.000Z');
@@ -198,8 +251,6 @@ describe('BookingService hold', () => {
 });
 
 function validDto(): HoldBookingDto {
-  const flight = mockFlight();
-
   return {
     offerId: 'offer-id',
     fareClass: 'L',
@@ -215,6 +266,22 @@ function validDto(): HoldBookingDto {
       phone: '+84938121234',
       email: 'guest@example.com',
     },
+  };
+}
+
+function mockSnapshot() {
+  return {
+    from: 'SGN',
+    to: 'HAN',
+    date: '2026-06-11',
+    paxAdt: 1,
+    paxChd: 0,
+    paxInf: 0,
+    airline: 'VN',
+    flightNumber: 'VN252',
+    departDate: '2026-06-11T16:40:00+07:00',
+    fareClass: 'L',
+    snapshotPriceVnd: 2886000,
   };
 }
 
@@ -267,7 +334,21 @@ function mockFare(): MuadiRawFare {
   };
 }
 
-function mockHoldResult(): HoldResult {
+function mockHoldResult(
+  overrides: {
+    total?: number;
+    timelimit?: string | null;
+    priceChanged?: boolean;
+  } = {},
+): HoldResult {
+  const total = overrides.total ?? 3000000;
+  const timelimit =
+    overrides.timelimit === null
+      ? undefined
+      : (overrides.timelimit ?? '11-06-2026 23:50:00');
+  const flight = mockFlight();
+  const fare = mockFare();
+
   return {
     bookingResponse: {
       success: true,
@@ -279,7 +360,8 @@ function mockHoldResult(): HoldResult {
             airline: 'VN',
             pnr: 'ABC123',
             status: 'HELD',
-            timelimit: '11-06-2026 23:50',
+            ...(timelimit === undefined ? {} : { timelimit }),
+            total,
           },
         ],
       },
@@ -290,8 +372,34 @@ function mockHoldResult(): HoldResult {
         airline: 'VN',
         pnr: 'ABC123',
         status: 'HELD',
-        timelimit: '11-06-2026 23:50',
+        timelimit,
+        total,
       },
     ],
+    pricing: {
+      verified: true,
+      source: 'booking/ticket-info-by-id',
+      totalNetPrice: total,
+      currency: 'VND',
+      byPnr: [
+        {
+          airline: 'VN',
+          pnr: 'ABC123',
+          status: 'HELD',
+          timelimit,
+          total,
+        },
+      ],
+      syncedAt: '2026-06-11T09:00:00.000Z',
+    },
+    flight,
+    fare,
+    bookRequest: {
+      sessionID: 654321,
+      isExportNow: false,
+    },
+    muadiSessionId: 654321,
+    snapshotPriceVnd: 2886000,
+    priceChanged: overrides.priceChanged ?? false,
   };
 }

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   IMuadiProvider,
   MUADI_PROVIDER,
+  MuadiRawFlight,
 } from '../integrations/muadi/muadi-provider.interface';
 import { SearchParamsDto } from '../integrations/muadi/dto/search-params.dto';
 import { RedisService } from '../integrations/redis/redis.service';
@@ -66,14 +67,12 @@ export class FlightsService {
     await this.saveOfferSnapshots(
       offers,
       result.rawFlights,
-      result.muadiSessionId,
       dto,
     );
     if (returnOffers && result.returnRawFlights) {
       await this.saveOfferSnapshots(
         returnOffers,
         result.returnRawFlights,
-        result.muadiSessionId,
         dto,
       );
     }
@@ -218,7 +217,6 @@ export class FlightsService {
   private async saveOfferSnapshots(
     offers: FlightOfferDto[],
     rawFlights: unknown[],
-    muadiSessionId: number,
     dto: SearchParamsDto,
   ): Promise<void> {
     await Promise.all(
@@ -228,12 +226,11 @@ export class FlightsService {
           return;
         }
 
-        const snapshot: OfferSnapshot = {
-          rawFlight: rawFlight as OfferSnapshot['rawFlight'],
-          muadiSessionId,
-          currencyCode: getCurrencyCode(rawFlight),
-          searchParams: dto,
-        };
+        const snapshot = buildOfferSnapshot(
+          offer,
+          rawFlight as MuadiRawFlight,
+          dto,
+        );
         try {
           await this.redis.set(
             offerSnapshotKey(offer.id),
@@ -266,9 +263,31 @@ export class FlightsService {
   }
 }
 
-function getCurrencyCode(rawFlight: unknown): string {
-  const flight = rawFlight as { priceInfo?: Array<{ currencyCode?: string }> };
-  return (
-    flight.priceInfo?.find((fare) => fare.currencyCode)?.currencyCode ?? 'VND'
-  );
+function buildOfferSnapshot(
+  offer: FlightOfferDto,
+  rawFlight: MuadiRawFlight,
+  dto: SearchParamsDto,
+): OfferSnapshot {
+  const firstSegment = offer.segments[0];
+  const cheapestFare =
+    offer.fareClasses.find(
+      (fareClass) =>
+        !fareClass.soldOut && fareClass.priceVnd === offer.cheapestPriceVnd,
+    ) ??
+    offer.fareClasses.find((fareClass) => !fareClass.soldOut) ??
+    offer.fareClasses[0];
+
+  return {
+    from: dto.origin.trim().toUpperCase(),
+    to: dto.destination.trim().toUpperCase(),
+    date: dto.date.trim(),
+    paxAdt: dto.paxAdt,
+    paxChd: dto.paxChd,
+    paxInf: dto.paxInf,
+    airline: offer.airline.code || rawFlight.airline || '',
+    flightNumber: offer.flightNumber,
+    departDate: firstSegment?.departTime ?? rawFlight.departDateTime ?? '',
+    fareClass: cheapestFare?.code ?? '',
+    snapshotPriceVnd: cheapestFare?.priceVnd ?? offer.cheapestPriceVnd,
+  };
 }
