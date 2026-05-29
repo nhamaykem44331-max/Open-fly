@@ -16,6 +16,7 @@ import { RedisModule } from './integrations/redis/redis.module';
 import { MeModule } from './me/me.module';
 import { NotifierModule } from './notifier/notifier.module';
 import { PaymentModule } from './payment/payment.module';
+import { ProfileModule } from './profile/profile.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { QueueModule } from './queue/queue.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
@@ -71,6 +72,7 @@ function validateEnv(config: Record<string, unknown>) {
     QueueModule,
     HuntModule,
     NotifierModule,
+    ProfileModule,
     SchedulerModule,
     MeModule,
     HealthModule,
