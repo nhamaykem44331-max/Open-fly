@@ -4,6 +4,7 @@ import {
   IMuadiProvider,
   MUADI_PROVIDER,
   MuadiRawFlight,
+  SearchOptions,
 } from '../integrations/muadi/muadi-provider.interface';
 import { SearchParamsDto } from '../integrations/muadi/dto/search-params.dto';
 import { RedisService } from '../integrations/redis/redis.service';
@@ -28,7 +29,10 @@ export class FlightsService {
     private readonly markupService: MarkupService,
   ) {}
 
-  async search(dto: SearchParamsDto): Promise<SearchResponseDto> {
+  async search(
+    dto: SearchParamsDto,
+    options?: SearchOptions,
+  ): Promise<SearchResponseDto> {
     const cacheKey = this.buildCacheKey(dto);
     const cached = await this.getCachedResponse(cacheKey);
     if (cached) {
@@ -43,7 +47,7 @@ export class FlightsService {
       return existing;
     }
 
-    const promise = this.fetchAndCache(dto, cacheKey).finally(() => {
+    const promise = this.fetchAndCache(dto, cacheKey, options).finally(() => {
       this.inflight.delete(cacheKey);
     });
     this.inflight.set(cacheKey, promise);
@@ -54,8 +58,9 @@ export class FlightsService {
   private async fetchAndCache(
     dto: SearchParamsDto,
     cacheKey: string,
+    options?: SearchOptions,
   ): Promise<SearchResponseDto> {
-    const result = await this.muadiProvider.search(dto);
+    const result = await this.muadiProvider.search(dto, options);
     const offers = result.rawFlights.map((flight) =>
       normalizeFlight(flight, flight.airline ?? flight.carrierCode ?? ''),
     );

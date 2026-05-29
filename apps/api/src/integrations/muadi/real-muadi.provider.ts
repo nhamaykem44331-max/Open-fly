@@ -13,6 +13,8 @@ import {
   MuadiAirlineFailure,
   MuadiBookingFee,
   MuadiRawFlight,
+  NoHunterHeadroomError,
+  SearchOptions,
   SearchParams,
   SearchResult,
 } from './muadi-provider.interface';
@@ -57,8 +59,19 @@ export class RealMuadiProvider implements IMuadiProvider {
     private readonly sessionPool: MuadiSessionPoolService,
   ) {}
 
-  async search(params: SearchParams): Promise<SearchResult> {
-    const session = await this.sessionPool.acquireForRealtime();
+  async search(
+    params: SearchParams,
+    options?: SearchOptions,
+  ): Promise<SearchResult> {
+    // Quét nền (hunter) dùng acquireForHunter để chừa headroom cho real-time;
+    // không còn headroom -> ném NoHunterHeadroomError để caller hoãn (không tính lỗi).
+    const session =
+      options?.priority === 'hunter'
+        ? await this.sessionPool.acquireForHunter()
+        : await this.sessionPool.acquireForRealtime();
+    if (!session) {
+      throw new NoHunterHeadroomError();
+    }
     let success = false;
 
     try {

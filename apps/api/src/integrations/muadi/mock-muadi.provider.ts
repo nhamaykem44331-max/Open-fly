@@ -4,13 +4,18 @@ import {
   HoldResult,
   IMuadiProvider,
   MuadiRawFlight,
+  SearchOptions,
   SearchParams,
   SearchResult,
 } from './muadi-provider.interface';
 
 @Injectable()
 export class MockMuadiProvider implements IMuadiProvider {
-  async search(params: SearchParams): Promise<SearchResult> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async search(
+    params: SearchParams,
+    _options?: SearchOptions,
+  ): Promise<SearchResult> {
     return {
       provider: 'mock',
       searchedAt: new Date().toISOString(),

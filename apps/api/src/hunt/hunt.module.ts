@@ -1,7 +1,6 @@
 import { Module, Provider } from '@nestjs/common';
 import { BookingModule } from '../booking/booking.module';
 import { FlightsModule } from '../flights/flights.module';
-import { MuadiModule } from '../integrations/muadi/muadi.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RedisModule } from '../integrations/redis/redis.module';
 import { NotifierModule } from '../notifier/notifier.module';
@@ -24,7 +23,6 @@ const workerProviders: Provider[] =
     BookingModule,
     NotifierModule,
     FlightsModule,
-    MuadiModule,
   ],
   controllers: [HuntController],
   providers: [

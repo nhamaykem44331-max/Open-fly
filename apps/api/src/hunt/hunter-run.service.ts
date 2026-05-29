@@ -5,7 +5,7 @@ import { Hunt, HuntStatus, Prisma } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { FlightOfferDto } from '../flights/dto/flight-offer.dto';
 import { FlightsService } from '../flights/flights.service';
-import { MuadiSessionPoolService } from '../integrations/muadi/muadi-session-pool.service';
+import { NoHunterHeadroomError } from '../integrations/muadi/muadi-provider.interface';
 import { NotifierService } from '../notifier/notifier.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AutoHoldService } from './auto-hold.service';
@@ -32,7 +32,6 @@ export class HunterRunService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly flights: FlightsService,
-    private readonly pool: MuadiSessionPoolService,
     private readonly autoHold: AutoHoldService,
     private readonly notifier: NotifierService,
     private readonly config: ConfigService,
@@ -45,23 +44,18 @@ export class HunterRunService {
       return; // paused/cancelled/found -> bỏ qua (job cũ còn sót)
     }
 
-    // Chừa session cho real-time; hết headroom -> thử lại sau, không tính lỗi.
-    const session = await this.pool.acquireForHunter();
-    if (!session) {
-      await this.enqueueNext(huntId, NO_SESSION_BACKOFF_MS);
-      return;
-    }
-
     const startedAt = new Date();
-    let success = false;
     try {
+      // FlightsService.search(priority:'hunter') tự chừa headroom session cho
+      // real-time (acquireForHunter). Hết headroom -> NoHunterHeadroomError.
       const scanned = await this.scan(hunt);
       await this.persistAndDecide(hunt, scanned, startedAt);
-      success = true;
     } catch (error) {
+      if (error instanceof NoHunterHeadroomError) {
+        await this.enqueueNext(huntId, NO_SESSION_BACKOFF_MS);
+        return; // hoãn, KHÔNG tính là thất bại
+      }
       await this.handleFailure(hunt, startedAt, error);
-    } finally {
-      await this.pool.release(session.id, success);
     }
   }
 
@@ -73,14 +67,17 @@ export class HunterRunService {
     const scanned: ScanItem[] = [];
 
     for (const day of days) {
-      const response = await this.flights.search({
-        origin: hunt.fromCode,
-        destination: hunt.toCode,
-        date: day,
-        paxAdt: hunt.pax,
-        paxChd: 0,
-        paxInf: 0,
-      } as never);
+      const response = await this.flights.search(
+        {
+          origin: hunt.fromCode,
+          destination: hunt.toCode,
+          date: day,
+          paxAdt: hunt.pax,
+          paxChd: 0,
+          paxInf: 0,
+        } as never,
+        { priority: 'hunter' },
+      );
 
       for (const offer of response.offers) {
         if (

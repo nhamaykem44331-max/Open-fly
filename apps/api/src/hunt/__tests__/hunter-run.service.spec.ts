@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { Hunt, HuntStatus } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { FlightsService } from '../../flights/flights.service';
-import { MuadiSessionPoolService } from '../../integrations/muadi/muadi-session-pool.service';
+import { NoHunterHeadroomError } from '../../integrations/muadi/muadi-provider.interface';
 import { NotifierService } from '../../notifier/notifier.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AutoHoldService } from '../auto-hold.service';
@@ -86,7 +86,6 @@ describe('resolveDays', () => {
 describe('HunterRunService.run', () => {
   let prisma: any;
   let flights: { search: jest.Mock };
-  let pool: { acquireForHunter: jest.Mock; release: jest.Mock };
   let autoHold: { execute: jest.Mock };
   let notifier: { enqueue: jest.Mock };
   let queue: { add: jest.Mock };
@@ -109,17 +108,12 @@ describe('HunterRunService.run', () => {
       },
     };
     flights = { search: jest.fn() };
-    pool = {
-      acquireForHunter: jest.fn().mockResolvedValue({ id: 's1' }),
-      release: jest.fn().mockResolvedValue(undefined),
-    };
     autoHold = { execute: jest.fn() };
     notifier = { enqueue: jest.fn().mockResolvedValue('n1') };
     queue = { add: jest.fn().mockResolvedValue({}) };
     service = new HunterRunService(
       prisma as unknown as PrismaService,
       flights as unknown as FlightsService,
-      pool as unknown as MuadiSessionPoolService,
       autoHold as unknown as AutoHoldService,
       notifier as unknown as NotifierService,
       { get: jest.fn().mockReturnValue(undefined) } as unknown as ConfigService,
@@ -127,21 +121,22 @@ describe('HunterRunService.run', () => {
     );
   });
 
-  it('hunt không HUNTING -> bỏ qua, không acquire session', async () => {
+  it('hunt không HUNTING -> bỏ qua, không quét', async () => {
     prisma.hunt.findUnique.mockResolvedValue(
       huntFx({ status: HuntStatus.PAUSED }),
     );
     await service.run('h1');
-    expect(pool.acquireForHunter).not.toHaveBeenCalled();
+    expect(flights.search).not.toHaveBeenCalled();
   });
 
-  it('hết headroom session -> requeue backoff, không tạo HuntRun', async () => {
+  it('hết headroom session (NoHunterHeadroomError) -> hoãn, không tạo HuntRun/lỗi', async () => {
     prisma.hunt.findUnique.mockResolvedValue(huntFx());
-    pool.acquireForHunter.mockResolvedValue(null);
+    flights.search.mockRejectedValue(new NoHunterHeadroomError());
 
     await service.run('h1');
 
     expect(prisma.huntRun.create).not.toHaveBeenCalled();
+    expect(prisma.hunt.update).not.toHaveBeenCalled(); // không tính là thất bại
     expect(queue.add).toHaveBeenCalledWith(
       'scan',
       { huntId: 'h1' },
@@ -163,7 +158,6 @@ describe('HunterRunService.run', () => {
       { huntId: 'h1' },
       expect.objectContaining({ delay: 120 * 60_000 }),
     );
-    expect(pool.release).toHaveBeenCalledWith('s1', true);
   });
 
   it('chạm target + auto-hold giữ được -> execute auto-hold, KHÔNG reschedule', async () => {
@@ -210,7 +204,6 @@ describe('HunterRunService.run', () => {
       expect.objectContaining({ data: expect.objectContaining({ failureStreak: 1 }) }),
     );
     expect(queue.add).toHaveBeenCalled();
-    expect(pool.release).toHaveBeenCalledWith('s1', false);
   });
 
   it('scan lỗi đạt ngưỡng 5 -> PAUSE + thông báo, không reschedule', async () => {

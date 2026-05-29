@@ -9,6 +9,21 @@ export interface SearchParams {
   paxInf: number;
 }
 
+export interface SearchOptions {
+  // 'hunter' = quét nền: chừa headroom session cho real-time (acquireForHunter).
+  // 'realtime' (mặc định) = search/booking của khách: không giới hạn.
+  priority?: 'hunter' | 'realtime';
+}
+
+// Ném khi quét nền không còn headroom session (đã chừa cho real-time).
+// Caller (Hunter) bắt lỗi này để hoãn lượt quét, KHÔNG tính là thất bại.
+export class NoHunterHeadroomError extends Error {
+  constructor() {
+    super('NO_HUNTER_HEADROOM');
+    this.name = 'NoHunterHeadroomError';
+  }
+}
+
 export interface MuadiRawSegment {
   carrierCode?: string;
   carrierName?: string;
@@ -198,6 +213,6 @@ export interface HoldResult {
 }
 
 export interface IMuadiProvider {
-  search(params: SearchParams): Promise<SearchResult>;
+  search(params: SearchParams, options?: SearchOptions): Promise<SearchResult>;
   hold(params: HoldParams): Promise<HoldResult>;
 }
