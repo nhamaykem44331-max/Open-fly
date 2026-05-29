@@ -17,6 +17,7 @@ import { MeModule } from './me/me.module';
 import { NotifierModule } from './notifier/notifier.module';
 import { PaymentModule } from './payment/payment.module';
 import { ProfileModule } from './profile/profile.module';
+import { VoucherModule } from './voucher/voucher.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { QueueModule } from './queue/queue.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
@@ -73,6 +74,7 @@ function validateEnv(config: Record<string, unknown>) {
     HuntModule,
     NotifierModule,
     ProfileModule,
+    VoucherModule,
     SchedulerModule,
     MeModule,
     HealthModule,

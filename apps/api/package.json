@@ -17,6 +17,7 @@
     "dev:worker": "nest start --watch --entryFile main.worker",
     "seed:muadi": "ts-node scripts/seed-muadi-session.ts",
     "seed:markup": "ts-node prisma/seed-markup.ts",
+    "seed:voucher": "ts-node prisma/seed-voucher.ts",
     "smoke:muadi": "ts-node scripts/smoke-muadi-search.ts",
     "sepay:simulate": "ts-node scripts/sepay-simulate-webhook.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
