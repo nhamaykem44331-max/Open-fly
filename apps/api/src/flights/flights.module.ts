@@ -10,5 +10,6 @@ import { FlightsService } from './flights.service';
   imports: [MuadiModule, PrismaModule, RedisModule, PricingModule],
   controllers: [FlightsController],
   providers: [FlightsService],
+  exports: [FlightsService],
 })
 export class FlightsModule {}
