@@ -447,7 +447,7 @@ model Hunt {
   flexibility        HuntFlexibility
   windowStart        DateTime
   windowEnd          DateTime
-  targetPrice        Int // VND nghìn (1000 = 1k)
+  targetPrice        Int // VND nguyên đồng (Q-45), so với GIÁ BÁN (sell sau markup)
   bestPriceFound     Int?
   bestPriceDate      DateTime?
   pax                Int             @default(1)
@@ -461,6 +461,13 @@ model Hunt {
   emptyStreak        Int             @default(0)
   scansCount         Int             @default(0)
   notifsSentCount    Int             @default(0)
+  autoHoldEnabled    Boolean         @default(false)
+  autoHoldPassengers Json?
+  autoHoldContactPhone String?
+  autoHoldContactEmail String?
+  autoHoldMaxHolds   Int             @default(1)
+  autoHoldsUsed      Int             @default(0)
+  lastAutoHeldBookingId String?
   autoDisabledAt     DateTime?
   autoDisabledReason String?
   createdAt          DateTime        @default(now())
@@ -491,6 +498,27 @@ model HuntRun {
   hunt Hunt @relation(fields: [huntId], references: [id], onDelete: Cascade)
 
   @@index([huntId, startedAt])
+}
+
+model RoutePriceObservation {
+  id            String   @id @default(uuid())
+  fromCode      String
+  toCode        String
+  departDate    DateTime
+  airline       String
+  flightNumber  String
+  cabin         String   @default("economy")
+  fareClass     String?
+  netPriceVnd   Int
+  sellPriceVnd  Int
+  seatAvailable Int?
+  observedAt    DateTime @default(now())
+  huntRunId     String?
+  source        String   @default("hunt")
+  createdAt     DateTime @default(now())
+
+  @@index([fromCode, toCode, departDate])
+  @@index([fromCode, toCode, observedAt])
 }
 
 // ─── Notification ──────────────────────────────────────────────────────
