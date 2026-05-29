@@ -51,6 +51,7 @@ model User {
   vouchersOwned     UserVoucher[]
   refreshTokens     RefreshToken[]
   searchHistories   SearchHistory[]
+  vatProfiles       SavedVatProfile[]
 
   @@index([tier])
   @@index([role])
@@ -102,6 +103,22 @@ model SavedPassenger {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Hồ sơ VAT lưu sẵn để auto-fill khi đặt vé có hóa đơn đỏ (Q-23).
+model SavedVatProfile {
+  id          String   @id @default(uuid())
+  userId      String
+  companyName String
+  taxId       String
+  address     String
+  email       String?
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -639,7 +656,7 @@ model VoucherTemplate {
   title         String
   description   String?
   type          VoucherType
-  value         Int // 150 (k VND) hoặc 20 (%)
+  value         Int // AMOUNT: VND nguyên đồng (Q-45, vd 150000); PERCENT: % (vd 20)
   maxDiscount   Int? // cap cho PERCENT
   minOrder      Int?
   validFrom     DateTime
