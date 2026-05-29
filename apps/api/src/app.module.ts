@@ -10,6 +10,7 @@ import { BookingModule } from './booking/booking.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { FlightsModule } from './flights/flights.module';
 import { HealthModule } from './health/health.module';
+import { HuntModule } from './hunt/hunt.module';
 import { MuadiModule } from './integrations/muadi/muadi.module';
 import { RedisModule } from './integrations/redis/redis.module';
 import { MeModule } from './me/me.module';
@@ -67,6 +68,7 @@ function validateEnv(config: Record<string, unknown>) {
     BookingModule,
     PaymentModule,
     QueueModule,
+    HuntModule,
     SchedulerModule,
     MeModule,
     HealthModule,
