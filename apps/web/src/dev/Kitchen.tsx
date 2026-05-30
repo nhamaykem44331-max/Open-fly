@@ -4,6 +4,10 @@ import type { ReactNode } from 'react'
 import { T } from '../theme/tokens'
 import { useThemeStore } from '../theme/theme'
 import { Ic, Sunmark, Wordmark, Eyebrow, Chip, Price, AirlineBadge, RouteLine, Sparkline, Divider, Card } from '../components/ui'
+import { SearchTimeout } from '../screens/states/SearchTimeout'
+import { PaymentFailed } from '../screens/states/PaymentFailed'
+import { BookingFailedSoldOut } from '../screens/states/BookingFailedSoldOut'
+import { BookingFailedPriceChange } from '../screens/states/BookingFailedPriceChange'
 
 const AIRLINE_COLORS: Record<string, string> = { VN: '#003B71', VJ: '#E40028', QH: '#0E7A6B', BL: '#FF6B00' }
 const ICON_NAMES = Object.keys(Ic) as (keyof typeof Ic)[]
@@ -14,6 +18,16 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       <Eyebrow>{title}</Eyebrow>
       <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>{children}</div>
     </section>
+  )
+}
+
+// A mobile-sized frame so full-screen states can be QA'd side by side in the kitchen.
+function ErrFrame({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div style={{ width: 360 }}>
+      <div style={{ fontFamily: T.sans, fontSize: 11, color: T.ink3, marginBottom: 8 }}>{label}</div>
+      <div style={{ height: 640, border: `1px solid ${T.line2}`, borderRadius: 12, overflow: 'auto', background: T.paper }}>{children}</div>
+    </div>
   )
 }
 
@@ -98,6 +112,16 @@ export default function Kitchen() {
             )
           })}
         </div>
+
+        <section style={{ marginTop: 32 }}>
+          <Eyebrow>Error states</Eyebrow>
+          <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: 20 }}>
+            <ErrFrame label="Search timeout"><SearchTimeout /></ErrFrame>
+            <ErrFrame label="Payment failed"><PaymentFailed /></ErrFrame>
+            <ErrFrame label="Booking — sold out"><BookingFailedSoldOut /></ErrFrame>
+            <ErrFrame label="Booking — price change"><BookingFailedPriceChange /></ErrFrame>
+          </div>
+        </section>
       </div>
     </div>
   )
