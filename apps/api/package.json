@@ -13,6 +13,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "start:tsnode": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:worker": "node dist/main.worker",
     "dev:worker": "nest start --watch --entryFile main.worker",
     "db:migrate": "prisma migrate dev",
