@@ -5,6 +5,8 @@ import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Price, SectionLabel, Toggle, Btn, Ic, ChannelIcon } from '../../components/ui'
 import { Container } from '../../shell/Container'
 import { AIRPORTS } from '../../data/mock'
+import { apiEnabled } from '../../lib/api/client'
+import { useCreateHunt } from '../../data/useHunts'
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
@@ -39,6 +41,19 @@ export function HunterCreateDesktop() {
   const a1 = AIRPORTS[from]
   const a2 = AIRPORTS[to]
   const nCh = Object.values(channels).filter(Boolean).length
+  const create = useCreateHunt()
+  const submit = () => {
+    if (create.isPending) return
+    if (!apiEnabled) {
+      navigate('/hunter')
+      return
+    }
+    const chs = Object.keys(channels).filter((k) => channels[k])
+    create.mutate(
+      { from, to, windowPreset: win, targetK: target, freqHours: freq, channels: chs },
+      { onSuccess: () => navigate('/hunter') },
+    )
+  }
 
   return (
     <div style={{ background: T.canvas, minHeight: '100%', paddingBottom: 80 }}>
@@ -138,7 +153,8 @@ export function HunterCreateDesktop() {
             <SummaryRow label="Giá mục tiêu" value={`≤ ${fmtVnd(target)}đ`} />
             <SummaryRow label="Quét" value={`mỗi ${freq} giờ`} />
             <SummaryRow label="Kênh báo" value={`${nCh} kênh`} />
-            <Btn onClick={() => navigate('/hunter')} variant="rust" full size="lg" style={{ marginTop: 20 }} icon={<Ic.radar size={16} stroke="#F5F1EA" />}>Bắt đầu săn vé</Btn>
+            <Btn onClick={submit} variant="rust" full size="lg" style={{ marginTop: 20 }} icon={<Ic.radar size={16} stroke="#F5F1EA" />}>{create.isPending ? 'Đang tạo…' : 'Bắt đầu săn vé'}</Btn>
+            {create.isError && <div style={{ textAlign: 'center', fontFamily: T.serif, fontSize: 12, color: T.red, fontStyle: 'italic', marginTop: 10 }}>Không tạo được hunt — {create.error?.message}</div>}
             <div style={{ textAlign: 'center', fontFamily: T.serif, fontSize: 12, color: T.ink3, fontStyle: 'italic', marginTop: 12 }}>Sol sẽ quét mỗi {freq} giờ và báo qua {nCh} kênh.</div>
           </div>
         </div>

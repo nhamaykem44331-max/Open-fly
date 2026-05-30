@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { T } from '../../theme/tokens'
 import { Eyebrow, Price, SectionLabel, Toggle, Ic, ChannelIcon } from '../../components/ui'
 import { AIRPORTS } from '../../data/mock'
+import { apiEnabled } from '../../lib/api/client'
+import { useCreateHunt } from '../../data/useHunts'
 
 const WINDOWS = [
   { id: 'jun-w2', label: 'Tuần thứ 2 thg 6', hint: '8 — 14 thg 6' },
@@ -29,6 +31,19 @@ export function HunterCreateMobile() {
   const a1 = AIRPORTS[from]
   const a2 = AIRPORTS[to]
   const nCh = Object.values(channels).filter(Boolean).length
+  const create = useCreateHunt()
+  const submit = () => {
+    if (create.isPending) return
+    if (!apiEnabled) {
+      navigate('/hunter')
+      return
+    }
+    const chs = Object.keys(channels).filter((k) => channels[k])
+    create.mutate(
+      { from, to, windowPreset, targetK: target, freqHours: freq, channels: chs },
+      { onSuccess: () => navigate('/hunter') },
+    )
+  }
 
   return (
     <div style={{ background: T.paper, minHeight: '100%' }}>
@@ -144,9 +159,10 @@ export function HunterCreateMobile() {
         </div>
 
         {/* CTA */}
-        <button onClick={() => navigate('/hunter')} style={{ width: '100%', margin: '4px 0 8px', padding: '18px', background: T.ink, color: T.paper, border: 'none', borderRadius: 4, fontFamily: T.serif, fontSize: 15, fontWeight: 500, letterSpacing: '-0.2px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-          <Ic.radar size={16} stroke={T.paper} sw={1.6} /> Bắt đầu săn vé
+        <button onClick={submit} style={{ width: '100%', margin: '4px 0 8px', padding: '18px', background: T.ink, color: T.paper, border: 'none', borderRadius: 4, fontFamily: T.serif, fontSize: 15, fontWeight: 500, letterSpacing: '-0.2px', cursor: create.isPending ? 'default' : 'pointer', opacity: create.isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          <Ic.radar size={16} stroke={T.paper} sw={1.6} /> {create.isPending ? 'Đang tạo…' : 'Bắt đầu săn vé'}
         </button>
+        {create.isError && <div style={{ textAlign: 'center', fontFamily: T.serif, fontSize: 12, color: T.red, fontStyle: 'italic', marginTop: 10 }}>Không tạo được hunt — {create.error?.message}</div>}
         <div style={{ textAlign: 'center', fontFamily: T.serif, fontSize: 11, color: T.ink3, fontStyle: 'italic', marginTop: 8, paddingBottom: 8 }}>
           Sol sẽ quét mỗi {freq} giờ và báo qua {nCh} kênh.
         </div>

@@ -23,6 +23,7 @@ interface RequestOpts {
   body?: unknown
   auth?: boolean
   retried?: boolean
+  idempotencyKey?: string
 }
 
 function rawFetch(path: string, opts: RequestOpts): Promise<Response> {
@@ -32,6 +33,7 @@ function rawFetch(path: string, opts: RequestOpts): Promise<Response> {
     const token = session.getAccess()
     if (token) headers['Authorization'] = `Bearer ${token}`
   }
+  if (opts.idempotencyKey) headers['Idempotency-Key'] = opts.idempotencyKey
   return fetch(`${BASE}${path}`, {
     method: opts.method ?? 'GET',
     headers,
