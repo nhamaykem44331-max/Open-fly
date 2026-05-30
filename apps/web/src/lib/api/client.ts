@@ -24,6 +24,7 @@ interface RequestOpts {
   auth?: boolean
   retried?: boolean
   idempotencyKey?: string
+  signal?: AbortSignal
 }
 
 function rawFetch(path: string, opts: RequestOpts): Promise<Response> {
@@ -38,6 +39,7 @@ function rawFetch(path: string, opts: RequestOpts): Promise<Response> {
     method: opts.method ?? 'GET',
     headers,
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    signal: opts.signal,
   })
 }
 
