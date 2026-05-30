@@ -67,6 +67,7 @@ export const Ic = {
   search: (p: IconProps) => <I {...p}><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></I>,
   user: (p: IconProps) => <I {...p}><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-7 8-7s8 3 8 7" /></I>,
   radar: (p: IconProps) => <I {...p}><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" fill="currentColor" /></I>,
+  plane2: (p: IconProps) => <I {...p}><path d="M17.8 19.2 16 11l3.5-3.5a1.5 1.5 0 0 0-2.1-2.1L13.9 9 5.7 7.2l-1.4 1.4L11 12l-3.4 3.4-3-1-1.2 1.2 4 2 2 4 1.2-1.2-1-3L13 14l3.4 6.6z" /></I>,
   ticket: (p: IconProps) => <I {...p}><path d="M3 9V7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a2 2 0 0 0 0 4v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 0 0-4z" /><path d="M14 6v12" /></I>,
   check: (p: IconProps) => <I {...p}><path d="m5 12 5 5 9-11" /></I>,
   trend: (p: IconProps) => <I {...p}><path d="M3 17 9 11l4 4 8-9M14 6h7v7" /></I>,

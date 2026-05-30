@@ -24,7 +24,7 @@ const NAV_GROUPS: { header: string | null; items: NavItem[] }[] = [
     header: "Vận hành vé",
     items: [
       { id: "queue", label: "Hàng đợi xuất vé", icon: Ic.ticket, star: true, ready: true },
-      { id: "lookup", label: "Tra cứu booking", icon: Ic.search, phase: 2 },
+      { id: "lookup", label: "Tra cứu booking", icon: Ic.search, ready: true },
       { id: "refunds", label: "Refund / Đổi vé", icon: AIc.refresh, phase: 3 },
       { id: "vat", label: "Hàng đợi VAT", icon: AIc.receipt, phase: 3 },
       { id: "payments", label: "Duyệt thanh toán", icon: AIc.bank, phase: 3 },
