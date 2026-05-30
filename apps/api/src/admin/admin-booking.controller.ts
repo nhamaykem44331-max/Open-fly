@@ -13,6 +13,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -302,6 +303,165 @@ export class AdminBookingController {
         limit: limitNumber,
         total,
       },
+    };
+  }
+
+  // Tra cứu booking theo orderCode / PNR / SĐT / email / tên khách, mọi trạng
+  // thái. (Khai báo trước route :id để '/search' không khớp nhầm :id.)
+  @Get('search')
+  async search(
+    @Query('q') q?: string,
+    @Query('status') status?: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '20',
+  ) {
+    const pageNumber = toPositiveInt(page, 1);
+    const limitNumber = Math.min(toPositiveInt(limit, 20), 50);
+    const where: Prisma.BookingWhereInput = {};
+    if (status?.trim()) where.status = parseBookingStatus(status);
+    const term = q?.trim();
+    if (term) {
+      where.OR = [
+        { orderCode: { contains: term, mode: 'insensitive' } },
+        { pnr: { contains: term, mode: 'insensitive' } },
+        { contactPhone: { contains: term } },
+        { contactEmail: { contains: term, mode: 'insensitive' } },
+        { pnrs: { some: { pnr: { contains: term, mode: 'insensitive' } } } },
+        {
+          user: {
+            OR: [
+              { fullName: { contains: term, mode: 'insensitive' } },
+              { phone: { contains: term } },
+              { email: { contains: term, mode: 'insensitive' } },
+            ],
+          },
+        },
+      ];
+    }
+
+    const [rows, total] = await Promise.all([
+      this.prisma.booking.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (pageNumber - 1) * limitNumber,
+        take: limitNumber,
+        select: {
+          id: true,
+          orderCode: true,
+          status: true,
+          airline: true,
+          flightNumber: true,
+          fromCode: true,
+          toCode: true,
+          departTime: true,
+          totalSellPrice: true,
+          contactPhone: true,
+          pnrs: { select: { pnr: true } },
+          user: { select: { fullName: true, phone: true } },
+        },
+      }),
+      this.prisma.booking.count({ where }),
+    ]);
+
+    return {
+      items: rows.map((b) => ({
+        id: b.id,
+        orderCode: b.orderCode,
+        status: b.status,
+        pnr: b.pnrs.map((p) => p.pnr),
+        airline: b.airline,
+        flightNumber: b.flightNumber,
+        route: `${b.fromCode}-${b.toCode}`,
+        departTime: b.departTime,
+        total: b.totalSellPrice,
+        userName: b.user?.fullName ?? null,
+        userPhone: b.user?.phone ?? b.contactPhone ?? null,
+      })),
+      pagination: { page: pageNumber, limit: limitNumber, total },
+    };
+  }
+
+  // Chi tiết 1 booking bất kỳ: timeline, hành khách, thanh toán, phân tách giá.
+  @Get(':id')
+  async detail(@Param('id') id: string) {
+    const b = await this.prisma.booking.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        orderCode: true,
+        status: true,
+        airline: true,
+        flightNumber: true,
+        aircraft: true,
+        cabin: true,
+        fromCode: true,
+        toCode: true,
+        departTime: true,
+        arriveTime: true,
+        duration: true,
+        totalNetPrice: true,
+        totalSellPrice: true,
+        totalMarkup: true,
+        tax: true,
+        fee: true,
+        addons: true,
+        voucherDiscount: true,
+        appliedVoucherCode: true,
+        vatStatus: true,
+        vatInvoiceNumber: true,
+        muadiHoldExpiresAt: true,
+        paymentDeadline: true,
+        createdAt: true,
+        contactPhone: true,
+        contactEmail: true,
+        user: { select: { id: true, fullName: true, phone: true, email: true } },
+        pnrs: { select: { airline: true, pnr: true, ticketNumber: true } },
+        passengers: { select: { fullName: true, gender: true, dob: true, isChild: true } },
+        timeline: {
+          orderBy: { occurredAt: 'asc' },
+          select: { eventType: true, title: true, occurredAt: true },
+        },
+        payments: {
+          orderBy: { createdAt: 'desc' },
+          select: { provider: true, amount: true, status: true, paidAt: true, transactionRef: true },
+        },
+      },
+    });
+    if (!b) throw new NotFoundException('Không tìm thấy booking');
+
+    return {
+      id: b.id,
+      orderCode: b.orderCode,
+      status: b.status,
+      airline: b.airline,
+      flightNumber: b.flightNumber,
+      aircraft: b.aircraft,
+      cabin: b.cabin,
+      from: b.fromCode,
+      to: b.toCode,
+      departTime: b.departTime,
+      arriveTime: b.arriveTime,
+      duration: b.duration,
+      user: b.user,
+      contact: { phone: b.contactPhone, email: b.contactEmail },
+      pnrs: b.pnrs,
+      passengers: b.passengers,
+      timeline: b.timeline,
+      payments: b.payments,
+      price: {
+        net: b.totalNetPrice,
+        markup: b.totalMarkup,
+        tax: b.tax,
+        fee: b.fee,
+        addons: b.addons,
+        voucherDiscount: b.voucherDiscount,
+        voucherCode: b.appliedVoucherCode,
+        total: b.totalSellPrice,
+      },
+      vat: { status: b.vatStatus, invoiceNumber: b.vatInvoiceNumber },
+      holdExpiresAt: b.muadiHoldExpiresAt,
+      paymentDeadline: b.paymentDeadline,
+      createdAt: b.createdAt,
     };
   }
 
