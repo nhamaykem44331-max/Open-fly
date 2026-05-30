@@ -210,12 +210,17 @@ const bookingListSelect = {
   status: true,
   airline: true,
   flightNumber: true,
+  aircraft: true,
   fromCode: true,
   toCode: true,
   departTime: true,
+  arriveTime: true,
+  duration: true,
+  cabin: true,
   totalSellPrice: true,
   paymentDeadline: true,
   createdAt: true,
+  passengers: { select: { seatCode: true } },
 } as const;
 
 function toHoldResponse(booking: Booking): HoldBookingResponse {
