@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-// Tạm thời điều hướng tới trang showcase design-system trong khi dựng nền (P1.0).
-// Sẽ thay bằng cổng đăng nhập / dashboard khi auth admin hoàn tất (P1.2).
+// Entry → dashboard. The (admin) shell guard redirects to /login when the
+// session is missing.
 export default function Home() {
-  redirect("/dev/kitchen");
+  redirect("/dashboard");
 }

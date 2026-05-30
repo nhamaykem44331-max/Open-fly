@@ -5,9 +5,17 @@
 // search/notifications/user identity/logout are placeholders wired when auth +
 // lookup land (P1.2 / P2). No fabricated counts.
 import { useState, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
 import { T } from "@/lib/tokens";
 import { Ic } from "@/components/icons";
 import { useTheme } from "@/lib/useTheme";
+import { useAuth } from "@/stores/auth";
+
+function initialsOf(src: string): string {
+  const parts = src.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return src.slice(0, 2).toUpperCase();
+}
 
 function menuItemStyle(): CSSProperties {
   return {
@@ -30,8 +38,22 @@ function menuItemStyle(): CSSProperties {
 
 export function Topbar() {
   const { theme, toggle, mounted } = useTheme();
+  const router = useRouter();
+  const user = useAuth((s) => s.user);
+  const logout = useAuth((s) => s.logout);
   const [query, setQuery] = useState("");
   const [menu, setMenu] = useState(false);
+
+  const name = user?.fullName || user?.email || "Quản trị viên";
+  const email = user?.email ?? "—";
+  const roleLabel = user?.role === "ADMIN" ? "Quản trị viên" : (user?.role ?? "");
+  const initials = initialsOf(user?.fullName || user?.email || "OF");
+
+  const onLogout = () => {
+    setMenu(false);
+    logout();
+    router.replace("/login");
+  };
 
   return (
     <header
@@ -93,10 +115,10 @@ export function Topbar() {
           onClick={() => setMenu((m) => !m)}
           style={{ display: "flex", alignItems: "center", gap: 11, padding: "5px 8px 5px 5px", borderRadius: 100, border: `1px solid ${menu ? T.ink : T.line2}`, background: "transparent", cursor: "pointer" }}
         >
-          <span style={{ width: 32, height: 32, borderRadius: "50%", background: T.ink, color: T.paper, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.serif, fontSize: 14, fontStyle: "italic", fontWeight: 600, flexShrink: 0 }}>OF</span>
+          <span style={{ width: 32, height: 32, borderRadius: "50%", background: T.ink, color: T.paper, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.serif, fontSize: 14, fontStyle: "italic", fontWeight: 600, flexShrink: 0 }}>{initials}</span>
           <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.25 }}>
-            <span style={{ fontFamily: T.sans, fontSize: 13, fontWeight: 600, color: T.ink }}>Quản trị viên</span>
-            <span style={{ fontFamily: T.sans, fontSize: 11, color: T.ink3 }}>OpenFly</span>
+            <span style={{ fontFamily: T.sans, fontSize: 13, fontWeight: 600, color: T.ink, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+            <span style={{ fontFamily: T.sans, fontSize: 11, color: T.ink3 }}>{roleLabel}</span>
           </span>
           <span style={{ display: "flex", transform: menu ? "rotate(180deg)" : "none", transition: "transform 0.18s" }}>
             <Ic.down size={15} stroke={T.ink3} />
@@ -107,8 +129,8 @@ export function Topbar() {
             <div onClick={() => setMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 70 }} />
             <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, width: 240, background: T.paper, border: `1px solid ${T.line2}`, borderRadius: 11, zIndex: 71, overflow: "hidden", boxShadow: "0 20px 50px -20px rgba(20,17,16,0.4)", animation: "modalIn 0.16s ease both" }}>
               <div style={{ padding: "14px 16px", borderBottom: `1px solid ${T.line}` }}>
-                <div style={{ fontFamily: T.sans, fontSize: 13.5, fontWeight: 600, color: T.ink }}>Quản trị viên</div>
-                <div style={{ fontFamily: T.mono, fontSize: 11.5, color: T.ink3, marginTop: 3 }}>—</div>
+                <div style={{ fontFamily: T.sans, fontSize: 13.5, fontWeight: 600, color: T.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
+                <div style={{ fontFamily: T.mono, fontSize: 11.5, color: T.ink3, marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{email}</div>
               </div>
               <div style={{ padding: 6 }}>
                 {([["Hồ sơ cá nhân", Ic.user], ["Cài đặt", Ic.settings]] as const).map(([lbl, Icon], i) => (
@@ -117,7 +139,7 @@ export function Topbar() {
                   </button>
                 ))}
                 <div style={{ height: 1, background: T.line, margin: "6px 8px" }} />
-                <button onClick={() => setMenu(false)} style={{ ...menuItemStyle(), color: T.red }}>
+                <button onClick={onLogout} style={{ ...menuItemStyle(), color: T.red }}>
                   <Ic.logout size={16} /> Đăng xuất
                 </button>
               </div>

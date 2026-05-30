@@ -78,6 +78,8 @@ export const Ic = {
   edit: (p: IconProps) => <I {...p}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" /></I>,
   download: (p: IconProps) => <I {...p}><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" /></I>,
   chevron: (p: IconProps) => <I {...p}><path d="m9 6 6 6-6 6" /></I>,
+  arrow: (p: IconProps) => <I {...p}><path d="M5 12h14M13 6l6 6-6 6" /></I>,
+  shield: (p: IconProps) => <I {...p}><path d="M12 3 5 6v5c0 4 3 7 7 9 4-2 7-5 7-9V6l-7-3z" /><path d="m9 12 2 2 4-4" /></I>,
   info: (p: IconProps) => <I {...p}><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v5h1" /></I>,
   filter: (p: IconProps) => <I {...p}><path d="M4 6h16M7 12h10M10 18h4" /></I>,
   moon: (p: IconProps) => <I {...p}><path d="M20 14A8 8 0 1 1 10 4a7 7 0 0 0 10 10z" /></I>,
