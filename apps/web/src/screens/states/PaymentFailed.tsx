@@ -4,13 +4,22 @@
 import { T } from '../../theme/tokens'
 import { Eyebrow } from '../../components/ui'
 
-const CHECKLIST = [
-  'Bạn đã chuyển khoản chưa?',
-  'Số tiền có đúng 1.090k không?',
-  'Nội dung có chứa "OFY8K2"?',
-]
-
-export function PaymentFailed({ onCheckAgain, onContact }: { onCheckAgain?: () => void; onContact?: () => void }) {
+export function PaymentFailed({
+  amountLabel = '1.090k',
+  content = 'OFY8K2',
+  onCheckAgain,
+  onContact,
+}: {
+  amountLabel?: string
+  content?: string
+  onCheckAgain?: () => void
+  onContact?: () => void
+}) {
+  const checklist = [
+    'Bạn đã chuyển khoản chưa?',
+    `Số tiền có đúng ${amountLabel} không?`,
+    `Nội dung có chứa "${content}"?`,
+  ]
   return (
     <div style={{ background: T.paper, minHeight: '100%', display: 'flex', flexDirection: 'column', padding: '60px 32px 40px' }}>
       <div style={{ textAlign: 'center', flex: 1 }}>
@@ -27,8 +36,8 @@ export function PaymentFailed({ onCheckAgain, onContact }: { onCheckAgain?: () =
           Bạn đã chuyển khoản chưa? Nếu rồi, kiểm tra giúp Sol các điểm sau.
         </p>
         <div style={{ textAlign: 'left', background: T.paper, border: `1px solid ${T.line}`, borderRadius: 6, padding: '14px 18px', maxWidth: 320, marginInline: 'auto' }}>
-          {CHECKLIST.map((t, i) => (
-            <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: i < CHECKLIST.length - 1 ? `1px solid ${T.line}` : 'none', alignItems: 'flex-start' }}>
+          {checklist.map((t, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: i < checklist.length - 1 ? `1px solid ${T.line}` : 'none', alignItems: 'flex-start' }}>
               <div style={{ width: 18, height: 18, borderRadius: '50%', border: `1.5px solid ${T.line2}`, flexShrink: 0, marginTop: 1 }} />
               <span style={{ fontFamily: T.serif, fontSize: 13, color: T.ink2, lineHeight: 1.4 }}>{t}</span>
             </div>

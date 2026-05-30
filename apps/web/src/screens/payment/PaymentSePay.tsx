@@ -9,6 +9,7 @@ import { T, fmtVnd, CURRENCY } from '../../theme/tokens'
 import { Eyebrow, Ic } from '../../components/ui'
 import { apiEnabled } from '../../lib/api/client'
 import { useSepayIntent, usePaymentStatus, isPaid } from '../../data/usePayment'
+import { PaymentFailed } from '../states/PaymentFailed'
 
 const DEFAULT_HOLDER = 'CÔNG TY CỔ PHẦN OPENFLY'
 const BANK_BY_BIN: Record<string, string> = {
@@ -183,6 +184,18 @@ function PaymentReal({ bookingId, navigate }: { bookingId: string; navigate: Nav
           <button onClick={() => navigate('/trips')} style={{ marginTop: 14, padding: '12px 20px', background: T.ink, color: T.paper, border: 'none', borderRadius: 4, fontFamily: T.serif, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>Xem chuyến của tôi</button>
         </div>
       </Shell>
+    )
+  }
+
+  // QR / transfer window expired without a confirmed payment → recovery screen (real amount + content).
+  if (secs === 0 && !paid) {
+    return (
+      <PaymentFailed
+        amountLabel={`${amount.toLocaleString('vi-VN')}${CURRENCY}`}
+        content={content}
+        onCheckAgain={() => void statusQ.refetch()}
+        onContact={() => navigate('/sol')}
+      />
     )
   }
 
