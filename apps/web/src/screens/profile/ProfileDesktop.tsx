@@ -65,14 +65,14 @@ export function ProfileDesktop() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 22, alignItems: 'start' }}>
           <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 12, padding: 26 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}><Eyebrow dash={false}>Hành khách đã lưu</Eyebrow><button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: T.sans, fontSize: 12.5, fontWeight: 500, color: T.rust }}><Ic.plus size={14} stroke={T.rust} />Thêm</button></div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}><Eyebrow dash={false}>Hành khách đã lưu</Eyebrow>{!apiEnabled && <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: T.sans, fontSize: 12.5, fontWeight: 500, color: T.rust }}><Ic.plus size={14} stroke={T.rust} />Thêm</button>}</div>
             {passengers.length === 0 ? (
-              <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink3, fontStyle: 'italic', padding: '8px 0' }}>Chưa có hành khách nào. Thêm để đặt vé nhanh hơn.</div>
+              <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink3, fontStyle: 'italic', padding: '8px 0' }}>Chưa có hành khách nào được lưu.</div>
             ) : passengers.map((p, i) => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 0', borderBottom: i < passengers.length - 1 ? `1px solid ${T.line}` : 'none' }}>
                 <span style={{ width: 40, height: 40, borderRadius: '50%', background: T.paper2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.serif, fontSize: 15, color: T.ink2, fontStyle: 'italic', fontWeight: 600 }}>{p.initials}</span>
                 <div style={{ flex: 1 }}><div style={{ fontFamily: T.serif, fontSize: 16, fontWeight: 500, color: T.ink }}>{p.name}{p.primary && <span style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase', color: T.rust, marginLeft: 8 }}>Chính</span>}</div><div style={{ fontFamily: T.sans, fontSize: 12, color: T.ink3, marginTop: 2 }}>{p.gender} · {p.dob}{p.child ? ' · Trẻ em' : ''}</div></div>
-                <Ic.edit size={16} stroke={T.ink3} />
+                {!apiEnabled && <Ic.edit size={16} stroke={T.ink3} />}
               </div>
             ))}
           </div>
