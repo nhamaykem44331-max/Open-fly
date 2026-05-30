@@ -121,7 +121,8 @@ export function DealsMobile({ data }: { data: DealsData }) {
         </div>
       </div>
 
-      {/* Flash deals */}
+      {/* Flash deals — no backend in Phase 1; hidden in API mode (flash is []). */}
+      {flash.length > 0 && (
       <div style={{ padding: '28px 0 0' }}>
         <div style={{ padding: '0 20px 12px' }}>
           <Eyebrow>Flash deals · giới hạn thời gian</Eyebrow>
@@ -131,6 +132,7 @@ export function DealsMobile({ data }: { data: DealsData }) {
           {flash.map((d) => <FlashDealCard key={d.route} d={d} onTap={() => navigate('/search')} />)}
         </div>
       </div>
+      )}
 
       {/* Earn more */}
       <div style={{ padding: '28px 20px 4px' }}>

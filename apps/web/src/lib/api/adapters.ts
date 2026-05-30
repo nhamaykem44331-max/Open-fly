@@ -1,7 +1,7 @@
 // OpenFly — map backend API shapes onto the web's view models.
 // CRITICAL: API prices are FULL VND (Q-45); the web's Price/fmtVnd components expect
 // "k" units (value × 1000), so divide by 1000 here at the boundary — never downstream.
-import type { Booking, BookingStatus, Flight, Hunt, HuntStatus, InboxItem, InboxKind, SavedPassenger } from '../../data/mock'
+import type { Booking, BookingStatus, Flight, Hunt, HuntStatus, InboxItem, InboxKind, MyVoucher, SavedPassenger } from '../../data/mock'
 import type {
   ApiBookingDetail,
   ApiBookingListItem,
@@ -14,6 +14,7 @@ import type {
   ApiHuntStatus,
   ApiNotification,
   ApiSavedPassenger,
+  ApiUserVoucher,
 } from './types'
 
 export const vndToK = (vnd: number): number => vnd / 1000
@@ -328,5 +329,29 @@ export function adaptNotification(n: ApiNotification): InboxItem {
     title: n.title,
     body: n.body,
     cta: n.ctaUrl && n.ctaLabel ? { label: n.ctaLabel, href: n.ctaUrl } : undefined,
+  }
+}
+
+// ─── Vouchers / Deals ───────────────────────────────────────
+// `tone` is a design-only accent (no backend field) rotated by list position.
+const VOUCHER_TONES: MyVoucher['tone'][] = ['ink', 'rust', 'ink2', 'ink4']
+
+// "...2026-06-30..." → "30 thg 6, 2026"
+const voucherExpiry = (iso: string): string => {
+  const p = vnParts(iso)
+  return p.year ? `${p.day} thg ${p.month}, ${p.year}` : ''
+}
+
+// One owned voucher (UserVoucher + its template) → the Deals ticket view model.
+// Non-ACTIVE (USED/EXPIRED) renders greyed + non-actionable, matching the mock.
+export function adaptUserVoucher(uv: ApiUserVoucher, i: number): MyVoucher {
+  const used = uv.status !== 'ACTIVE'
+  return {
+    code: uv.template.code,
+    title: uv.template.title,
+    sub: uv.template.description ?? '',
+    expires: used ? 'Đã dùng' : voucherExpiry(uv.template.validUntil),
+    used,
+    tone: VOUCHER_TONES[i % VOUCHER_TONES.length],
   }
 }

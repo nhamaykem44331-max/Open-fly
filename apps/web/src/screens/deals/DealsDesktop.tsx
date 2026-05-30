@@ -25,6 +25,8 @@ export function DealsDesktop({ data }: { data: DealsData }) {
         <Eyebrow>Ưu đãi & mã giảm</Eyebrow>
         <h1 style={{ fontFamily: T.serif, fontSize: 44, fontWeight: 300, letterSpacing: '-1.8px', color: T.ink, margin: '14px 0 28px' }}>Giá tốt dành <em style={{ color: T.rust, fontWeight: 500 }}>riêng cho bạn</em></h1>
 
+        {/* Flash deals — no backend in Phase 1; hidden in API mode (flash is []). */}
+        {flash.length > 0 && (<>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
           <Ic.bolt size={18} stroke={T.rust} sw={1.8} />
           <span style={{ fontFamily: T.serif, fontSize: 22, fontWeight: 500, color: T.ink, letterSpacing: '-0.5px' }}>Flash deals — giới hạn thời gian</span>
@@ -47,6 +49,7 @@ export function DealsDesktop({ data }: { data: DealsData }) {
             </Card>
           ))}
         </div>
+        </>)}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 28, alignItems: 'start' }}>
           <div>

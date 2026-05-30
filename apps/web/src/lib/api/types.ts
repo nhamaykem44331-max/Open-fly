@@ -308,3 +308,40 @@ export interface ApiPaymentStatus {
   orderCode: string | null
   intent: { id: string; status: string; amount: number; expiresAt: string | null; providerOrderCode: string } | null
 }
+
+// ─── Vouchers / Deals ───────────────────────────────────────
+export interface ApiVoucherTemplate {
+  id: string
+  code: string
+  title: string
+  description: string | null
+  type: 'AMOUNT' | 'PERCENT'
+  value: number // AMOUNT: full VND (Q-45); PERCENT: percent (e.g. 20)
+  maxDiscount: number | null
+  minOrder: number | null
+  validFrom: string
+  validUntil: string
+  totalQuantity: number | null
+  perUserLimit: number
+  airlineFilter: string[]
+  tierFilter: string[]
+  active: boolean
+  createdAt: string
+}
+
+export interface ApiUserVoucher {
+  id: string
+  userId: string
+  templateId: string
+  status: string // ACTIVE | USED | EXPIRED
+  usedBookingId: string | null
+  usedAt: string | null
+  createdAt: string
+  template: ApiVoucherTemplate
+}
+
+// GET /vouchers — owned (mine) + claimable (available). The Deals screen renders `mine`.
+export interface ApiVoucherList {
+  available: ApiVoucherTemplate[]
+  mine: ApiUserVoucher[]
+}
