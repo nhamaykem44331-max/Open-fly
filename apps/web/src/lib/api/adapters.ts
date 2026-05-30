@@ -1,7 +1,7 @@
 // OpenFly — map backend API shapes onto the web's view models.
 // CRITICAL: API prices are FULL VND (Q-45); the web's Price/fmtVnd components expect
 // "k" units (value × 1000), so divide by 1000 here at the boundary — never downstream.
-import type { Booking, BookingStatus, Flight, Hunt, HuntStatus, SavedPassenger } from '../../data/mock'
+import type { Booking, BookingStatus, Flight, Hunt, HuntStatus, InboxItem, InboxKind, SavedPassenger } from '../../data/mock'
 import type {
   ApiBookingDetail,
   ApiBookingListItem,
@@ -12,6 +12,7 @@ import type {
   ApiHuntDetail,
   ApiHuntFlexibility,
   ApiHuntStatus,
+  ApiNotification,
   ApiSavedPassenger,
 } from './types'
 
@@ -284,5 +285,47 @@ export function adaptSavedPassenger(p: ApiSavedPassenger): SavedPassenger {
     primary: p.isPrimary,
     initials: paxInitials(p.fullName),
     child: p.isChild,
+  }
+}
+
+// ─── Notifications / Inbox ──────────────────────────────────
+const NOTIF_KIND: Record<string, InboxKind> = {
+  HUNT_FOUND: 'hunt-found',
+  HUNT_PROGRESS: 'price',
+  PRICE_DROP: 'price',
+  BOOKING_CONFIRMED: 'booking',
+  BOOKING_TICKETED: 'booking',
+  BOOKING_REMINDER: 'booking',
+  PAYMENT_SUCCESS: 'booking',
+  PAYMENT_FAILED: 'booking',
+  CHECKIN_OPEN: 'checkin',
+  SOL_MESSAGE: 'sol',
+  VOUCHER_NEW: 'voucher',
+  SYSTEM: 'sol',
+}
+
+// VN calendar-day index (days since epoch, shifted +07) — drives today/earlier grouping.
+const vnDayNumber = (ms: number): number => Math.floor((ms + 7 * 3600 * 1000) / 86_400_000)
+
+function notifWhen(iso: string): { group: 'today' | 'earlier'; when: string } {
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return { group: 'earlier', when: '' }
+  const days = vnDayNumber(Date.now()) - vnDayNumber(t)
+  if (days <= 0) return { group: 'today', when: vnHhmm(iso) }
+  if (days === 1) return { group: 'earlier', when: `Hôm qua · ${vnHhmm(iso)}` }
+  return { group: 'earlier', when: `${days} ngày trước` }
+}
+
+export function adaptNotification(n: ApiNotification): InboxItem {
+  const { group, when } = notifWhen(n.createdAt)
+  return {
+    id: n.id,
+    group,
+    when,
+    unread: n.readAt === null,
+    kind: NOTIF_KIND[n.kind] ?? 'sol',
+    title: n.title,
+    body: n.body,
+    cta: n.ctaUrl && n.ctaLabel ? { label: n.ctaLabel, href: n.ctaUrl } : undefined,
   }
 }

@@ -258,3 +258,23 @@ export interface ApiNotifPrefs {
   emailEnabled: boolean
   zaloEnabled: boolean
 }
+
+// ─── Notifications / Inbox ──────────────────────────────────
+export interface ApiNotification {
+  id: string
+  kind: string // NotificationKind enum
+  title: string
+  body: string
+  ctaUrl: string | null
+  ctaLabel: string | null
+  readAt: string | null
+  huntId: string | null
+  bookingId: string | null
+  createdAt: string
+}
+
+export interface ApiNotificationListResponse {
+  items: ApiNotification[]
+  unreadCount: number
+  pagination: { page: number; limit: number; total: number }
+}
