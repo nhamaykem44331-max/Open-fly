@@ -1,27 +1,70 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* OpenFly Admin — design tokens as CSS variables (authoritative dual-theme map).
+   Source of truth: Claude Design handoff (OpenFly Admin.html <style>), identical to
+   apps/web/src/styles/tokens.css. A single [data-theme] flip on <html> retints
+   the whole app instantly. Token model matches the web app:
+   - ink / paper   → opposites that FLIP between themes
+   - onInk         → text/icon on an Ink block; stays cream BOTH themes
+   - inkBlock      → an "always dark" surface; stays near-black BOTH themes
+   - canvas        → page background (slightly off from paper) */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --ink: #1A1A19;   --ink2: #3D3935;   --ink3: #6B635A;   --ink4: #9A9088;
+  --line: rgba(26, 26, 25, 0.10);      --line2: rgba(26, 26, 25, 0.18);
+  --paper: #F5F1EA; --paper2: #EDE6DA; --paper3: #E5DDCC;
+  --canvas: #EAE3D7;
+  --rust: #A14B2C;  --rustLt: #C15F3C; --rustSoft: #E89977;
+  --rustTint: rgba(161, 75, 44, 0.08); --greenTint: rgba(74, 138, 111, 0.10);
+  --onInk: #F5F1EA; --inkBlock: #1A1A19;
+  --tan: #EDE6DA;   --green: #4A8A6F;  --amber: #C99A2C;  --red: #B53A3A;
+
+  /* font families resolve to next/font variables set on <html> in layout.tsx */
+  --serif: var(--font-fraunces), Georgia, serif;
+  --sans: var(--font-inter), -apple-system, system-ui, sans-serif;
+  --mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #F5F1EA;   --ink2: #C9C2B6;   --ink3: #A39A8E;   --ink4: #6B635A;
+  --line: rgba(245, 241, 234, 0.10);   --line2: rgba(245, 241, 234, 0.18);
+  --paper: #1A1A19; --paper2: #23211E; --paper3: #2E2A26;
+  --canvas: #121110;
+  --rust: #C15F3C;  --rustLt: #D27553; --rustSoft: #E89977;
+  --rustTint: rgba(193, 95, 60, 0.14); --greenTint: rgba(95, 163, 134, 0.14);
+  --onInk: #F5F1EA; --inkBlock: #000000;
+  --tan: #2E2A26;   --green: #5FA386;  --amber: #D4A847;  --red: #CC5555;
 }
+
+html, body { height: 100%; margin: 0; padding: 0; }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  font-family: var(--sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 10px; border: 3px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+button { font-family: inherit; }
+button:active { transform: scale(0.99); }
+input, textarea, select { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--rust); color: #F5F1EA; }
+
+@keyframes fadeUp { from { transform: translateY(10px); } to { transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalIn { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes drawerIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes shakeX { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+.of-anim { animation: fadeUp 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
