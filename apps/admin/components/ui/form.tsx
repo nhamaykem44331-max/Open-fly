@@ -2,7 +2,7 @@
 
 // Form primitives ported from the design mockup (admin-kit.jsx). Field = label +
 // optional hint/error wrapper; Input = focus-aware text input.
-import { useState, type InputHTMLAttributes } from "react";
+import { useState, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import { T } from "@/lib/tokens";
 
 export function Field({
@@ -62,6 +62,42 @@ export function Input({ mono, error, ...rest }: InputProps) {
         fontFamily: mono ? T.mono : T.sans,
         fontSize: 14,
         letterSpacing: mono ? 0.5 : 0,
+        transition: "border-color 0.15s, background 0.15s",
+      }}
+    />
+  );
+}
+
+interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "style"> {
+  error?: boolean;
+}
+
+export function Textarea({ error, rows = 3, ...rest }: TextareaProps) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <textarea
+      {...rest}
+      rows={rows}
+      onFocus={(e) => {
+        setFocused(true);
+        rest.onFocus?.(e);
+      }}
+      onBlur={(e) => {
+        setFocused(false);
+        rest.onBlur?.(e);
+      }}
+      style={{
+        width: "100%",
+        padding: "11px 13px",
+        borderRadius: 7,
+        outline: "none",
+        resize: "vertical",
+        border: `1px solid ${error ? T.red : focused ? T.ink : T.line2}`,
+        background: focused ? T.paper : T.paper2,
+        color: T.ink,
+        fontFamily: T.sans,
+        fontSize: 14,
+        lineHeight: 1.5,
         transition: "border-color 0.15s, background 0.15s",
       }}
     />
