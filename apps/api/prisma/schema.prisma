@@ -28,6 +28,7 @@ model User {
   email        String?        @unique
   googleId     String?        @unique // OAuth Google sub
   googleEmail  String? // email từ Google profile
+  passwordHash String? // bcrypt — chỉ admin đăng nhập email/mật khẩu; user thường dùng Google
   fullName     String?
   role         UserRole       @default(CUSTOMER)
   tier         MembershipTier @default(STANDARD)

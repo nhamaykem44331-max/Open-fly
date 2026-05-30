@@ -1,7 +1,14 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MembershipTier, User, UserRole } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 import { UserPublicDto } from '../common/dto/user-public.dto';
+import { AdminLoginDto } from './dto/admin-login.dto';
 import {
   GOOGLE_AUTH_PROVIDER,
   IGoogleAuthService,
@@ -126,6 +133,60 @@ export class AuthService {
     }
 
     const refreshToken = await this.refreshTokenService.generate(user.id, ip, userAgent);
+
+    return {
+      accessToken: this.signAccessToken(user),
+      refreshToken,
+      user: UserPublicDto.fromPrisma(user),
+    };
+  }
+
+  // Admin đăng nhập bằng email/mật khẩu (Q-60b). Chỉ tài khoản role=ADMIN có
+  // passwordHash; user thường dùng Google. Lỗi sai thông tin trả 401 chung để
+  // không lộ tài khoản nào tồn tại. 2FA TOTP build sau (milestone bảo mật riêng).
+  async adminLogin(dto: AdminLoginDto, ip?: string, userAgent?: string) {
+    const email = dto.email.trim().toLowerCase();
+    const invalid = () =>
+      new UnauthorizedException('Email hoặc mật khẩu không đúng');
+
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user || user.role !== UserRole.ADMIN || !user.passwordHash) {
+      throw invalid();
+    }
+
+    const passwordOk = await bcrypt.compare(dto.password, user.passwordHash);
+    if (!passwordOk) {
+      throw invalid();
+    }
+
+    // Chỉ tiết lộ trạng thái khóa sau khi mật khẩu đã đúng.
+    if (!user.active || user.blocked) {
+      throw new ForbiddenException('Tài khoản quản trị đã bị vô hiệu hóa');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+    await this.prisma.auditLog.create({
+      data: {
+        actorId: user.id,
+        actorType: 'user',
+        entity: 'User',
+        entityId: user.id,
+        action: 'admin.login',
+        afterJson: { method: 'password' },
+        ip: ip ?? null,
+        userAgent: userAgent ?? null,
+      },
+    });
+
+    const refreshToken = await this.refreshTokenService.generate(
+      user.id,
+      ip,
+      userAgent,
+      'admin',
+    );
 
     return {
       accessToken: this.signAccessToken(user),
