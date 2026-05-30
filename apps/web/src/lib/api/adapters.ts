@@ -56,6 +56,7 @@ export function adaptOffer(offer: ApiFlightOffer, date: string): Flight {
     cabin: fare?.name ?? 'Phổ thông',
     baggage: { carry: '7kg', check: fare?.baggage ?? '—' },
     refundable: refundLabel(fare?.refundable),
+    fareClassCode: fare?.code,
     insight: null,
   }
 }

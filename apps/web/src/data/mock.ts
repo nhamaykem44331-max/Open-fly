@@ -160,6 +160,7 @@ export interface Flight {
   insight: { tone: 'good' | 'note'; text: string } | null
   solPick?: boolean
   solReason?: string
+  fareClassCode?: string // real offers only — the cheapest fare class code, needed to hold
 }
 
 export interface PriceCalDay { price: number; tone: 'low' | 'mid' | 'high' }

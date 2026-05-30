@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useViewport } from '../../shell/useViewport'
 import { FLIGHTS } from '../../data/mock'
+import { useSelectedFlight } from '../../stores/selectedFlight'
 import { BookingPassengerMobile } from './BookingPassengerMobile'
 import { BookingReviewMobile } from './BookingReviewMobile'
 import { BookingDesktop } from './BookingDesktop'
@@ -9,7 +10,8 @@ import { GenericError } from '../states/GenericError'
 
 function useFlight() {
   const { flightId } = useParams()
-  return FLIGHTS.find((f) => f.id === flightId)
+  const selected = useSelectedFlight((s) => s.flight)
+  return selected && selected.id === flightId ? selected : FLIGHTS.find((f) => f.id === flightId)
 }
 
 export function BookingRoute() {

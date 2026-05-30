@@ -6,6 +6,7 @@ import { Eyebrow, Chip, Price, AirlineBadge, Ic } from '../../components/ui'
 import { AIRLINES } from '../../data/mock'
 import type { Flight } from '../../data/mock'
 import type { ResultsData } from '../../data/useResults'
+import { useSelectedFlight } from '../../stores/selectedFlight'
 
 function FlightCard({ f, onTap }: { f: Flight; onTap: () => void }) {
   const a = AIRLINES[f.airline]
@@ -72,6 +73,7 @@ function FlightCard({ f, onTap }: { f: Flight; onTap: () => void }) {
 
 export function ResultsMobile({ data }: { data: ResultsData }) {
   const navigate = useNavigate()
+  const select = useSelectedFlight((s) => s.select)
   const [filter, setFilter] = useState('sol')
   const { flights, route, dateLabel, pax, cabin } = data
 
@@ -126,7 +128,7 @@ export function ResultsMobile({ data }: { data: ResultsData }) {
 
       {/* Result list */}
       <div style={{ padding: '12px 20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {list.map((f) => <FlightCard key={f.id} f={f} onTap={() => navigate(`/detail/${f.id}`)} />)}
+        {list.map((f) => <FlightCard key={f.id} f={f} onTap={() => { select(f); navigate(`/detail/${f.id}`) }} />)}
 
         {/* Sol nudge */}
         <div style={{ marginTop: 8, padding: 16, borderRadius: 6, background: T.inkBlock, color: T.onInk, display: 'flex', gap: 12, alignItems: 'flex-start' }}>

@@ -7,6 +7,7 @@ import { Container } from '../../shell/Container'
 import { AIRLINES, AIRPORTS } from '../../data/mock'
 import type { Flight } from '../../data/mock'
 import type { ResultsData } from '../../data/useResults'
+import { useSelectedFlight } from '../../stores/selectedFlight'
 
 function FlightCardD({ f, onOpen }: { f: Flight; onOpen: () => void }) {
   const a = AIRLINES[f.airline]
@@ -72,6 +73,7 @@ const SORTS: [string, string][] = [['price', 'Giá thấp → cao'], ['depart', 
 
 export function ResultsDesktop({ data }: { data: ResultsData }) {
   const navigate = useNavigate()
+  const select = useSelectedFlight((s) => s.select)
   const [filter, setFilter] = useState('sol')
   const [sort, setSort] = useState('price')
   const { flights, route, dateLabel, pax, cabin } = data
@@ -131,7 +133,7 @@ export function ResultsDesktop({ data }: { data: ResultsData }) {
 
           {/* results */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {list.map((f) => <FlightCardD key={f.id} f={f} onOpen={() => navigate(`/detail/${f.id}`)} />)}
+            {list.map((f) => <FlightCardD key={f.id} f={f} onOpen={() => { select(f); navigate(`/detail/${f.id}`) }} />)}
           </div>
         </div>
       </Container>
