@@ -1,8 +1,10 @@
-// OpenFly — Payment success (responsive). Ported from screens-payment.jsx + desktop SuccessPage.
+// OpenFly — Payment success (responsive). Real flow passes { orderCode, amountVnd, bookingId };
+// the route/PNR come from the held booking. Mock flow falls back to { total, pnr }.
 import type { ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { T } from '../../theme/tokens'
-import { Eyebrow, Price, Ic } from '../../components/ui'
+import { T, fmtVnd } from '../../theme/tokens'
+import { Eyebrow, Ic } from '../../components/ui'
+import { useBooking } from '../../data/useBookings'
 
 function NextStepRow({ icon, label, sub }: { icon: ReactNode; label: string; sub: string }) {
   return (
@@ -19,14 +21,18 @@ function NextStepRow({ icon, label, sub }: { icon: ReactNode; label: string; sub
 
 export function PaymentSuccess() {
   const navigate = useNavigate()
-  const { state } = useLocation() as { state: { total?: number; pnr?: string } | null }
-  const total = state?.total ?? 940
-  const pnr = state?.pnr ?? 'OFY8K2'
+  const { state } = useLocation() as {
+    state: { total?: number; pnr?: string; orderCode?: string; amountVnd?: number; bookingId?: string } | null
+  }
+  const { data: booking } = useBooking(state?.bookingId)
+  const pnr = booking?.pnr ?? state?.orderCode ?? state?.pnr ?? 'OFY8K2'
+  const amountText =
+    state?.amountVnd != null ? `${state.amountVnd.toLocaleString('vi-VN')}đ` : `${fmtVnd(state?.total ?? 940)}đ`
+  const contactEmail = booking?.contact.email || 'email của bạn'
 
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px 48px' }}>
       <div style={{ width: '100%', maxWidth: 560 }}>
-        {/* checkmark */}
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: 84, height: 84, borderRadius: '50%', background: T.inkBlock, margin: '0 auto 28px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
             <Ic.check size={36} stroke={T.rustSoft} sw={2} />
@@ -42,7 +48,6 @@ export function PaymentSuccess() {
           </p>
         </div>
 
-        {/* PNR card */}
         <div style={{ marginTop: 32, background: T.paper, border: `1px solid ${T.line}`, borderRadius: 8, padding: '20px 22px' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
             <div>
@@ -51,26 +56,26 @@ export function PaymentSuccess() {
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontFamily: T.sans, fontSize: 10, color: T.ink3, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 600 }}>Đã thanh toán</div>
-              <div style={{ marginTop: 6 }}><Price value={total} size={20} /></div>
+              <div style={{ fontFamily: T.serif, fontSize: 20, fontWeight: 500, color: T.ink, marginTop: 6, letterSpacing: '-0.4px' }}>{amountText}</div>
             </div>
           </div>
           <div style={{ height: 1, background: T.line, margin: '16px 0' }} />
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ fontFamily: T.serif, fontSize: 18, fontWeight: 500, color: T.ink, letterSpacing: '-0.4px' }}>HAN</span>
+            <span style={{ fontFamily: T.serif, fontSize: 18, fontWeight: 500, color: T.ink, letterSpacing: '-0.4px' }}>{booking?.from ?? 'HAN'}</span>
             <Ic.arrow size={12} stroke={T.ink3} />
-            <span style={{ fontFamily: T.serif, fontSize: 18, fontWeight: 500, color: T.ink, letterSpacing: '-0.4px' }}>DAD</span>
-            <span style={{ fontFamily: T.serif, fontSize: 12, color: T.ink3, fontStyle: 'italic', marginLeft: 8 }}>CN, 15 thg 6 · VJ513 · 07:25</span>
+            <span style={{ fontFamily: T.serif, fontSize: 18, fontWeight: 500, color: T.ink, letterSpacing: '-0.4px' }}>{booking?.to ?? 'DAD'}</span>
+            <span style={{ fontFamily: T.serif, fontSize: 12, color: T.ink3, fontStyle: 'italic', marginLeft: 8 }}>
+              {booking ? `${booking.dateLabel} · ${booking.number} · ${booking.depart}` : 'CN, 15 thg 6 · VJ513 · 07:25'}
+            </span>
           </div>
         </div>
 
-        {/* Next steps */}
         <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <NextStepRow icon={<Ic.send size={16} stroke={T.ink2} />} label="Đã gửi vé qua email" sub="andy.dao@gmail.com" />
+          <NextStepRow icon={<Ic.send size={16} stroke={T.ink2} />} label="Đã gửi vé qua email" sub={contactEmail} />
           <NextStepRow icon={<Ic.chat size={16} stroke={T.ink2} />} label="Đã gửi vé qua Zalo" sub="OpenFly OA" />
           <NextStepRow icon={<Ic.cal size={16} stroke={T.ink2} />} label="Nhắc check-in" sub="Chúng tôi sẽ nhắc trước 24h" />
         </div>
 
-        {/* Actions */}
         <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
           <button onClick={() => navigate('/')} style={{ padding: '15px 18px', background: 'transparent', border: `1px solid ${T.line2}`, borderRadius: 4, fontFamily: T.serif, fontSize: 14, fontWeight: 500, color: T.ink, letterSpacing: '-0.2px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
             Về trang chủ
