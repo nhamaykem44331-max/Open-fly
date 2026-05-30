@@ -5,6 +5,8 @@ import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Price, Ic, ChannelIcon, PriceHistoryChart } from '../../components/ui'
 import { huntStatusMeta } from './huntStatus'
 import { AIRPORTS, NOTIF_LOG } from '../../data/mock'
+import { apiEnabled } from '../../lib/api/client'
+import { useUpdateHunt, useCancelHunt } from '../../data/useHunts'
 import type { Hunt } from '../../data/mock'
 
 function LegendDot({ color, label, dashed, hollow, opacity = 1 }: { color: string; label: string; dashed?: boolean; hollow?: boolean; opacity?: number }) {
@@ -54,6 +56,22 @@ export function HunterDetailMobile({ hunt }: { hunt: Hunt }) {
   const savingsPct = Math.round((savings / hunt.target) * 100)
   const last = hunt.trend30[hunt.trend30.length - 1]
   const avg = Math.round(hunt.trend30.reduce((s, v) => s + v, 0) / hunt.trend30.length)
+  const paused = hunt.status === 'paused'
+  const update = useUpdateHunt(hunt.id)
+  const cancel = useCancelHunt(hunt.id)
+  const onPauseResume = () => {
+    if (!apiEnabled || update.isPending) return
+    update.mutate(paused ? 'resume' : 'pause')
+  }
+  const onDelete = () => {
+    if (cancel.isPending) return
+    if (apiEnabled && !window.confirm('Xóa Fare Hunt này? Sol sẽ ngừng theo dõi chặng này.')) return
+    if (!apiEnabled) {
+      navigate('/hunter')
+      return
+    }
+    cancel.mutate(undefined, { onSuccess: () => navigate('/hunter') })
+  }
 
   return (
     <div style={{ background: T.paper, minHeight: '100%' }}>
@@ -170,8 +188,8 @@ export function HunterDetailMobile({ hunt }: { hunt: Hunt }) {
       {/* Actions */}
       <div style={{ padding: '24px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <ActionRow label="Chỉnh sửa yêu cầu" icon={<Ic.options size={16} stroke={T.ink2} />} />
-        <ActionRow label="Tạm dừng săn vé" icon={<Ic.dot size={10} stroke={T.amber} />} />
-        <ActionRow label="Xóa hunt này" icon={<Ic.close size={16} stroke={T.red} />} danger />
+        <ActionRow label={paused ? 'Tiếp tục săn vé' : 'Tạm dừng săn vé'} icon={<Ic.dot size={10} stroke={paused ? T.green : T.amber} />} onClick={onPauseResume} />
+        <ActionRow label="Xóa hunt này" icon={<Ic.close size={16} stroke={T.red} />} danger onClick={onDelete} />
       </div>
 
       {/* Footnote */}

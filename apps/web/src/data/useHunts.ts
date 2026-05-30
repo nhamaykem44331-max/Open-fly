@@ -100,3 +100,27 @@ export function useCreateHunt() {
     },
   })
 }
+
+// PATCH /hunts/:id — pause / resume. Refetches the hunt + list on success.
+export function useUpdateHunt(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (action: 'pause' | 'resume') =>
+      apiFetch<ApiHunt>(`/hunts/${id}`, { method: 'PATCH', auth: true, body: { action } }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['hunt', id] })
+      void qc.invalidateQueries({ queryKey: ['hunts'] })
+    },
+  })
+}
+
+// DELETE /hunts/:id — soft-cancel (status CANCELLED). Refetches the list on success.
+export function useCancelHunt(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => apiFetch<{ id: string; status: string }>(`/hunts/${id}`, { method: 'DELETE', auth: true }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['hunts'] })
+    },
+  })
+}

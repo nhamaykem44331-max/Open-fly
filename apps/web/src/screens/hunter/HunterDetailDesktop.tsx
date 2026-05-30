@@ -5,6 +5,8 @@ import { Eyebrow, Price, Toggle, Btn, Ic, ChannelIcon, PriceHistoryChart } from 
 import { huntStatusMeta } from './huntStatus'
 import { Container } from '../../shell/Container'
 import { AIRPORTS, NOTIF_LOG, CHANNELS } from '../../data/mock'
+import { apiEnabled } from '../../lib/api/client'
+import { useUpdateHunt, useCancelHunt } from '../../data/useHunts'
 import type { Hunt } from '../../data/mock'
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
@@ -25,6 +27,22 @@ export function HunterDetailDesktop({ hunt }: { hunt: Hunt }) {
   const savings = hunt.target - hunt.best
   const pct = Math.round((savings / hunt.target) * 100)
   const log = NOTIF_LOG.slice(0, hunt.notifSent || 3)
+  const paused = hunt.status === 'paused'
+  const update = useUpdateHunt(hunt.id)
+  const cancel = useCancelHunt(hunt.id)
+  const onPauseResume = () => {
+    if (!apiEnabled || update.isPending) return
+    update.mutate(paused ? 'resume' : 'pause')
+  }
+  const onDelete = () => {
+    if (cancel.isPending) return
+    if (apiEnabled && !window.confirm('Xóa Fare Hunt này? Sol sẽ ngừng theo dõi chặng này.')) return
+    if (!apiEnabled) {
+      navigate('/hunter')
+      return
+    }
+    cancel.mutate(undefined, { onSuccess: () => navigate('/hunter') })
+  }
 
   return (
     <div style={{ background: T.canvas, minHeight: '100%', paddingBottom: 80 }}>
@@ -41,7 +59,7 @@ export function HunterDetailDesktop({ hunt }: { hunt: Hunt }) {
               <span style={{ fontFamily: T.sans, fontSize: 13, color: T.ink3, marginLeft: 8 }}>· {hunt.window} · {hunt.pax} khách</span>
             </div>
           </div>
-          <Toggle on />
+          <Toggle on={!paused} onClick={onPauseResume} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 28, alignItems: 'start' }}>
@@ -96,6 +114,7 @@ export function HunterDetailDesktop({ hunt }: { hunt: Hunt }) {
                 <span style={{ fontFamily: T.sans, fontSize: 11, color: T.ink3, marginRight: 4 }}>Kênh:</span>
                 {hunt.channels.map((ch) => <div key={ch} style={{ width: 26, height: 26, borderRadius: '50%', background: T.paper2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ChannelIcon kind={ch} size={12} /></div>)}
               </div>
+              <button onClick={onDelete} style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${T.line}`, width: '100%', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: T.serif, fontSize: 13, fontWeight: 500, color: T.red, display: 'inline-flex', alignItems: 'center', gap: 8 }}><Ic.close size={13} stroke={T.red} /> Xóa Fare Hunt này</button>
             </div>
           </div>
         </div>
