@@ -3,12 +3,13 @@
 // the phone path is kept as a disabled "Phase 2" affordance. The carousel + welcome are
 // faithful. NOTE: the Google button here is a MOCK — it advances the UI only. Production
 // must run a real Google OAuth flow and create the session from the backend response.
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../../theme/tokens'
 import { Eyebrow, Sunmark, Ic } from '../../components/ui'
 import { apiEnabled } from '../../lib/api/client'
 import { useAuthStore } from '../../stores/auth'
+import { GoogleSignInButton } from './GoogleSignInButton'
 
 type Phase = 'carousel' | 'auth' | 'done'
 type Visual = 'route' | 'sol' | 'radar'
@@ -25,15 +26,17 @@ export function OnboardingScreen() {
   const [slide, setSlide] = useState(0)
   const [authError, setAuthError] = useState<string | null>(null)
   const [signingIn, setSigningIn] = useState(false)
+  // Public Web OAuth client id. Set → real Google Sign-In (GIS); unset → dev stub.
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
   const next = () => {
     if (slide < SLIDES.length - 1) setSlide((s) => s + 1)
     else setPhase('auth')
   }
-  const finish = () => {
+  const finish = useCallback(() => {
     setPhase('done')
     setTimeout(() => navigate('/', { replace: true }), 1500)
-  }
+  }, [navigate])
   const handleGoogle = async () => {
     if (!apiEnabled) {
       finish() // mock/design mode — no backend configured
@@ -51,6 +54,23 @@ export function OnboardingScreen() {
       setSigningIn(false)
     }
   }
+
+  // Real Google (GIS): the credential GIS returns is the idToken the backend verifies.
+  const handleCredential = useCallback(
+    async (idToken: string) => {
+      setSigningIn(true)
+      setAuthError(null)
+      try {
+        await useAuthStore.getState().signInGoogle(idToken)
+        finish()
+      } catch (e) {
+        setAuthError(e instanceof Error ? e.message : 'Đăng nhập thất bại, thử lại sau.')
+        setSigningIn(false)
+      }
+    },
+    [finish],
+  )
+  const handleGisError = useCallback((e: Error) => setAuthError(e.message), [])
 
   // Full-screen page; content constrained to an app-width column (centered on desktop).
   const Page = ({ children }: { children: React.ReactNode }) => (
@@ -107,10 +127,16 @@ export function OnboardingScreen() {
             Tiếp tục với Google để đặt vé, săn giá và nhận thông báo từ Sol.
           </p>
 
-          {/* Google Sign-In (mock) */}
-          <button onClick={handleGoogle} disabled={signingIn} style={{ width: '100%', padding: '15px 18px', background: T.paper, border: `1px solid ${T.line2}`, borderRadius: 6, cursor: signingIn ? 'default' : 'pointer', opacity: signingIn ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, fontFamily: T.serif, fontSize: 15, fontWeight: 500, color: T.ink, letterSpacing: '-0.2px' }}>
-            <GoogleG size={20} /> {signingIn ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
-          </button>
+          {/* Real Google (GIS) when VITE_GOOGLE_CLIENT_ID is set; dev stub button otherwise. */}
+          {googleClientId ? (
+            <div style={{ minHeight: 44, display: 'flex', justifyContent: 'center' }}>
+              <GoogleSignInButton clientId={googleClientId} onCredential={handleCredential} onError={handleGisError} />
+            </div>
+          ) : (
+            <button onClick={handleGoogle} disabled={signingIn} style={{ width: '100%', padding: '15px 18px', background: T.paper, border: `1px solid ${T.line2}`, borderRadius: 6, cursor: signingIn ? 'default' : 'pointer', opacity: signingIn ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, fontFamily: T.serif, fontSize: 15, fontWeight: 500, color: T.ink, letterSpacing: '-0.2px' }}>
+              <GoogleG size={20} /> {signingIn ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
+            </button>
+          )}
           {authError && <p style={{ margin: '12px 2px 0', fontFamily: T.sans, fontSize: 12, color: T.red, lineHeight: 1.45 }}>{authError}</p>}
 
           {/* Phone path — kept for Phase 2 (Q-7: OTP deferred) */}
