@@ -1,8 +1,18 @@
 // OpenFly — map backend API shapes onto the web's view models.
 // CRITICAL: API prices are FULL VND (Q-45); the web's Price/fmtVnd components expect
 // "k" units (value × 1000), so divide by 1000 here at the boundary — never downstream.
-import type { Flight, Hunt, HuntStatus } from '../../data/mock'
-import type { ApiFlightOffer, ApiHunt, ApiHuntDetail, ApiHuntFlexibility, ApiHuntStatus } from './types'
+import type { Booking, BookingStatus, Flight, Hunt, HuntStatus, SavedPassenger } from '../../data/mock'
+import type {
+  ApiBookingDetail,
+  ApiBookingListItem,
+  ApiBookingPassenger,
+  ApiBookingStatus,
+  ApiFlightOffer,
+  ApiHunt,
+  ApiHuntDetail,
+  ApiHuntFlexibility,
+  ApiHuntStatus,
+} from './types'
 
 export const vndToK = (vnd: number): number => vnd / 1000
 
@@ -129,4 +139,135 @@ export function adaptHuntDetail(h: ApiHuntDetail): Hunt {
     .reverse() // runs are startedAt desc → chronological
   const trend30 = prices.length > 0 ? prices : [vndToK(h.bestPriceFound ?? h.targetPrice)]
   return { ...adaptHunt(h), trend30, aiTrend: trendNote(trend30) }
+}
+
+// ─── Bookings / Trips ───────────────────────────────────────
+// Booking datetimes are UTC ("...Z"); convert to VN (+07) — never slice like search offers.
+const vnHhmm = (iso: string): string => {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const vn = new Date(d.getTime() + 7 * 3600 * 1000)
+  return `${String(vn.getUTCHours()).padStart(2, '0')}:${String(vn.getUTCMinutes()).padStart(2, '0')}`
+}
+
+const vnDateLabel = (iso: string): string => {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const vn = new Date(d.getTime() + 7 * 3600 * 1000)
+  return `${VI_DOW[vn.getUTCDay()]}, ${vn.getUTCDate()} thg ${vn.getUTCMonth() + 1} · ${vn.getUTCFullYear()}`
+}
+
+const isoDate = (iso: string): string => {
+  const p = vnParts(iso)
+  return p.year ? `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}` : ''
+}
+
+const ddmmyyyy = (iso: string): string => {
+  const p = vnParts(iso)
+  return p.year ? `${String(p.day).padStart(2, '0')}/${String(p.month).padStart(2, '0')}/${p.year}` : '—'
+}
+
+const cabinLabel = (c: string): string =>
+  c === 'business' ? 'Thương gia' : c === 'premium_economy' ? 'Phổ thông đặc biệt' : 'Phổ thông'
+
+const providerLabel = (p: string): string => (p === 'SEPAY' ? 'SePay' : p)
+
+const HOLD_STATUSES: ApiBookingStatus[] = ['HELD', 'PAYMENT_PENDING', 'PRICING_PENDING', 'ISSUE_FAILED']
+const CANCELLED_STATUSES: ApiBookingStatus[] = ['CANCELLED', 'EXPIRED', 'REFUNDED', 'FAILED']
+
+// 11 backend statuses → the 4 the UI models. PAID/TICKETED split by whether the flight has flown.
+function mapBookingStatus(s: ApiBookingStatus, departIso: string): BookingStatus {
+  if (HOLD_STATUSES.includes(s)) return 'holding'
+  if (CANCELLED_STATUSES.includes(s)) return 'cancelled'
+  return new Date(departIso).getTime() < Date.now() ? 'completed' : 'confirmed'
+}
+
+const paxInitials = (name: string): string => {
+  const w = name.trim().split(/\s+/)
+  return (w.length > 1 ? w[w.length - 1][0] + w[0][0] : name.slice(0, 2)).toUpperCase()
+}
+
+function adaptPassenger(p: ApiBookingPassenger, i: number): SavedPassenger {
+  return {
+    id: p.id,
+    name: p.fullName,
+    gender: p.gender ?? '',
+    dob: p.dob ? ddmmyyyy(p.dob) : '—',
+    cccd: p.cccd ?? '—',
+    primary: i === 0,
+    initials: paxInitials(p.fullName),
+    child: p.isChild,
+  }
+}
+
+// Slim list item → Booking. The card only reads route, times, status, pnr, pax count + seats;
+// the rest is defaulted (full breakdown/passengers come from the detail endpoint).
+export function adaptBookingListItem(b: ApiBookingListItem): Booking {
+  const seats = b.passengers.map((p) => p.seatCode).filter((s): s is string => !!s)
+  return {
+    id: b.id,
+    pnr: b.pnr ?? b.orderCode,
+    flightId: '',
+    airline: b.airline ?? '',
+    number: b.flightNumber ?? '',
+    aircraft: b.aircraft ?? '—',
+    from: b.fromCode,
+    to: b.toCode,
+    date: isoDate(b.departTime),
+    dateLabel: vnDateLabel(b.departTime),
+    depart: vnHhmm(b.departTime),
+    arrive: b.arriveTime ? vnHhmm(b.arriveTime) : '',
+    duration: b.duration ?? '',
+    pax: b.passengers.map((_, i) => ({ id: `${b.id}-p${i}`, name: '', gender: '', dob: '—', cccd: '—', primary: i === 0, initials: '' }) as SavedPassenger),
+    seats,
+    cabin: cabinLabel(b.cabin),
+    baggage: { carry: '7kg', check: '—' },
+    contact: { email: '', phone: '' },
+    total: vndToK(b.totalSellPrice),
+    basePrice: 0,
+    tax: 0,
+    fee: 0,
+    payment: { method: '', last4: '', paidAt: '' },
+    status: mapBookingStatus(b.status, b.departTime),
+    holdExpiresAt: b.paymentDeadline ? `giữ đến ${vnHhmm(b.paymentDeadline)}` : undefined,
+  }
+}
+
+// Full detail → Booking (e-ticket / boarding pass). Money is full VND → "k" at the boundary.
+export function adaptBookingDetail(b: ApiBookingDetail): Booking {
+  const paid = b.payments.find((p) => p.status === 'PAID') ?? b.payments[0]
+  const baseVnd = b.totalSellPrice - b.tax - b.fee - b.addons + b.voucherDiscount
+  return {
+    id: b.id,
+    pnr: b.pnr ?? b.orderCode,
+    flightId: '',
+    airline: b.airline ?? '',
+    number: b.flightNumber ?? '',
+    aircraft: b.aircraft ?? '—',
+    from: b.fromCode,
+    to: b.toCode,
+    date: isoDate(b.departTime),
+    dateLabel: vnDateLabel(b.departTime),
+    depart: vnHhmm(b.departTime),
+    arrive: b.arriveTime ? vnHhmm(b.arriveTime) : '',
+    duration: b.duration ?? '',
+    pax: b.passengers.map(adaptPassenger),
+    seats: b.passengers.map((p) => p.seatCode ?? '—'),
+    cabin: cabinLabel(b.cabin),
+    baggage: { carry: '7kg', check: b.passengers[0]?.baggage ?? '—' },
+    contact: { email: b.contactEmail, phone: b.contactPhone },
+    total: vndToK(b.totalSellPrice),
+    basePrice: vndToK(baseVnd),
+    tax: vndToK(b.tax),
+    fee: vndToK(b.fee),
+    addons: b.addons ? vndToK(b.addons) : undefined,
+    voucher: b.appliedVoucherCode ? { code: b.appliedVoucherCode, name: b.appliedVoucherCode, value: -vndToK(b.voucherDiscount) } : undefined,
+    payment:
+      paid && paid.status === 'PAID'
+        ? { method: providerLabel(paid.provider), last4: '', paidAt: paid.paidAt ? `${vnParts(paid.paidAt).day} thg ${vnParts(paid.paidAt).month} · ${vnHhmm(paid.paidAt)}` : '' }
+        : { method: '', last4: '', paidAt: '' },
+    status: mapBookingStatus(b.status, b.departTime),
+    checkinOpensAt: 'trước chuyến bay 24 giờ',
+    holdExpiresAt: b.paymentDeadline ? `giữ đến ${vnHhmm(b.paymentDeadline)}` : undefined,
+  }
 }

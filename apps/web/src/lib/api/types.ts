@@ -148,3 +148,93 @@ export interface ApiHuntCreateResponse {
   intervalMinutes: number
   nextRunAt: string | null
 }
+
+// ─── Bookings / Trips ───────────────────────────────────────
+// NOTE: booking datetimes are stored UTC and serialized with a trailing Z (e.g.
+// "2026-06-15T00:25:00.000Z" = 07:25 +07) — convert to VN time, do NOT slice like search.
+export type ApiBookingStatus =
+  | 'DRAFT'
+  | 'HELD'
+  | 'PAYMENT_PENDING'
+  | 'PAID'
+  | 'PRICING_PENDING'
+  | 'TICKETED'
+  | 'ISSUE_FAILED'
+  | 'EXPIRED'
+  | 'CANCELLED'
+  | 'REFUNDED'
+  | 'FAILED'
+
+export interface ApiBookingListItem {
+  id: string
+  orderCode: string
+  pnr: string | null
+  status: ApiBookingStatus
+  airline: string | null
+  flightNumber: string | null
+  aircraft: string | null
+  fromCode: string
+  toCode: string
+  departTime: string
+  arriveTime: string | null
+  duration: string | null
+  cabin: string
+  totalSellPrice: number // full VND
+  paymentDeadline: string | null
+  createdAt: string
+  passengers: { seatCode: string | null }[]
+}
+
+export interface ApiBookingListResponse {
+  items: ApiBookingListItem[]
+  pagination: { page: number; limit: number; total: number }
+}
+
+export interface ApiBookingPassenger {
+  id: string
+  fullName: string
+  gender: string | null
+  dob: string | null
+  isChild: boolean
+  cccd: string | null
+  passport: string | null
+  seatCode: string | null
+  baggage: string | null
+}
+
+export interface ApiBookingPayment {
+  id: string
+  provider: string
+  amount: number
+  status: string
+  paidAt: string | null
+  transactionRef: string | null
+}
+
+export interface ApiBookingDetail {
+  id: string
+  orderCode: string
+  pnr: string | null
+  status: ApiBookingStatus
+  airline: string | null
+  flightNumber: string | null
+  aircraft: string | null
+  fromCode: string
+  toCode: string
+  departTime: string
+  arriveTime: string | null
+  duration: string | null
+  cabin: string
+  totalSellPrice: number // full VND
+  tax: number
+  fee: number
+  addons: number
+  voucherDiscount: number
+  appliedVoucherCode: string | null
+  paymentDeadline: string | null
+  contactEmail: string
+  contactPhone: string
+  createdAt: string
+  passengers: ApiBookingPassenger[]
+  payments: ApiBookingPayment[]
+}
