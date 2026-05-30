@@ -5,6 +5,9 @@ import { T } from '../../theme/tokens'
 import { Eyebrow, Price, Sunmark, Ic } from '../../components/ui'
 import type { MyVoucher, FlashDeal } from '../../data/mock'
 import type { DealsData } from '../../data/useDeals'
+import { apiEnabled } from '../../lib/api/client'
+import { useAuthStore } from '../../stores/auth'
+import { tierLabel } from '../../data/useProfile'
 
 const TONE: Record<MyVoucher['tone'], string> = { ink: T.ink, rust: T.rust, ink2: T.ink2, ink4: T.ink4 }
 
@@ -73,6 +76,12 @@ export function DealsMobile({ data }: { data: DealsData }) {
   const navigate = useNavigate()
   const { vouchers, flash } = data
   const available = vouchers.filter((v) => !v.used).length
+  const user = useAuthStore((s) => s.user)
+  // Real tier + miles from /me in API mode; demo values keep the design reference in mock mode.
+  const tier = apiEnabled ? tierLabel(user?.tier) : 'Premium'
+  const milesLine = apiEnabled
+    ? `${(user?.milesBalance ?? 0).toLocaleString('vi-VN')} dặm bay`
+    : '4.250 dặm bay · đến cuối 2026'
   return (
     <div style={{ background: T.paper, minHeight: '100%' }}>
       <div style={{ padding: '14px 20px 0' }}>
@@ -96,11 +105,13 @@ export function DealsMobile({ data }: { data: DealsData }) {
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <div>
               <Eyebrow dash={false} color={T.rustSoft} style={{ marginBottom: 8 }}>Hạng thành viên</Eyebrow>
-              <div style={{ fontFamily: T.serif, fontSize: 26, fontWeight: 500, color: T.onInk, letterSpacing: '-0.8px', lineHeight: 1 }}><em style={{ color: T.rustSoft, fontStyle: 'italic' }}>Premium</em></div>
-              <div style={{ fontFamily: T.serif, fontSize: 12, color: 'rgba(245,241,234,0.7)', fontStyle: 'italic', marginTop: 6 }}>4.250 dặm bay · đến cuối 2026</div>
+              <div style={{ fontFamily: T.serif, fontSize: 26, fontWeight: 500, color: T.onInk, letterSpacing: '-0.8px', lineHeight: 1 }}><em style={{ color: T.rustSoft, fontStyle: 'italic' }}>{tier}</em></div>
+              <div style={{ fontFamily: T.serif, fontSize: 12, color: 'rgba(245,241,234,0.7)', fontStyle: 'italic', marginTop: 6 }}>{milesLine}</div>
             </div>
             <Sunmark size={28} color={T.rustLt} />
           </div>
+          {/* Tier-progress bar is design-only — no backend threshold/next-tier source; shown in mock mode. */}
+          {!apiEnabled && (
           <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid rgba(245,241,234,0.12)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontFamily: T.sans, fontSize: 10, color: 'rgba(245,241,234,0.7)', letterSpacing: 1, textTransform: 'uppercase', fontWeight: 500 }}>Còn 1.750 dặm lên Elite</span>
@@ -110,6 +121,7 @@ export function DealsMobile({ data }: { data: DealsData }) {
               <div style={{ width: '70%', height: '100%', background: T.rust, borderRadius: 100 }} />
             </div>
           </div>
+          )}
         </div>
       </div>
 

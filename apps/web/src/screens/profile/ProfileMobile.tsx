@@ -104,7 +104,7 @@ export function ProfileMobile() {
       <div style={{ padding: '20px 20px 0' }}>
         <Eyebrow>Thanh toán & ưu đãi</Eyebrow>
         <Card>
-          <SettingsRow icon={<Ic.ticket size={16} stroke={T.ink2} />} label="Phương thức thanh toán" sub="SePay · chuyển khoản ngân hàng (VCB)" />
+          <SettingsRow icon={<Ic.ticket size={16} stroke={T.ink2} />} label="Phương thức thanh toán" sub="SePay · chuyển khoản ngân hàng" />
           <SettingsRow icon={<Ic.spark size={16} stroke={T.ink2} />} label="Mã ưu đãi của tôi" sub="Xem ưu đãi của bạn" onTap={() => navigate('/deals')} last />
         </Card>
       </div>

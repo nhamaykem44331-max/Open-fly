@@ -7,6 +7,7 @@ import { Eyebrow, Btn, Toggle, Ic, ChannelIcon } from '../../components/ui'
 import { Container } from '../../shell/Container'
 import { useThemeStore } from '../../theme/theme'
 import { useAuthStore } from '../../stores/auth'
+import { apiEnabled } from '../../lib/api/client'
 import { CHANNELS } from '../../data/mock'
 import { useSavedPassengers, useNotifPrefs, useUpdateNotifPrefs, tierLabel, DEFAULT_PREFS } from '../../data/useProfile'
 
@@ -41,6 +42,13 @@ export function ProfileDesktop() {
     else if (id === 'zalo') updatePrefs.mutate({ zaloEnabled: !prefs.zaloEnabled })
     else updatePrefs.mutate({ pushEnabled: !prefs.pushEnabled })
   }
+  // Notification destination per channel: real email from /me, "chưa kết nối" for Telegram/Zalo
+  // (no linking flow yet), a device note for push. Demo handles show only in design mode.
+  const chSub = (id: string): string =>
+    !apiEnabled ? CHANNELS[id].user
+      : id === 'email' ? (email || 'Chưa có email')
+      : id === 'telegram' || id === 'zalo' ? 'Chưa kết nối'
+      : 'Trên thiết bị này'
 
   return (
     <div style={{ background: T.canvas, minHeight: '100%', paddingBottom: 70 }}>
@@ -69,8 +77,11 @@ export function ProfileDesktop() {
             ))}
           </div>
           <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 12, padding: 26 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}><Eyebrow dash={false}>Thanh toán · SePay</Eyebrow><button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: T.sans, fontSize: 12.5, fontWeight: 500, color: T.rust }}><Ic.plus size={14} stroke={T.rust} />Thêm</button></div>
-            {SEPAY_BANKS.map(([emblem, name, desc], i) => (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}><Eyebrow dash={false}>Thanh toán · SePay</Eyebrow>{!apiEnabled && <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: T.sans, fontSize: 12.5, fontWeight: 500, color: T.rust }}><Ic.plus size={14} stroke={T.rust} />Thêm</button>}</div>
+            {/* No saved-payment-methods backend (SePay is bank transfer at checkout) — explain that in API mode; demo banks in design mode. */}
+            {apiEnabled ? (
+              <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink3, fontStyle: 'italic', padding: '8px 0', lineHeight: 1.5 }}>Thanh toán bằng chuyển khoản ngân hàng qua SePay ngay khi đặt vé — không cần lưu thẻ trước.</div>
+            ) : SEPAY_BANKS.map(([emblem, name, desc], i) => (
               <div key={emblem} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 0', borderBottom: i < SEPAY_BANKS.length - 1 ? `1px solid ${T.line}` : 'none' }}>
                 <span style={{ width: 44, height: 32, borderRadius: 6, background: T.paper2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: T.ink2 }}>{emblem}</span>
                 <div style={{ flex: 1 }}><div style={{ fontFamily: T.serif, fontSize: 15.5, fontWeight: 500, color: T.ink }}>{name}</div><div style={{ fontFamily: T.sans, fontSize: 12, color: T.ink3, marginTop: 1 }}>{desc}</div></div>
@@ -83,7 +94,7 @@ export function ProfileDesktop() {
               {Object.entries(CHANNELS).map(([id, c]) => (
                 <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 10, background: T.paper2 }}>
                   <div style={{ width: 38, height: 38, borderRadius: 8, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${T.line}` }}><ChannelIcon kind={id} size={17} active={chOn(id)} /></div>
-                  <div style={{ flex: 1 }}><div style={{ fontFamily: T.serif, fontSize: 15.5, fontWeight: 500, color: T.ink }}>{c.name}</div><div style={{ fontFamily: T.sans, fontSize: 12, color: T.ink3, marginTop: 1 }}>{c.user}</div></div>
+                  <div style={{ flex: 1 }}><div style={{ fontFamily: T.serif, fontSize: 15.5, fontWeight: 500, color: T.ink }}>{c.name}</div><div style={{ fontFamily: T.sans, fontSize: 12, color: T.ink3, marginTop: 1 }}>{chSub(id)}</div></div>
                   <Toggle on={chOn(id)} onClick={() => chToggle(id)} />
                 </div>
               ))}

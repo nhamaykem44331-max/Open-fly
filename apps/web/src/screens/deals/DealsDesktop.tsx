@@ -4,6 +4,9 @@ import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Price, Card, Btn, Divider, Ic } from '../../components/ui'
 import { Container } from '../../shell/Container'
 import type { DealsData } from '../../data/useDeals'
+import { apiEnabled } from '../../lib/api/client'
+import { useAuthStore } from '../../stores/auth'
+import { tierLabel } from '../../data/useProfile'
 
 const PERKS: [string, boolean][] = [
   ['Giá ưu đãi hơn Standard', true],
@@ -19,6 +22,9 @@ const EARN: [string, string][] = [
 export function DealsDesktop({ data }: { data: DealsData }) {
   const navigate = useNavigate()
   const { vouchers, flash } = data
+  const user = useAuthStore((s) => s.user)
+  // Real tier from /me in API mode; 'Premium' demo keeps the design reference in mock mode.
+  const tier = apiEnabled ? tierLabel(user?.tier) : 'Premium'
   return (
     <div style={{ background: T.canvas, minHeight: '100%', paddingBottom: 70 }}>
       <Container max={1200} style={{ paddingTop: 48 }}>
@@ -84,8 +90,10 @@ export function DealsDesktop({ data }: { data: DealsData }) {
           </div>
           <div style={{ position: 'sticky', top: 86, background: T.paper, border: `1px solid ${T.line2}`, borderRadius: 12, padding: 26 }}>
             <Eyebrow dash={false}>Hạng thành viên</Eyebrow>
-            <div style={{ fontFamily: T.serif, fontSize: 28, fontWeight: 500, color: T.ink, letterSpacing: '-0.8px', marginTop: 10 }}>Premium</div>
-            <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink3, fontStyle: 'italic', marginTop: 4 }}>Bạn đang hưởng giá ưu đãi + 10 fare hunts đồng thời.</div>
+            <div style={{ fontFamily: T.serif, fontSize: 28, fontWeight: 500, color: T.ink, letterSpacing: '-0.8px', marginTop: 10 }}>{tier}</div>
+            <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink3, fontStyle: 'italic', marginTop: 4 }}>{apiEnabled ? `Bạn đang có ${(user?.milesBalance ?? 0).toLocaleString('vi-VN')} dặm bay.` : 'Bạn đang hưởng giá ưu đãi + 10 fare hunts đồng thời.'}</div>
+            {/* Perk checklist + upgrade CTA describe Premium entitlements with no per-user backend source — shown in mock mode only. */}
+            {!apiEnabled && (<>
             <div style={{ height: 1, background: T.line, margin: '18px 0' }} />
             {PERKS.map(([t, on]) => (
               <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0' }}>
@@ -94,6 +102,7 @@ export function DealsDesktop({ data }: { data: DealsData }) {
               </div>
             ))}
             <Btn variant="secondary" full style={{ marginTop: 16 }}>Nâng cấp lên Agent</Btn>
+            </>)}
           </div>
         </div>
       </Container>
