@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
       { path: '/detail/:id', element: <DetailRoute /> },
       { path: '/booking/:flightId', element: <BookingRoute /> },
       { path: '/booking/:flightId/review', element: <BookingReviewRoute /> },
-      { path: '/payment', element: <PaymentSePay /> },
+      { path: '/payment/:bookingId', element: <PaymentSePay /> },
       { path: '/success', element: <PaymentSuccess /> },
       { path: '/hunter', element: <HunterListRoute /> },
       { path: '/hunter/create', element: <HunterCreateRoute /> },

@@ -154,7 +154,7 @@ export function BookingDetailMobile({ booking: b }: { booking: Booking }) {
             <div style={{ fontFamily: T.serif, fontSize: 14, color: T.onInk, lineHeight: 1.5, fontStyle: 'italic' }}>
               Booking này được giữ chỗ đến <em style={{ color: T.rustSoft, fontStyle: 'normal', fontWeight: 500 }}>14:32 hôm nay</em>. Hoàn tất thanh toán để chốt vé.
             </div>
-            <button onClick={() => navigate('/payment', { state: { flightId: b.flightId, total: b.total } })} style={{ marginTop: 12, padding: '10px 16px', borderRadius: 4, background: T.rust, border: 'none', color: '#F5F1EA', fontFamily: T.serif, fontSize: 13, fontWeight: 500, letterSpacing: '-0.1px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <button onClick={() => navigate(`/payment/${b.id}`)} style={{ marginTop: 12, padding: '10px 16px', borderRadius: 4, background: T.rust, border: 'none', color: '#F5F1EA', fontFamily: T.serif, fontSize: 13, fontWeight: 500, letterSpacing: '-0.1px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               Thanh toán {fmtVnd(b.total)}đ <Ic.arrow size={14} stroke="#F5F1EA" />
             </button>
           </div>

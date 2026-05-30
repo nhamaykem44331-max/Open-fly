@@ -1,10 +1,12 @@
 // OpenFly — Booking step 1 (mobile): passenger info. Ported from screens-booking.jsx.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../../theme/tokens'
 import { Eyebrow, Price, Ic } from '../../components/ui'
-import { SAVED_PASSENGERS } from '../../data/mock'
 import type { Flight } from '../../data/mock'
+import { useSavedPassengers } from '../../data/useProfile'
+import { useBookingForm } from '../../stores/bookingForm'
+import { useAuthStore } from '../../stores/auth'
 import { StepHeader, MiniFlightCard } from './parts'
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
@@ -18,11 +20,23 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
 
 export function BookingPassengerMobile({ flight: f }: { flight: Flight }) {
   const navigate = useNavigate()
-  const [selectedPax, setSelectedPax] = useState<string[]>([SAVED_PASSENGERS[0].id])
-  const [email, setEmail] = useState('andy.dao@gmail.com')
-  const [phone, setPhone] = useState('+84 938 121 234')
+  const user = useAuthStore((s) => s.user)
+  const setForm = useBookingForm((s) => s.set)
+  const passengers = useSavedPassengers().data ?? []
+  const [selectedPax, setSelectedPax] = useState<string[]>([])
+  const [email, setEmail] = useState(user?.email ?? '')
+  const [phone, setPhone] = useState(user?.phone ?? '')
+  useEffect(() => {
+    if (selectedPax.length === 0 && passengers.length > 0) {
+      setSelectedPax([(passengers.find((p) => p.primary) ?? passengers[0]).id])
+    }
+  }, [passengers, selectedPax.length])
   const togglePax = (id: string) => setSelectedPax((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
   const count = Math.max(1, selectedPax.length)
+  const onContinue = () => {
+    setForm({ passengers: passengers.filter((p) => selectedPax.includes(p.id)), email, phone })
+    navigate(`/booking/${f.id}/review`)
+  }
 
   return (
     <div style={{ background: T.paper, minHeight: '100%' }}>
@@ -36,7 +50,7 @@ export function BookingPassengerMobile({ flight: f }: { flight: Flight }) {
         <div style={{ marginTop: 24 }}>
           <Eyebrow>Hành khách đã lưu</Eyebrow>
           <div style={{ marginTop: 12, background: T.paper, border: `1px solid ${T.line}`, borderRadius: 6, overflow: 'hidden' }}>
-            {SAVED_PASSENGERS.map((p, i) => {
+            {passengers.map((p, i) => {
               const selected = selectedPax.includes(p.id)
               return (
                 <button key={p.id} onClick={() => togglePax(p.id)} style={{ width: '100%', padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14, borderTop: i > 0 ? `1px solid ${T.line}` : 'none', background: selected ? T.paper2 : T.paper, border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}>
@@ -82,7 +96,7 @@ export function BookingPassengerMobile({ flight: f }: { flight: Flight }) {
           <div style={{ fontFamily: T.sans, fontSize: 10, color: T.ink3, letterSpacing: 1, textTransform: 'uppercase', fontWeight: 500 }}>Tổng tạm tính</div>
           <div style={{ marginTop: 2 }}><Price value={f.price * count} size={20} /></div>
         </div>
-        <button onClick={() => navigate(`/booking/${f.id}/review`)} style={{ padding: '15px 22px', background: T.ink, color: T.paper, border: 'none', borderRadius: 4, fontFamily: T.serif, fontSize: 14, fontWeight: 500, letterSpacing: '-0.2px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        <button onClick={onContinue} disabled={selectedPax.length === 0} style={{ padding: '15px 22px', background: T.ink, color: T.paper, border: 'none', borderRadius: 4, fontFamily: T.serif, fontSize: 14, fontWeight: 500, letterSpacing: '-0.2px', cursor: selectedPax.length === 0 ? 'default' : 'pointer', opacity: selectedPax.length === 0 ? 0.5 : 1, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           Tiếp tục <Ic.arrow size={14} stroke={T.paper} />
         </button>
       </div>

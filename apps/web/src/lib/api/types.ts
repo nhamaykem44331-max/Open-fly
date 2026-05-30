@@ -278,3 +278,33 @@ export interface ApiNotificationListResponse {
   unreadCount: number
   pagination: { page: number; limit: number; total: number }
 }
+
+// ─── Booking hold / payment ─────────────────────────────────
+export interface ApiHoldResponse {
+  id: string // bookingId
+  orderCode: string
+  pnr: string | null
+  status: string
+  paymentDeadline: string | null
+  totalSellPrice: number // full VND
+}
+
+export interface ApiSepayIntent {
+  intent: {
+    id: string
+    providerOrderCode: string
+    amount: number // full VND
+    accountNumber: string | null
+    bin: string | null
+    expiresAt: string | null
+  }
+  qrUrl: string
+  expiresAt: string
+}
+
+export interface ApiPaymentStatus {
+  bookingId: string
+  bookingStatus: string | null
+  orderCode: string | null
+  intent: { id: string; status: string; amount: number; expiresAt: string | null; providerOrderCode: string } | null
+}

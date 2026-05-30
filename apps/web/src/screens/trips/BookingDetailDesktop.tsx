@@ -43,7 +43,7 @@ export function BookingDetailDesktop({ booking: b }: { booking: Booking }) {
               <div style={{ fontFamily: T.serif, fontSize: 16, fontWeight: 500, color: T.ink }}>Đang giữ chỗ — còn 2g 14p để hoàn tất</div>
               <div style={{ fontFamily: T.serif, fontSize: 13.5, color: T.ink2, fontStyle: 'italic', marginTop: 2 }}>Thanh toán trước {(b.holdExpiresAt || '').replace('giữ đến ', '')} để giữ giá này.</div>
             </div>
-            <Btn onClick={() => navigate('/payment', { state: { flightId: b.flightId, total: b.total } })} variant="rust">Thanh toán ngay</Btn>
+            <Btn onClick={() => navigate(`/payment/${b.id}`)} variant="rust">Thanh toán ngay</Btn>
           </div>
         )}
 
