@@ -1,0 +1,15 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- App icon: ink background, rounded -->
+  <rect width="240" height="240" rx="52" fill="#1A1A19"/>
+
+  <!-- Symbol: sunrise (rust) centered -->
+  <g transform="translate(60, 78) scale(2)" stroke="#C15F3C" stroke-width="3" stroke-linecap="round" fill="none">
+    <line x1="6" y1="44" x2="54" y2="44"/>
+    <path d="M 12 44 A 18 18 0 0 1 48 44" fill="none"/>
+    <line x1="30" y1="14" x2="30" y2="22"/>
+    <line x1="20" y1="18" x2="22.5" y2="25"/>
+    <line x1="40" y1="18" x2="37.5" y2="25"/>
+    <line x1="9" y1="29" x2="14" y2="32"/>
+    <line x1="51" y1="29" x2="46" y2="32"/>
+  </g>
+</svg>
