@@ -238,3 +238,23 @@ export interface ApiBookingDetail {
   passengers: ApiBookingPassenger[]
   payments: ApiBookingPayment[]
 }
+
+// ─── Profile ────────────────────────────────────────────────
+export interface ApiSavedPassenger {
+  id: string
+  fullName: string
+  gender: string | null
+  dob: string | null
+  isChild: boolean
+  cccd: string | null
+  passport: string | null
+  nationality: string | null
+  isPrimary: boolean
+}
+
+export interface ApiNotifPrefs {
+  pushEnabled: boolean
+  telegramEnabled: boolean
+  emailEnabled: boolean
+  zaloEnabled: boolean
+}

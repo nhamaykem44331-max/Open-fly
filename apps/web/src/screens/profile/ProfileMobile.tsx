@@ -1,12 +1,15 @@
 // OpenFly — Profile (mobile), ported from screens-profile.jsx. Adapt: payment → SePay,
-// + a manual dark-mode toggle (M1 decision: system + manual).
-import { useState } from 'react'
+// + a manual dark-mode toggle (M1 decision: system + manual). Identity/stats/passengers/
+// notification toggles are wired to the API (useProfile + useBookings + useHunts).
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { T } from '../../theme/tokens'
+import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Sunmark, Ic } from '../../components/ui'
 import { useThemeStore } from '../../theme/theme'
 import { useAuthStore } from '../../stores/auth'
+import { useBookings } from '../../data/useBookings'
+import { useHunts } from '../../data/useHunts'
+import { useSavedPassengers, useNotifPrefs, useUpdateNotifPrefs, tierLabel, DEFAULT_PREFS } from '../../data/useProfile'
 
 function StatColumn({ value, label, left }: { value: string; label: string; left?: boolean }) {
   return (
@@ -42,13 +45,12 @@ function Switch({ on, onClick }: { on: boolean; onClick: () => void }) {
   )
 }
 
-function ToggleRow({ icon, label, defaultOn, last }: { icon: ReactNode; label: string; defaultOn: boolean; last?: boolean }) {
-  const [on, setOn] = useState(defaultOn)
+function ToggleRow({ icon, label, on, onToggle, last }: { icon: ReactNode; label: string; on: boolean; onToggle: () => void; last?: boolean }) {
   return (
     <div style={{ width: '100%', padding: '14px 18px', borderBottom: last ? 'none' : `1px solid ${T.line}`, display: 'flex', alignItems: 'center', gap: 14 }}>
       <div style={{ width: 30, height: 30, borderRadius: 4, background: T.paper2, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon}</div>
       <div style={{ flex: 1 }}><div style={{ fontFamily: T.serif, fontSize: 14, fontWeight: 500, color: T.ink, letterSpacing: '-0.2px' }}>{label}</div></div>
-      <Switch on={on} onClick={() => setOn(!on)} />
+      <Switch on={on} onClick={onToggle} />
     </div>
   )
 }
@@ -57,25 +59,36 @@ export function ProfileMobile() {
   const navigate = useNavigate()
   const resolved = useThemeStore((s) => s.resolved)
   const toggleTheme = useThemeStore((s) => s.toggle)
+  const user = useAuthStore((s) => s.user)
+  const passengers = useSavedPassengers().data ?? []
+  const prefs = useNotifPrefs().data ?? DEFAULT_PREFS
+  const updatePrefs = useUpdateNotifPrefs()
+  const bookings = useBookings().data ?? []
+  const hunts = useHunts().data ?? []
+
+  const name = user?.fullName || 'Khách'
+  const email = user?.email || user?.googleEmail || ''
+  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '·'
+  const savingsK = hunts.filter((h) => h.status === 'found').reduce((s, h) => s + (h.target - h.best), 0)
 
   return (
     <div style={{ background: T.paper, minHeight: '100%' }}>
       <div style={{ padding: '14px 20px 0' }}><Eyebrow>Tài khoản</Eyebrow></div>
       <div style={{ padding: '20px 20px 0', textAlign: 'center' }}>
-        <div style={{ width: 76, height: 76, borderRadius: '50%', background: T.inkBlock, margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.serif, fontSize: 28, color: T.rustSoft, fontStyle: 'italic', fontWeight: 500 }}>AN</div>
-        <h2 style={{ fontFamily: T.serif, fontSize: 22, fontWeight: 500, color: T.ink, letterSpacing: '-0.6px', margin: '0 0 4px' }}>Đào Andy</h2>
-        <p style={{ fontFamily: T.serif, fontSize: 13, color: T.ink3, fontStyle: 'italic', margin: 0 }}>andy.dao@gmail.com</p>
+        <div style={{ width: 76, height: 76, borderRadius: '50%', background: T.inkBlock, margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.serif, fontSize: 28, color: T.rustSoft, fontStyle: 'italic', fontWeight: 500 }}>{initials}</div>
+        <h2 style={{ fontFamily: T.serif, fontSize: 22, fontWeight: 500, color: T.ink, letterSpacing: '-0.6px', margin: '0 0 4px' }}>{name}</h2>
+        <p style={{ fontFamily: T.serif, fontSize: 13, color: T.ink3, fontStyle: 'italic', margin: 0 }}>{email}</p>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 100, background: T.inkBlock, color: T.onInk, marginTop: 14 }}>
           <Sunmark size={14} color={T.rustLt} />
-          <span style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase', color: T.rustSoft }}>Premium · 4.250 dặm</span>
+          <span style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase', color: T.rustSoft }}>{tierLabel(user?.tier)} · {(user?.milesBalance ?? 0).toLocaleString('vi-VN')} dặm</span>
         </div>
       </div>
 
       <div style={{ padding: '24px 20px 0' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', background: T.paper, border: `1px solid ${T.line}`, borderRadius: 6 }}>
-          <StatColumn value="12" label="Chuyến bay" />
-          <StatColumn value="4" label="Săn vé" left />
-          <StatColumn value="320.000đ" label="Tiết kiệm" left />
+          <StatColumn value={String(bookings.length)} label="Chuyến bay" />
+          <StatColumn value={String(hunts.length)} label="Săn vé" left />
+          <StatColumn value={`${fmtVnd(savingsK)}đ`} label="Tiết kiệm" left />
         </div>
       </div>
 
@@ -83,7 +96,7 @@ export function ProfileMobile() {
         <Eyebrow>Cá nhân</Eyebrow>
         <Card>
           <SettingsRow icon={<Ic.user size={16} stroke={T.ink2} />} label="Thông tin cá nhân" sub="Họ tên, ngày sinh, giấy tờ" />
-          <SettingsRow icon={<Ic.bag size={16} stroke={T.ink2} />} label="Hành khách đã lưu" sub="3 người · để đặt vé nhanh hơn" />
+          <SettingsRow icon={<Ic.bag size={16} stroke={T.ink2} />} label="Hành khách đã lưu" sub={`${passengers.length} người · để đặt vé nhanh hơn`} />
           <SettingsRow icon={<Ic.spark size={16} stroke={T.ink2} />} label="Sở thích bay" sub="Khung giờ, hãng, ghế ưu tiên" last />
         </Card>
       </div>
@@ -92,17 +105,17 @@ export function ProfileMobile() {
         <Eyebrow>Thanh toán & ưu đãi</Eyebrow>
         <Card>
           <SettingsRow icon={<Ic.ticket size={16} stroke={T.ink2} />} label="Phương thức thanh toán" sub="SePay · chuyển khoản ngân hàng (VCB)" />
-          <SettingsRow icon={<Ic.spark size={16} stroke={T.ink2} />} label="Mã ưu đãi của tôi" sub="3 mã khả dụng" onTap={() => navigate('/deals')} last />
+          <SettingsRow icon={<Ic.spark size={16} stroke={T.ink2} />} label="Mã ưu đãi của tôi" sub="Xem ưu đãi của bạn" onTap={() => navigate('/deals')} last />
         </Card>
       </div>
 
       <div style={{ padding: '20px 20px 0' }}>
         <Eyebrow>Thông báo</Eyebrow>
         <Card>
-          <ToggleRow icon={<Ic.bell size={16} stroke={T.ink2} />} label="Push trong app" defaultOn />
-          <ToggleRow icon={<Ic.send size={16} stroke={T.ink2} />} label="Email" defaultOn />
-          <ToggleRow icon={<Ic.chat size={16} stroke={T.ink2} />} label="Zalo OA" defaultOn />
-          <ToggleRow icon={<Ic.plane size={16} stroke={T.ink2} />} label="Telegram bot" defaultOn={false} last />
+          <ToggleRow icon={<Ic.bell size={16} stroke={T.ink2} />} label="Push trong app" on={prefs.pushEnabled} onToggle={() => updatePrefs.mutate({ pushEnabled: !prefs.pushEnabled })} />
+          <ToggleRow icon={<Ic.send size={16} stroke={T.ink2} />} label="Email" on={prefs.emailEnabled} onToggle={() => updatePrefs.mutate({ emailEnabled: !prefs.emailEnabled })} />
+          <ToggleRow icon={<Ic.chat size={16} stroke={T.ink2} />} label="Zalo OA" on={prefs.zaloEnabled} onToggle={() => updatePrefs.mutate({ zaloEnabled: !prefs.zaloEnabled })} />
+          <ToggleRow icon={<Ic.plane size={16} stroke={T.ink2} />} label="Telegram bot" on={prefs.telegramEnabled} onToggle={() => updatePrefs.mutate({ telegramEnabled: !prefs.telegramEnabled })} last />
         </Card>
       </div>
 

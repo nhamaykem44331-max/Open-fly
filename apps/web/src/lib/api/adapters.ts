@@ -12,6 +12,7 @@ import type {
   ApiHuntDetail,
   ApiHuntFlexibility,
   ApiHuntStatus,
+  ApiSavedPassenger,
 } from './types'
 
 export const vndToK = (vnd: number): number => vnd / 1000
@@ -269,5 +270,19 @@ export function adaptBookingDetail(b: ApiBookingDetail): Booking {
     status: mapBookingStatus(b.status, b.departTime),
     checkinOpensAt: 'trước chuyến bay 24 giờ',
     holdExpiresAt: b.paymentDeadline ? `giữ đến ${vnHhmm(b.paymentDeadline)}` : undefined,
+  }
+}
+
+// ─── Profile ────────────────────────────────────────────────
+export function adaptSavedPassenger(p: ApiSavedPassenger): SavedPassenger {
+  return {
+    id: p.id,
+    name: p.fullName,
+    gender: p.gender ?? '',
+    dob: p.dob ? ddmmyyyy(p.dob) : '—',
+    cccd: p.cccd ?? '—',
+    primary: p.isPrimary,
+    initials: paxInitials(p.fullName),
+    child: p.isChild,
   }
 }
