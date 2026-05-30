@@ -8,7 +8,7 @@ import type { Flight } from '../../data/mock'
 import { useBookingForm } from '../../stores/bookingForm'
 import { useHoldBooking } from '../../data/useHoldBooking'
 import { apiEnabled } from '../../lib/api/client'
-import { StepHeader, MiniFlightCard, SummaryRow } from './parts'
+import { StepHeader, MiniFlightCard, SummaryRow, HoldError } from './parts'
 
 export function BookingReviewMobile({ flight: f }: { flight: Flight }) {
   const navigate = useNavigate()
@@ -27,6 +27,8 @@ export function BookingReviewMobile({ flight: f }: { flight: Flight }) {
       { onSuccess: (b) => navigate(`/payment/${b.id}`) },
     )
   }
+
+  if (hold.isError) return <HoldError error={hold.error} flight={f} onRetry={() => hold.reset()} />
 
   return (
     <div style={{ background: T.paper, minHeight: '100%' }}>
@@ -80,11 +82,6 @@ export function BookingReviewMobile({ flight: f }: { flight: Flight }) {
           </p>
         </div>
 
-        {hold.isError && (
-          <div style={{ marginTop: 12, fontFamily: T.serif, fontSize: 12.5, color: T.red, fontStyle: 'italic', textAlign: 'center' }}>
-            Không giữ chỗ được — {hold.error?.message}
-          </div>
-        )}
       </div>
 
       <div style={{ borderTop: `1px solid ${T.line}`, padding: '14px 20px 20px', marginTop: 24 }}>

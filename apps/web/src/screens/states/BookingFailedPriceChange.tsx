@@ -1,13 +1,11 @@
 // OpenFly — Booking-failed (price changed at hold time) state. Ported from the Lần 6 spec
-// (screens-states-error.jsx). Old/new prices are demo values inline; the real before/after
-// prices get wired into the hold flow in Bước 5.
-import { T } from '../../theme/tokens'
-import { Eyebrow, Ic, Price } from '../../components/ui'
+// and adapted: the hold 409 ("Giá vé đã thay đổi") does NOT return the new price, so rather
+// than inventing one we show the price the user last saw and send them back to re-fetch the
+// current price. Wired via HoldError; `oldPrice` is in "k" units (full VND = ×1000).
+import { T, fmtVnd, CURRENCY } from '../../theme/tokens'
+import { Eyebrow, Ic } from '../../components/ui'
 
-export function BookingFailedPriceChange({ onContinue, onCancel }: { onContinue?: () => void; onCancel?: () => void }) {
-  const oldP = 890
-  const newP = 1090
-  const diff = newP - oldP
+export function BookingFailedPriceChange({ oldPrice = 890, onContinue, onCancel }: { oldPrice?: number; onContinue?: () => void; onCancel?: () => void }) {
   return (
     <div style={{ background: T.paper, minHeight: '100%', display: 'flex', flexDirection: 'column', padding: '60px 32px 40px' }}>
       <div style={{ textAlign: 'center', flex: 1 }}>
@@ -19,29 +17,16 @@ export function BookingFailedPriceChange({ onContinue, onCancel }: { onContinue?
           Giá vé vừa <em style={{ color: T.rust, fontWeight: 500 }}>thay đổi</em>.
         </h1>
         <p style={{ fontFamily: T.serif, fontSize: 13, color: T.ink3, fontStyle: 'italic', lineHeight: 1.55, margin: '0 0 28px', maxWidth: 300, marginInline: 'auto' }}>
-          Vé bạn chọn vẫn còn ghế, nhưng giá đã tăng. Sol để bạn quyết định:
+          Vé bạn chọn vẫn còn ghế, nhưng giá vừa đổi so với lúc bạn xem. Mở lại để thấy giá mới nhất rồi quyết định nhé.
         </p>
-        <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 6, padding: '16px 20px', maxWidth: 320, marginInline: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', paddingBottom: 12, borderBottom: `1px solid ${T.line}` }}>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontFamily: T.sans, fontSize: 9.5, color: T.ink3, letterSpacing: 1.2, textTransform: 'uppercase', fontWeight: 600 }}>Giá cũ</div>
-              <div style={{ fontFamily: T.serif, fontSize: 22, fontWeight: 500, color: T.ink4, letterSpacing: '-0.5px', marginTop: 4, textDecoration: 'line-through' }}>{oldP}k</div>
-            </div>
-            <Ic.arrow size={14} stroke={T.ink3} />
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontFamily: T.sans, fontSize: 9.5, color: T.ink3, letterSpacing: 1.2, textTransform: 'uppercase', fontWeight: 600 }}>Giá mới</div>
-              <div style={{ marginTop: 4 }}><Price value={newP} size={22} /></div>
-            </div>
-          </div>
-          <div style={{ marginTop: 10, fontFamily: T.serif, fontSize: 13, color: T.amber, fontStyle: 'italic', textAlign: 'center' }}>
-            ↑ tăng <em style={{ fontStyle: 'normal', fontWeight: 500 }}>{diff}k ({Math.round((diff / oldP) * 100)}%)</em> so với giá ban đầu
-          </div>
+        <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 6, padding: '16px 20px', maxWidth: 320, marginInline: 'auto', textAlign: 'left' }}>
+          <div style={{ fontFamily: T.sans, fontSize: 9.5, color: T.ink3, letterSpacing: 1.2, textTransform: 'uppercase', fontWeight: 600 }}>Giá lúc bạn xem</div>
+          <div style={{ fontFamily: T.serif, fontSize: 22, fontWeight: 500, color: T.ink4, letterSpacing: '-0.5px', marginTop: 4, textDecoration: 'line-through' }}>{fmtVnd(oldPrice)}{CURRENCY}</div>
+          <div style={{ marginTop: 10, fontFamily: T.serif, fontSize: 12.5, color: T.amber, fontStyle: 'italic' }}>Giá mới sẽ hiện khi bạn mở lại vé.</div>
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 28 }}>
-        <button onClick={onContinue} style={{ padding: '16px', background: T.ink, color: T.paper, border: 'none', borderRadius: 4, fontFamily: T.serif, fontSize: 15, fontWeight: 500, letterSpacing: '-0.2px', cursor: 'pointer' }}>
-          Tiếp tục với giá mới · 1.090k
-        </button>
+        <button onClick={onContinue} style={{ padding: '16px', background: T.ink, color: T.paper, border: 'none', borderRadius: 4, fontFamily: T.serif, fontSize: 15, fontWeight: 500, letterSpacing: '-0.2px', cursor: 'pointer' }}>Xem giá mới</button>
         <button onClick={onCancel} style={{ padding: '14px', background: 'transparent', border: `1px solid ${T.line2}`, borderRadius: 4, fontFamily: T.serif, fontSize: 14, fontWeight: 500, color: T.ink2, letterSpacing: '-0.2px', cursor: 'pointer' }}>Hủy, xem chuyến khác</button>
       </div>
     </div>

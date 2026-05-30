@@ -4,6 +4,36 @@ import { T } from '../../theme/tokens'
 import { Eyebrow, AirlineBadge, Ic } from '../../components/ui'
 import { AIRLINES } from '../../data/mock'
 import type { Flight } from '../../data/mock'
+import { BookingFailedSoldOut } from '../states/BookingFailedSoldOut'
+import { BookingFailedPriceChange } from '../states/BookingFailedPriceChange'
+import { GenericError } from '../states/GenericError'
+
+// A failed POST /bookings/hold → the right recovery screen. The backend maps Muadi failures to
+// 409 "Hết chỗ" (sold out) and 409 "Giá vé đã thay đổi" (price change); everything else falls
+// back to the generic error (onRetry clears the mutation so the user can re-confirm).
+export function HoldError({ error, flight, onRetry }: { error: unknown; flight: Flight; onRetry: () => void }) {
+  const navigate = useNavigate()
+  const msg = error instanceof Error ? error.message : ''
+  if (/hết chỗ|sold|seat|không còn chỗ/i.test(msg)) {
+    return (
+      <BookingFailedSoldOut
+        flightLabel={`${flight.airline}${flight.number} · ${flight.depart}`}
+        onPickAlternative={() => navigate('/results')}
+        onBack={() => navigate(-1)}
+      />
+    )
+  }
+  if (/giá|price|fare|thay đổi/i.test(msg)) {
+    return (
+      <BookingFailedPriceChange
+        oldPrice={flight.price}
+        onContinue={() => navigate(`/detail/${flight.id}`)}
+        onCancel={() => navigate('/results')}
+      />
+    )
+  }
+  return <GenericError onRetry={onRetry} onContactSol={() => navigate('/sol')} />
+}
 
 export function StepHeader({ label, step, total = 4 }: { label: string; step: number; total?: number }) {
   const navigate = useNavigate()

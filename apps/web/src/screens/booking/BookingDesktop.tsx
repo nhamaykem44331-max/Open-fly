@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Price, AirlineBadge, Btn, SectionLabel, Ic } from '../../components/ui'
 import { Container } from '../../shell/Container'
-import { SummaryRow } from './parts'
+import { SummaryRow, HoldError } from './parts'
 import { AIRLINES } from '../../data/mock'
 import type { Flight } from '../../data/mock'
 import { useSavedPassengers } from '../../data/useProfile'
@@ -55,6 +55,8 @@ export function BookingDesktop({ flight: f }: { flight: Flight }) {
     }
     hold.mutate({ flight: f, passengers: [p], email, phone }, { onSuccess: (b) => navigate(`/payment/${b.id}`) })
   }
+
+  if (hold.isError) return <HoldError error={hold.error} flight={f} onRetry={() => hold.reset()} />
 
   return (
     <div style={{ background: T.canvas, minHeight: '100%', paddingBottom: 80 }}>
@@ -115,7 +117,6 @@ export function BookingDesktop({ flight: f }: { flight: Flight }) {
               <Price value={total} size={30} />
             </div>
             <Btn onClick={onPay} full size="lg" icon={<Ic.arrow size={16} stroke={T.paper} />}>{hold.isPending ? 'Đang giữ chỗ…' : 'Tiếp tục thanh toán'}</Btn>
-            {hold.isError && <div style={{ marginTop: 12, fontFamily: T.serif, fontSize: 12.5, color: T.red, fontStyle: 'italic', textAlign: 'center' }}>Không giữ chỗ được — {hold.error?.message}</div>}
           </div>
         </div>
       </Container>
