@@ -10,7 +10,7 @@ export interface Airport { code: string; city: string; name: string }
 export interface Destination { code: string; city: string; reason: string; priceFrom: number; hue: string }
 export interface Voucher { code: string; title: string; expires: string }
 
-export type HuntStatus = 'found' | 'hunting'
+export type HuntStatus = 'found' | 'hunting' | 'paused'
 
 /** Lightweight hunt as shown on the mobile Home strip (data.js ACTIVE_HUNTS). */
 export interface ActiveHunt {

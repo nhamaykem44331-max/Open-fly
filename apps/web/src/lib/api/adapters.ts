@@ -1,8 +1,8 @@
 // OpenFly — map backend API shapes onto the web's view models.
 // CRITICAL: API prices are FULL VND (Q-45); the web's Price/fmtVnd components expect
 // "k" units (value × 1000), so divide by 1000 here at the boundary — never downstream.
-import type { Flight } from '../../data/mock'
-import type { ApiFlightOffer } from './types'
+import type { Flight, Hunt, HuntStatus } from '../../data/mock'
+import type { ApiFlightOffer, ApiHunt, ApiHuntDetail, ApiHuntFlexibility, ApiHuntStatus } from './types'
 
 export const vndToK = (vnd: number): number => vnd / 1000
 
@@ -46,4 +46,87 @@ export function adaptOffer(offer: ApiFlightOffer, date: string): Flight {
     refundable: refundLabel(fare?.refundable),
     insight: null,
   }
+}
+
+// ─── Fare Hunter ────────────────────────────────────────────
+// VN-local date parts (handles the +07:00 offset regardless of runtime tz).
+function vnParts(iso: string): { day: number; month: number; year: number } {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return { day: 0, month: 0, year: 0 }
+  const vn = new Date(d.getTime() + 7 * 3600 * 1000)
+  return { day: vn.getUTCDate(), month: vn.getUTCMonth() + 1, year: vn.getUTCFullYear() }
+}
+
+const shortDate = (iso: string): string => {
+  const p = vnParts(iso)
+  return `${p.day} thg ${p.month}`
+}
+
+const daysAgo = (iso: string): number => {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return 0
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86_400_000))
+}
+
+// windowStart/windowEnd + flexibility → the view-model's window labels.
+function formatWindow(flex: ApiHuntFlexibility, startIso: string, endIso: string): { window: string; windowShort: string } {
+  const s = vnParts(startIso)
+  const e = vnParts(endIso)
+  if (flex === 'EXACT_DATE') return { window: `${s.day} thg ${s.month}, ${s.year}`, windowShort: `${s.day} thg ${s.month}` }
+  if (flex === 'WHOLE_MONTH') return { window: `Cả tháng ${s.month}, ${s.year}`, windowShort: `Tháng ${s.month}` }
+  if (flex === 'ANY_DAY') return { window: 'Bất cứ ngày nào', windowShort: 'Linh hoạt' }
+  // DATE_RANGE / WEEK_OF_MONTH
+  if (s.month === e.month) return { window: `${s.day} — ${e.day} thg ${s.month}, ${s.year}`, windowShort: `${s.day}—${e.day} thg ${s.month}` }
+  return { window: `${s.day} thg ${s.month} — ${e.day} thg ${e.month}, ${e.year}`, windowShort: `${s.day} thg ${s.month}—${e.day} thg ${e.month}` }
+}
+
+const mapHuntStatus = (s: ApiHuntStatus): HuntStatus => (s === 'FOUND' ? 'found' : s === 'HUNTING' ? 'hunting' : 'paused')
+
+// Rule-based trend note from real price points (NOT AI — Sol is off-AI in Phase 1, Q-59).
+function trendNote(trend: number[]): { dir: 'up' | 'down' | 'flat'; text: string } {
+  if (trend.length < 2) return { dir: 'flat', text: 'Chưa đủ dữ liệu để nhận định xu hướng — Sol đang tiếp tục theo dõi.' }
+  const recent = trend.slice(-6)
+  const first = recent[0]
+  const lastV = recent[recent.length - 1]
+  const pct = Math.round(((lastV - first) / first) * 100)
+  if (lastV <= first * 0.97) return { dir: 'down', text: `Giá đang giảm gần đây — khoảng ${Math.abs(pct)}% qua các lần quét gần nhất.` }
+  if (lastV >= first * 1.03) return { dir: 'up', text: `Giá đang nhích lên gần đây — khoảng ${pct}% qua các lần quét gần nhất.` }
+  return { dir: 'flat', text: 'Giá đang khá ổn định qua các lần quét gần đây.' }
+}
+
+// One API hunt (list shape, no runs) → view-model Hunt.
+export function adaptHunt(h: ApiHunt): Hunt {
+  const trend30 = (h.recentPrices ?? []).map(vndToK)
+  const { window, windowShort } = formatWindow(h.flexibility, h.windowStart, h.windowEnd)
+  return {
+    id: h.id,
+    from: h.fromCode,
+    to: h.toCode,
+    window,
+    windowShort,
+    target: vndToK(h.targetPrice),
+    best: vndToK(h.bestPriceFound ?? h.targetPrice),
+    bestDate: h.bestPriceDate ? shortDate(h.bestPriceDate) : '',
+    pax: h.pax,
+    cabin: h.cabin,
+    airlines: h.airlines,
+    channels: h.channels,
+    frequency: Math.max(1, Math.round(h.intervalMinutes / 60)),
+    status: mapHuntStatus(h.status),
+    createdDaysAgo: daysAgo(h.createdAt),
+    scans: h.scansCount,
+    notifSent: h.notifsSentCount,
+    trend30,
+    aiTrend: trendNote(trend30),
+  }
+}
+
+// Detail shape (with runs) → view-model Hunt. trend30 comes from the runs' cheapest prices.
+export function adaptHuntDetail(h: ApiHuntDetail): Hunt {
+  const prices = h.runs
+    .filter((r) => r.cheapestPrice != null)
+    .map((r) => vndToK(r.cheapestPrice as number))
+    .reverse() // runs are startedAt desc → chronological
+  const trend30 = prices.length > 0 ? prices : [vndToK(h.bestPriceFound ?? h.targetPrice)]
+  return { ...adaptHunt(h), trend30, aiTrend: trendNote(trend30) }
 }

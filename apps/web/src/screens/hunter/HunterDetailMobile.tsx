@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Price, Ic, ChannelIcon, PriceHistoryChart } from '../../components/ui'
+import { huntStatusMeta } from './huntStatus'
 import { AIRPORTS, NOTIF_LOG } from '../../data/mock'
 import type { Hunt } from '../../data/mock'
 
@@ -48,6 +49,7 @@ export function HunterDetailMobile({ hunt }: { hunt: Hunt }) {
   const a1 = AIRPORTS[hunt.from]
   const a2 = AIRPORTS[hunt.to]
   const found = hunt.status === 'found'
+  const meta = huntStatusMeta(hunt.status)
   const savings = hunt.target - hunt.best
   const savingsPct = Math.round((savings / hunt.target) * 100)
   const last = hunt.trend30[hunt.trend30.length - 1]
@@ -64,8 +66,8 @@ export function HunterDetailMobile({ hunt }: { hunt: Hunt }) {
       {/* Hero */}
       <div style={{ padding: '4px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: found ? T.green : T.amber, boxShadow: found ? 'none' : `0 0 0 4px ${T.amber}22`, animation: found ? 'none' : 'pulse 2s ease-in-out infinite' }} />
-          <div style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 600, letterSpacing: 1.6, textTransform: 'uppercase', color: found ? T.green : T.ink3 }}>{found ? 'Đã tìm thấy giá tốt' : 'Đang săn'}</div>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: meta.dot, boxShadow: meta.pulse ? `0 0 0 4px ${meta.dot}22` : 'none', animation: meta.pulse ? 'pulse 2s ease-in-out infinite' : 'none' }} />
+          <div style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 600, letterSpacing: 1.6, textTransform: 'uppercase', color: meta.text }}>{meta.label}</div>
         </div>
         <h1 style={{ fontFamily: T.serif, fontSize: 32, fontWeight: 400, letterSpacing: '-1.2px', lineHeight: 1, color: T.ink, margin: '6px 0 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontWeight: 500 }}>{hunt.from}</span>
@@ -107,7 +109,7 @@ export function HunterDetailMobile({ hunt }: { hunt: Hunt }) {
             <span style={{ fontFamily: T.serif, fontSize: 15, color: '#F5F1EA', fontStyle: 'italic', fontWeight: 600, marginTop: -1 }}>S</span>
           </div>
           <div style={{ flex: 1 }}>
-            <Eyebrow dash={false} color={T.rustSoft} style={{ marginBottom: 6 }}>Sol dự đoán xu hướng</Eyebrow>
+            <Eyebrow dash={false} color={T.rustSoft} style={{ marginBottom: 6 }}>Xu hướng giá gần đây</Eyebrow>
             <div style={{ fontFamily: T.serif, fontSize: 14, color: T.onInk, lineHeight: 1.5, fontStyle: 'italic' }}>{hunt.aiTrend.text}</div>
             {found && (
               <button onClick={() => navigate('/detail/fl-002')} style={{ marginTop: 12, padding: '8px 14px', borderRadius: 4, background: T.rust, border: 'none', color: '#F5F1EA', fontFamily: T.serif, fontSize: 13, fontWeight: 500, letterSpacing: '-0.1px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Chip, Price, Sparkline, Divider, Ic, ChannelIcon } from '../../components/ui'
+import { huntStatusMeta } from './huntStatus'
 import { AIRPORTS } from '../../data/mock'
 import type { Hunt } from '../../data/mock'
 
@@ -10,14 +11,15 @@ function HuntListCard({ hunt, onTap }: { hunt: Hunt; onTap: () => void }) {
   const a1 = AIRPORTS[hunt.from]
   const a2 = AIRPORTS[hunt.to]
   const found = hunt.status === 'found'
+  const meta = huntStatusMeta(hunt.status)
   const savings = hunt.target - hunt.best
   const savingsPct = Math.round((savings / hunt.target) * 100)
   const trendCol = found ? T.green : T.rust
   return (
     <div onClick={onTap} style={{ background: T.paper, border: `1px solid ${found ? T.ink : T.line}`, borderRadius: 6, padding: '18px 18px 16px', cursor: 'pointer', transition: 'all 0.15s' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-        <div style={{ width: 7, height: 7, borderRadius: '50%', background: found ? T.green : T.amber, boxShadow: found ? 'none' : `0 0 0 4px ${T.amber}22`, animation: found ? 'none' : 'pulse 2s ease-in-out infinite' }} />
-        <div style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 600, letterSpacing: 1.6, textTransform: 'uppercase', color: found ? T.green : T.ink3, flex: 1 }}>{found ? 'Đã tìm thấy giá tốt' : 'Đang săn'}</div>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', background: meta.dot, boxShadow: meta.pulse ? `0 0 0 4px ${meta.dot}22` : 'none', animation: meta.pulse ? 'pulse 2s ease-in-out infinite' : 'none' }} />
+        <div style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 600, letterSpacing: 1.6, textTransform: 'uppercase', color: meta.text, flex: 1 }}>{meta.label}</div>
         <div style={{ fontFamily: T.sans, fontSize: 10, color: T.ink3, letterSpacing: 0.3 }}>Quét mỗi {hunt.frequency}g</div>
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
@@ -34,7 +36,7 @@ function HuntListCard({ hunt, onTap }: { hunt: Hunt; onTap: () => void }) {
             <span style={{ fontFamily: T.sans, fontSize: 11, color: T.ink3 }}>mục tiêu <em style={{ color: T.ink2, fontStyle: 'normal', fontWeight: 500 }}>{fmtVnd(hunt.target)}đ</em></span>
           </div>
         </div>
-        <Sparkline data={hunt.trend30.slice(-12)} w={84} h={28} color={trendCol} />
+        {hunt.trend30.length > 0 && <Sparkline data={hunt.trend30.slice(-12)} w={84} h={28} color={trendCol} />}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${T.line2}` }}>
         {found ? (

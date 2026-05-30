@@ -85,3 +85,66 @@ export interface ApiSearchResponse {
   cached: boolean
   fetchedAt: string
 }
+
+// ─── Fare Hunter ────────────────────────────────────────────
+export type ApiHuntStatus = 'HUNTING' | 'FOUND' | 'PAUSED' | 'EXPIRED' | 'CANCELLED'
+export type ApiHuntFlexibility =
+  | 'EXACT_DATE'
+  | 'DATE_RANGE'
+  | 'WEEK_OF_MONTH'
+  | 'WHOLE_MONTH'
+  | 'ANY_DAY'
+
+export interface ApiHunt {
+  id: string
+  userId: string
+  status: ApiHuntStatus
+  fromCode: string
+  toCode: string
+  flexibility: ApiHuntFlexibility
+  windowStart: string
+  windowEnd: string
+  targetPrice: number // full VND (Q-45)
+  bestPriceFound: number | null
+  bestPriceDate: string | null
+  pax: number
+  cabin: string
+  airlines: string[]
+  channels: string[]
+  intervalMinutes: number
+  nextRunAt: string | null
+  lastRunAt: string | null
+  scansCount: number
+  notifsSentCount: number
+  autoHoldEnabled: boolean
+  createdAt: string
+  updatedAt: string
+  // Backend TODO: GET /hunts should include ~12 recent cheapest prices (full VND,
+  // oldest→newest) so the list sparkline has a data source. Optional until then.
+  recentPrices?: number[]
+}
+
+export interface ApiHuntRun {
+  id: string
+  startedAt: string
+  finishedAt: string | null
+  cheapestPrice: number | null // full VND
+  cheapestDate: string | null
+  resultCount: number
+  triggeredNotif: boolean
+  error: string | null
+}
+
+export interface ApiHuntDetail extends ApiHunt {
+  runs: ApiHuntRun[] // up to 30, ordered startedAt desc
+}
+
+export interface ApiHuntCreateResponse {
+  id: string
+  status: string
+  fromCode: string
+  toCode: string
+  targetPrice: number
+  intervalMinutes: number
+  nextRunAt: string | null
+}

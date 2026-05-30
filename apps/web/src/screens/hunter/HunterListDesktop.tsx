@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T, fmtVnd } from '../../theme/tokens'
 import { Eyebrow, Chip, Btn, Price, Sparkline, Divider, Card, Ic, ChannelIcon } from '../../components/ui'
+import { huntStatusMeta } from './huntStatus'
 import { Container } from '../../shell/Container'
 import { AIRPORTS } from '../../data/mock'
 import type { Hunt } from '../../data/mock'
@@ -11,13 +12,14 @@ function HuntCardLg({ hunt, onOpen }: { hunt: Hunt; onOpen: () => void }) {
   const a1 = AIRPORTS[hunt.from]
   const a2 = AIRPORTS[hunt.to]
   const found = hunt.status === 'found'
+  const meta = huntStatusMeta(hunt.status)
   const savings = hunt.target - hunt.best
   const pct = Math.round((savings / hunt.target) * 100)
   return (
     <Card hover featured={found} onClick={onOpen} style={{ padding: 24, borderRadius: 8 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <span style={{ width: 8, height: 8, borderRadius: '50%', background: found ? T.green : T.amber, animation: found ? 'none' : 'pulse 2s ease-in-out infinite' }} />
-        <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 600, letterSpacing: 1.6, textTransform: 'uppercase', color: found ? T.green : T.ink3, flex: 1 }}>{found ? 'Đã tìm thấy giá tốt' : 'Đang săn'}</span>
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: meta.dot, animation: meta.pulse ? 'pulse 2s ease-in-out infinite' : 'none' }} />
+        <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 600, letterSpacing: 1.6, textTransform: 'uppercase', color: meta.text, flex: 1 }}>{meta.label}</span>
         <span style={{ fontFamily: T.sans, fontSize: 11, color: T.ink3 }}>quét mỗi {hunt.frequency}g</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 11 }}>
@@ -34,7 +36,7 @@ function HuntCardLg({ hunt, onOpen }: { hunt: Hunt; onOpen: () => void }) {
             <span style={{ fontFamily: T.sans, fontSize: 12, color: T.ink3 }}>mục tiêu <em style={{ color: T.ink2, fontStyle: 'normal', fontWeight: 600 }}>{fmtVnd(hunt.target)}đ</em></span>
           </div>
         </div>
-        <Sparkline data={hunt.trend30.slice(-14)} w={120} h={40} color={found ? T.green : T.rust} />
+        {hunt.trend30.length > 0 && <Sparkline data={hunt.trend30.slice(-14)} w={120} h={40} color={found ? T.green : T.rust} />}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 16, paddingTop: 14, borderTop: `1px dashed ${T.line2}` }}>
         {found
